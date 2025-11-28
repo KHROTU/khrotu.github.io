@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'KHROTU | Full Stack & AI/ML Developer',
   description: 'A Full Stack Developer and AI/ML enthusiast, turning complex problems into elegant software solutions.',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/favicon.ico',
   },
 }
 
