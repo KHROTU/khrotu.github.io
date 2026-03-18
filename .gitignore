@@ -42,4 +42,6 @@ next-env.d.ts
 
 # Auto-added by export script
 .exportignore.json
+.export.state.json
 context.txt
+

@@ -1,16 +1,14 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'KHROTU | Full Stack & AI/ML Developer',
-  description: 'A Full Stack Developer and AI/ML enthusiast, turning complex problems into elegant software solutions.',
+  title: 'KHROTU',
+  description: "i'd like to think i'm a relatively competent dev; dabbles in ai/ml now and then; singaporean",
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.svg',
   },
 }
 
@@ -26,10 +24,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.className} bg-gray-900 text-gray-200`}>
-        <Header />
-        <main className="pt-24">{children}</main>
-        <Footer />
+      <body className={`${inter.className} selection:bg-white/20`}>
+        {children}
       </body>
     </html>
   )
