@@ -16,12 +16,12 @@ export default function Home() {
       </div>
       <section className="flex flex-col gap-8">
         <div className="flex items-center gap-6">
-          <Image 
-            src="/pfp.jpg" 
-            alt="KHROTU Profile Picture" 
-            width={96} 
-            height={96} 
-            className="rounded-sm object-cover bg-neutral-800" 
+          <Image
+            src="/pfp.jpg"
+            alt="KHROTU Profile Picture"
+            width={96}
+            height={96}
+            className="rounded-sm object-cover bg-neutral-800"
             priority
           />
           <div className="flex flex-col gap-2">
@@ -33,9 +33,14 @@ export default function Home() {
             </Link>
           </div>
         </div>
-        <p className="text-lg md:text-xl text-[var(--text-muted)] leading-relaxed whitespace-nowrap">
-          i&apos;d like to think i&apos;m a relatively competent dev; dabbles in ai/ml now and then
-        </p>
+        <div className="flex flex-col gap-3">
+          <p className="text-lg md:text-xl text-[var(--text-muted)] leading-relaxed md:whitespace-nowrap">
+            i&apos;d like to think i&apos;m a relatively competent dev; dabbles in ai/ml now and then
+          </p>
+          <Link href="/serious" className="text-sm text-[var(--text-muted)] hover:text-white transition-colors w-fit">
+            boring version
+          </Link>
+        </div>
       </section>
       <section className="flex flex-col gap-12">
         <h2 className="text-3xl font-medium text-[var(--text-main)]">what I&apos;ve been up to</h2>
