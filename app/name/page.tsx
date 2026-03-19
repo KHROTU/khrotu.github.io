@@ -7,12 +7,10 @@ export default function NamePage() {
       <Link href="/" className="flex items-center gap-2 text-lg text-[var(--text-muted)] hover:text-white transition-colors w-fit">
         <ArrowLeft className="w-6 h-6" /> Back to home
       </Link>
-
       <article className="flex flex-col gap-10 max-w-4xl">
         <h1 className="text-4xl font-medium text-[var(--text-main)]">
           What&apos;s in the name?
         </h1>
-        
         <div className="flex flex-col gap-8 text-xl text-[var(--text-muted)] leading-relaxed">
           <p>
             Surprisingly, no, it&apos;s not a bunch of random letters. KHROTU stands for King Hades Ruler of the Underworld.

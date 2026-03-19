@@ -7,7 +7,6 @@ export default function CommissionsPage() {
       <Link href="/" className="flex items-center gap-2 text-lg text-[var(--text-muted)] hover:text-white transition-colors w-fit">
         <ArrowLeft className="w-6 h-6" /> Back to home
       </Link>
-
       <section className="flex flex-col gap-8">
         <h1 className="text-4xl font-medium text-[var(--text-main)] tracking-tight">
           Commissions & Consulting
@@ -16,12 +15,10 @@ export default function CommissionsPage() {
           I design and build software, ranging from high-performance web applications to specialized AI/ML workflows. I prioritize clean architecture, robust systems, and delivering tangible value over gimmicks.
         </p>
       </section>
-
       <section className="flex flex-col gap-12">
         <h2 className="text-lg font-medium text-[var(--text-muted)] uppercase tracking-wider">
           Capabilities
         </h2>
-        
         <div className="grid gap-10">
           <ServiceCard 
             title="Full-Stack Web Development"
@@ -37,7 +34,6 @@ export default function CommissionsPage() {
           />
         </div>
       </section>
-
       <section className="flex flex-col gap-8 pt-16 border-t border-white/10">
         <h2 className="text-2xl font-medium text-[var(--text-main)]">
           Let&apos;s build something
