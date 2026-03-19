@@ -13,16 +13,16 @@ export default function NamePage() {
         </h1>
         <div className="flex flex-col gap-8 text-xl text-[var(--text-muted)] leading-relaxed">
           <p>
-            Surprisingly, no, it&apos;s not a bunch of random letters. KHROTU stands for King Hades Ruler of the Underworld.
+            Surprisingly, no, it&apos;s not a bunch of random letters. KHROTU stands for King Hades, Ruler of the Underworld.
           </p>
           <p>
-            If you&apos;re wondering why, it&apos;s because I was a literal child when I came up with it. I was eight and I thought Hades was a chill guy, so I stole it from a book I was reading at the time.
+            If you&apos;re wondering why — I was a literal child when I came up with it. I was eight and thought Hades was a chill guy, so I stole the name from a book I was reading at the time.
           </p>
           <p>
-            As for the pronunciation, it&apos;s pronounced as &quot;crow-too&quot;, although I doubt you need that information to type out my name.
+            As for pronunciation, it&apos;s &quot;crow-too&quot;, although I doubt you need that information to type out my name.
           </p>
           <p>
-            The other names obviously stem from my main one. &quot;khrotu&quot; is the name I use when going full caps makes me sound dumb in the context (I would unironically have more respect for some guy called &quot;DoggyLover69&quot; than some kid with a cocky full caps random letter name), and any name with a &quot;butsomething&quot; suffix is when I create accounts on different sites or different emails (e.g. &quot;butms&quot; when I&apos;m using my Outlook email, &quot;butsnap&quot; for Snapchat, &quot;butbsky&quot; for Bluesky, etc.).
+            The other names obviously stem from my main one. &quot;khrotu&quot; is what I use when full caps would make me sound dumb in context (I would unironically have more respect for some guy called &quot;DoggyLover69&quot; than some kid with a cocky all-caps random-letter name). Any name with a &quot;butsomething&quot; suffix is for accounts on different sites or emails — e.g. &quot;butms&quot; for my Outlook email, &quot;butsnap&quot; for Snapchat, &quot;butbsky&quot; for Bluesky, etc.
           </p>
         </div>
       </article>

@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --bg-main: #202020;
+  --bg-main: #040404;
   --bg-card: #040404;
   --text-main: rgba(255, 255, 255, 0.87);
   --text-muted: rgba(255, 255, 255, 0.60);
+  --border-bezel: rgba(255, 255, 255, 0.94);
 }
 
 body {
@@ -16,6 +17,7 @@ body {
 
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -29,4 +31,13 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

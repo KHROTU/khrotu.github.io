@@ -1,10 +1,19 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
 
 export default function Home() {
   return (
-    <main className="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-24">
+    <main className="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-12 md:py-20 flex flex-col gap-24">
+      <div className="flex items-center justify-start gap-8 text-[var(--text-muted)]">
+        <a href="https://github.com/KHROTU" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-white transition-colors group">
+          <Image src="/github.svg" alt="GitHub" width={20} height={20} className="opacity-80 group-hover:opacity-100 transition-opacity" />
+          <span className="font-mono text-sm">/ khrotu</span>
+        </a>
+        <a href="https://www.linkedin.com/in/mohan-yan-43905437b/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-white transition-colors group">
+          <Image src="/linkedin.svg" alt="LinkedIn" width={20} height={20} className="opacity-80 group-hover:opacity-100 transition-opacity" />
+          <span className="font-mono text-sm">/ me</span>
+        </a>
+      </div>
       <section className="flex flex-col gap-8">
         <div className="flex items-center gap-6">
           <Image 
@@ -13,11 +22,16 @@ export default function Home() {
             width={96} 
             height={96} 
             className="rounded-sm object-cover bg-neutral-800" 
+            priority
           />
-          <Link href="/name" className="flex items-center gap-3 text-2xl md:text-4xl font-medium text-[var(--text-main)] hover:text-white transition-colors group">
-            KHROTU / khrotu / khrotubutms
-            <ArrowRight className="w-6 h-6 text-[var(--text-muted)] group-hover:text-white transition-all group-hover:translate-x-2" />
-          </Link>
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl md:text-4xl font-medium text-[var(--text-main)]">
+              KHROTU / khrotu / khrotubutms
+            </h1>
+            <Link href="/name" className="text-sm text-[var(--text-muted)] hover:text-white transition-colors w-fit">
+              what does that mean?
+            </Link>
+          </div>
         </div>
         <p className="text-lg md:text-xl text-[var(--text-muted)] leading-relaxed whitespace-nowrap">
           i&apos;d like to think i&apos;m a relatively competent dev; dabbles in ai/ml now and then
@@ -27,7 +41,7 @@ export default function Home() {
         <h2 className="text-3xl font-medium text-[var(--text-main)]">what I&apos;ve been up to</h2>
         <div className="flex flex-col gap-6">
           <h3 className="text-xl font-medium text-[var(--text-muted)]">stuff i&apos;m proud of</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar snap-x snap-mandatory">
             <Card 
               name="USACO Platinum"
               desc="pretty cool, right?"
@@ -49,7 +63,7 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-6">
           <h3 className="text-xl font-medium text-[var(--text-muted)]">i mean it&apos;s fine ig</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar snap-x snap-mandatory">
             <Card 
               name="Sat DB" 
               href="https://www.satdbfor.me"
@@ -66,7 +80,7 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-6">
           <h3 className="text-xl font-medium text-[var(--text-muted)]">must be the wind</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar snap-x snap-mandatory">
             <Card 
               name="GraphIt!" 
               href="https://www.graphit.dev"
@@ -88,27 +102,14 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-16 pt-16 border-t border-white/10">
-        <div className="flex flex-col gap-8">
-          <h2 className="text-2xl font-medium text-[var(--text-main)]">Reach out to me:</h2>
-          <div className="flex flex-col gap-5 text-lg text-[var(--text-muted)]">
-            <a href="mailto:3o65iduqd@mozmail.com" className="hover:text-white transition-colors w-fit">3o65iduqd@mozmail.com</a>
-            <a href="https://github.com/KHROTU" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors w-fit">GitHub</a>
-            <a href="https://x.com/khrotubutms/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors w-fit">Twitter / X</a>
-            <a href="https://bsky.app/profile/khrotubutbsky.bsky.social" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors w-fit">Bluesky</a>
-            <a href="https://www.linkedin.com/in/mohan-yan-43905437b/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors w-fit">LinkedIn</a>
-          </div>
-        </div>
-        <div className="flex flex-col gap-8">
-          <h2 className="text-2xl font-medium text-[var(--text-main)]">Work with me:</h2>
-          <div className="flex flex-col gap-5 text-lg text-[var(--text-muted)]">
-            <p className="leading-relaxed">
-              I am currently available for select freelance opportunities, project commissions, and consulting.
-            </p>
-            <Link href="/commissions" className="text-[var(--text-main)] hover:text-white underline underline-offset-4 transition-colors w-fit">
-              View my services & capabilities
-            </Link>
-          </div>
+      <section className="pt-16 border-t border-[var(--border-bezel)] border-opacity-20 flex flex-col gap-6">
+        <h2 className="text-2xl font-medium text-[var(--text-main)]">reach out</h2>
+        <div className="flex flex-wrap gap-x-8 gap-y-3 text-lg text-[var(--text-muted)]">
+          <a href="mailto:3o65iduqd@mozmail.com" className="hover:text-white transition-colors">email</a>
+          <a href="https://github.com/KHROTU" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">github</a>
+          <a href="https://x.com/khrotubutms/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">twitter</a>
+          <a href="https://bsky.app/profile/khrotubutbsky.bsky.social" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">bluesky</a>
+          <a href="https://www.linkedin.com/in/mohan-yan-43905437b/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">linkedin</a>
         </div>
       </section>
     </main>
@@ -124,12 +125,12 @@ function Card({ name, href, desc, time }: { name: string, href?: string, desc: R
     <span>{name}</span>
   );
   return (
-    <div className="bg-[var(--bg-card)] border border-white/5 p-8 flex flex-col gap-5 rounded-md">
+    <article className="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm snap-start">
       <div className="flex justify-between items-start gap-4">
         <h4 className="font-medium text-[var(--text-main)] text-xl">{Title}</h4>
         <span className="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">{time}</span>
       </div>
       <div className="text-lg text-[var(--text-muted)] leading-relaxed">{desc}</div>
-    </div>
+    </article>
   )
 }
