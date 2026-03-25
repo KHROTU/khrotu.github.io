@@ -5,7 +5,7 @@ export default function NamePage() {
   return (
     <main className="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-20">
       <Link href="/" className="flex items-center gap-2 text-lg text-[var(--text-muted)] hover:text-white transition-colors w-fit">
-        <ArrowLeft className="w-6 h-6" /> Back to home
+        <ArrowLeft className="w-6 h-6" /> back to me
       </Link>
       <article className="flex flex-col gap-10 max-w-4xl">
         <h1 className="text-4xl font-medium text-[var(--text-main)]">
