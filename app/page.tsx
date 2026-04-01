@@ -93,6 +93,12 @@ export default function Home() {
               time="2025" 
             />
             <Card 
+              name="userscripts" 
+              href="https://greasyfork.org/en/users/1465386-khrotu"
+              desc="i port chrome extensions sometimes." 
+              time="2024 - present" 
+            />
+            <Card 
               name="notLLM"
               href="https://not-llm.vercel.app"
               desc="first try at real time stuff using ably. shut down due to my incapability in not messing stuff up with connections."
