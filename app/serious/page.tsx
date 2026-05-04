@@ -1,9 +1,7 @@
 'use client';
-
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return 'Good morning';
@@ -11,11 +9,9 @@ function getGreeting() {
   if (hour < 21) return 'Good evening';
   return 'Good night';
 }
-
 function getYears(startYear: number) {
   return new Date().getFullYear() - startYear;
 }
-
 export default function SeriousPage() {
   const [greeting, setGreeting] = useState('');
   useEffect(() => {
@@ -59,7 +55,7 @@ export default function SeriousPage() {
           <section className="flex flex-col gap-3">
             <h2 className="text-2xl font-medium text-[var(--text-main)]">Reverse Engineering</h2>
             <p>
-              It&apos;s worth noting that I only ever practise reverse engineering within legally clear or grey territory. I have never performed, and have no intention of performing, anything malicious. That said, I have experience across several platforms. On the web, I use Burp Suite and Wireshark to intercept, analyse, and map out traffic flows from closed systems, effectively reading the undocumented API of anything with a network connection. On Android, I work with virtual machines, Ghidra, JADX, Frida, APKTool, and Burp Suite as a proxy to decompile, instrument, and inspect applications at runtime. I&apos;ve also spent a fair amount of time working through files with entirely undocumented extensions, using ImHex to read raw binary and hex values, identify encryption schemes, and decompress RLE-encoded data to get at whatever is actually inside.
+              I should note that I only ever work within legally clear or grey territory. I have never done anything malicious, and have no intention of doing so. My experience spans a few different contexts. For web traffic, I use Burp Suite and Wireshark to intercept and map out how closed systems communicate, which in practice means reconstructing the undocumented API of whatever I&apos;m looking at. For Android, I work with Ghidra, JADX, Frida, APKTool, and Burp Suite as a proxy, usually inside a virtual machine, to decompile and inspect applications at runtime. I&apos;ve also spent considerable time on binary analysis — files with completely undocumented extensions, where the work is reading raw hex in ImHex, identifying encryption or compression schemes, and slowly working out what the format actually is. It&apos;s more patience than anything else.
             </p>
           </section>
         </div>

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-
+import DraggableRow from './draggable-row'
 export default function Home() {
   return (
     <main className="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-12 md:py-20 flex flex-col gap-24">
@@ -46,7 +46,7 @@ export default function Home() {
         <h2 className="text-3xl font-medium text-[var(--text-main)]">what I&apos;ve been up to</h2>
         <div className="flex flex-col gap-6">
           <h3 className="text-xl font-medium text-[var(--text-muted)]">stuff i&apos;m proud of</h3>
-          <div className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar snap-x snap-mandatory">
+          <DraggableRow>
             <Card 
               name="USACO Platinum"
               desc="pretty cool, right?"
@@ -64,11 +64,11 @@ export default function Home() {
               desc="a text-conditional 3D diffusion model for generating minecraft schematics."
               time="2025"
             />
-          </div>
+          </DraggableRow>
         </div>
         <div className="flex flex-col gap-6">
           <h3 className="text-xl font-medium text-[var(--text-muted)]">i mean it&apos;s fine ig</h3>
-          <div className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar snap-x snap-mandatory">
+          <DraggableRow>
             <Card 
               name="Sat DB" 
               href="https://www.satdbfor.me"
@@ -81,11 +81,11 @@ export default function Home() {
               desc="idiot loses at victordle repeatedly so immediately turns to cheating." 
               time="2025" 
             />
-          </div>
+          </DraggableRow>
         </div>
         <div className="flex flex-col gap-6">
           <h3 className="text-xl font-medium text-[var(--text-muted)]">must be the wind</h3>
-          <div className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar snap-x snap-mandatory">
+          <DraggableRow>
             <Card 
               name="GraphIt!" 
               href="https://www.graphit.dev"
@@ -110,7 +110,7 @@ export default function Home() {
               desc="clippy better fr fr."
               time="2025"
             />
-          </div>
+          </DraggableRow>
         </div>
       </section>
       <section className="pt-16 border-t border-[var(--border-bezel)] border-opacity-20 flex flex-col gap-6">
@@ -126,7 +126,6 @@ export default function Home() {
     </main>
   )
 }
-
 function Card({ name, href, desc, time }: { name: string, href?: string, desc: React.ReactNode, time: string }) {
   const Title = href ? (
     <a href={href} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">
@@ -136,7 +135,7 @@ function Card({ name, href, desc, time }: { name: string, href?: string, desc: R
     <span>{name}</span>
   );
   return (
-    <article className="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm snap-start">
+    <article className="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
       <div className="flex justify-between items-start gap-4">
         <h4 className="font-medium text-[var(--text-main)] text-xl">{Title}</h4>
         <span className="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">{time}</span>

@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-
 export default function NamePage() {
   return (
     <main className="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-20">
