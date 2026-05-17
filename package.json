@@ -9,8 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "glob": "^13.0.6",
     "lucide-react": "^0.564.0",
-    "next": "^15.5.13",
+    "next": "^15.5.18",
     "react": "^19.1.2",
     "react-dom": "^19.1.2"
   },

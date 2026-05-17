@@ -13,6 +13,10 @@ export default function Home() {
           <Image src="/linkedin.svg" alt="LinkedIn" width={20} height={20} className="opacity-80 group-hover:opacity-100 transition-opacity" />
           <span className="font-mono text-sm">/ me</span>
         </a>
+        <Link href="/blogs" className="flex items-center gap-3 hover:text-white transition-colors group">
+          <Image src="/favicon-contrast.svg" alt="Blogs" width={20} height={20} className="opacity-80 group-hover:opacity-100 transition-opacity" />
+          <span className="font-mono text-sm">/ blogs</span>
+        </Link>
       </div>
       <section className="flex flex-col gap-8">
         <div className="flex items-center gap-6">
