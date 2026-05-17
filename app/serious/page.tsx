@@ -43,19 +43,19 @@ export default function SeriousPage() {
           <section className="flex flex-col gap-3">
             <h2 className="text-2xl font-medium text-[var(--text-main)]">Python & Machine Learning</h2>
             <p>
-              I&apos;ve been writing Python for {pythonYears} years, which has allowed me to not only work fluently in the language itself but develop a strong focus in specific areas: scraping, browser automation, and machine learning. For web-related tasks, I use DevTools and Burp Suite to their full capability, performing digital forensics to write fast, undetectable, and stable scraping and automation solutions. For machine learning and reinforcement learning, I have studied and applied DQNs, CNNs, and LSTMs using PyTorch, including work conducted at the Research Institute of Tsinghua University in Shenzhen.
+              I&apos;ve been writing Python for {pythonYears} years, which has allowed me to not only work fluently in the language itself but develop a strong focus in specific areas: scraping, browser automation, and machine learning. For web-related tasks, I use DevTools and Burp Suite to perform digital forensics to write fast and undetectable scraping and automation solutions. For machine learning and reinforcement learning, I have studied and applied DQNs, LSTMs, and CNNs using PyTorch, including work conducted at the Research Institute of Tsinghua University in Shenzhen.
             </p>
           </section>
           <section className="flex flex-col gap-3">
             <h2 className="text-2xl font-medium text-[var(--text-main)]">C++</h2>
             <p>
-              I use C++ exclusively for competitive programming. Whilst this means I don&apos;t carry the same breadth of software development experience in C++ as I do in my other languages, this is a deliberate choice — I&apos;d rather maintain a sharp, focused knowledge of what actually matters in competition than dilute that with language features that don&apos;t serve that goal.
+              I use C++ exclusively for competitive programming. Whilst this means I don&apos;t carry the same breadth of software development experience in C++ as I do in my other languages, I&apos;d rather maintain sharp in competition related knowledge than dilute that with language features that don&apos;t serve that goal.
             </p>
           </section>
           <section className="flex flex-col gap-3">
             <h2 className="text-2xl font-medium text-[var(--text-main)]">Reverse Engineering</h2>
             <p>
-              I should note that I only ever work within legally clear or grey territory. I have never done anything malicious, and have no intention of doing so. My experience spans a few different contexts. For web traffic, I use Burp Suite and Wireshark to intercept and map out how closed systems communicate, which in practice means reconstructing the undocumented API of whatever I&apos;m looking at. For Android, I work with Ghidra, JADX, Frida, APKTool, and Burp Suite as a proxy, usually inside a virtual machine, to decompile and inspect applications at runtime. I&apos;ve also spent considerable time on binary analysis — files with completely undocumented extensions, where the work is reading raw hex in ImHex, identifying encryption or compression schemes, and slowly working out what the format actually is. It&apos;s more patience than anything else.
+              I should note that I only ever work within legally clear or grey territory. I have never done anything malicious, and have no intention of doing so, so please don&apos;t blacklist me. My experience spans a few different contexts. For web traffic, I use Burp Suite and Wireshark to intercept and map out closed systems, which in practice means reconstructing undocumented APIs. For Android, I work with Ghidra, JADX, Frida, APKTool, and Burp Suite as a proxy, usually inside a virtual machine, to decompile and inspect applications at runtime. I&apos;ve also spent considerable time on binary analysis — files with completely undocumented extensions, where the work is reading raw hex in ImHex, identifying encryption or compression schemes, and slowly working out what the format actually is. 
             </p>
           </section>
         </div>

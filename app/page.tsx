@@ -58,6 +58,12 @@ export default function Home() {
               desc={<>comprehensive studio for a block game i used to play. <a href="https://www.bloxdforge.com/studio/wiki/guides/bloxdforge-versions" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">full story</a>.</>}
               time="2023 - present"
             />
+            <Card
+              name="MouseMaster"
+              href="https://github.com/KHROTU/mousemaster"
+              desc="autoclicker that simulates realistic clicking that isn't just a random function."
+              time="2026"
+            />
             <Card 
               name="schematic-diffusion"
               href="https://github.com/KHROTU/schematic-diffusion"
@@ -76,6 +82,12 @@ export default function Home() {
               time="2025 - present" 
             />
             <Card 
+              name="userscripts" 
+              href="https://greasyfork.org/en/users/1465386-khrotu"
+              desc="i write userscripts and port extensions sometimes." 
+              time="2024 - present" 
+            />
+            <Card 
               name="victordle" 
               href="https://github.com/KHROTU/victordle"
               desc="idiot loses at victordle repeatedly so immediately turns to cheating." 
@@ -91,12 +103,6 @@ export default function Home() {
               href="https://www.graphit.dev"
               desc="turns out there&apos;s a reason desmos exists." 
               time="2025" 
-            />
-            <Card 
-              name="userscripts" 
-              href="https://greasyfork.org/en/users/1465386-khrotu"
-              desc="i port chrome extensions sometimes." 
-              time="2024 - present" 
             />
             <Card 
               name="notLLM"

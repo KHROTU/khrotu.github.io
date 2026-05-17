@@ -18,10 +18,10 @@ export default function NamePage() {
             If you&apos;re wondering why — I was a literal child when I came up with it. I was eight and thought Hades was a chill guy, so I stole the name from a book I was reading at the time.
           </p>
           <p>
-            As for pronunciation, it&apos;s &quot;crow-too&quot;, although I doubt you need that information to type out my name.
+            As for pronunciation, it&apos;s &quot;crow-too&quot;, although I doubt you need that information to type it out.
           </p>
           <p>
-            The other names obviously stem from my main one. &quot;khrotu&quot; is what I use when full caps would make me sound dumb in context (I would unironically have more respect for some guy called &quot;DoggyLover69&quot; than some kid with a cocky all-caps random-letter name). Any name with a &quot;butsomething&quot; suffix is for accounts on different sites or emails — e.g. &quot;butms&quot; for my Outlook email, &quot;butsnap&quot; for Snapchat, &quot;butbsky&quot; for Bluesky, etc.
+            The other names obviously stem from my main one. &quot;khrotu&quot; is what I use when full caps would make me sound dumb in context (I would unironically have more respect for some kid called &quot;DoggyLover69&quot; than a cocky all-caps random-letter username). Any name with a &quot;butsomething&quot; suffix is for accounts on different sites or emails — e.g. &quot;butms&quot; for my Outlook email, &quot;butsnap&quot; for Snapchat, &quot;butbsky&quot; for Bluesky, etc.
           </p>
         </div>
       </article>

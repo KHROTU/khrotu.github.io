@@ -20,9 +20,9 @@ export function useDragScroll() {
     if (!el) return
     cancelAnimationFrame(frame.current)
     state.current.dragging = true
-    state.current.startX = e.pageX - el.offsetLeft
+    state.current.startX = e.clientX
     state.current.scrollLeft = el.scrollLeft
-    vel.current = { x: 0, lastX: e.pageX, time: performance.now() }
+    vel.current = { x: 0, lastX: e.clientX, time: performance.now() }
     cursor.current = el.style.cursor
     el.style.cursor = 'grabbing'
     el.style.userSelect = 'none'
@@ -33,12 +33,11 @@ export function useDragScroll() {
     e.preventDefault()
     const now = performance.now()
     const dt = now - vel.current.time
-    const dx = e.pageX - vel.current.lastX
+    const dx = e.clientX - vel.current.lastX
     if (dt > 0) {
-      vel.current = { x: (dx / dt) * 10, lastX: e.pageX, time: now }
+      vel.current = { x: (dx / dt) * 10, lastX: e.clientX, time: now }
     }
-    const x = e.pageX - el.offsetLeft
-    const walk = (x - state.current.startX) * 1.5
+    const walk = e.clientX - state.current.startX
     el.scrollLeft = state.current.scrollLeft - walk
   }, [])
   const release = useCallback(() => {
