@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { ArrowLeft } from 'lucide-react';
+const posts = await getCollection('blogs');
+const sortedPosts = posts.sort((a, b) => b.data.date.localeCompare(a.data.date));
+const groups: { label: string; posts: typeof sortedPosts }[] = [];
+for (const post of sortedPosts) {
+  const d = new Date(post.data.date + 'T00:00:00');
+  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  let group = groups.find(g => g.label === key);
+  if (!group) {
+    group = { label: key, posts: [] };
+    groups.push(group);
+  }
+  group.posts.push(post);
+}
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+const sortedGroups = groups.sort((a, b) => b.label.localeCompare(a.label)).map(g => {
+  const [year, month] = g.label.split('-');
+  return { label: `${monthNames[parseInt(month, 10) - 1]} ${year}`, posts: g.posts };
+});
+---
+<Layout title="blogs | khrotu" description="thoughts, stories, and things i found interesting">
+  <main class="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-20">
+    <a href="/" class="flex items-center gap-2 text-lg text-[var(--text-muted)] hover:text-white transition-colors w-fit">
+      <span class="w-6 h-6"><ArrowLeft class="w-6 h-6" /></span> back to me
+    </a>
+    <article class="flex flex-col gap-16 max-w-4xl">
+      <div class="flex flex-col gap-4">
+        <h1 class="text-4xl font-medium text-[var(--text-main)]">
+          blogs
+        </h1>
+        <p class="text-xl text-[var(--text-muted)] leading-relaxed">
+          thoughts, stories, and things i found interesting
+        </p>
+      </div>
+      <div class="flex flex-col gap-14">
+        {sortedGroups.length === 0 ? (
+          <p class="text-xl text-[var(--text-muted)]">no posts yet.</p>
+        ) : (
+          sortedGroups.map((group) => (
+            <section class="flex flex-col gap-5">
+              <h2 class="text-sm font-mono text-[var(--text-muted)] tracking-wide">
+                {group.label}
+              </h2>
+              <div class="flex flex-col">
+                {group.posts.map((post) => (
+                  <a
+                    href={`/blogs/${post.data.slug || post.id}`}
+                    class="group flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-6 py-4 transition-colors"
+                  >
+                    <span class="text-lg text-[var(--text-main)] group-hover:text-white transition-colors">
+                      {post.data.title}
+                    </span>
+                    <span class="text-sm text-[var(--text-muted)] whitespace-nowrap">
+                      {post.data.date}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          ))
+        )}
+      </div>
+    </article>
+  </main>
+</Layout>

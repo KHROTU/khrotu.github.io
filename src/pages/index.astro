@@ -1,0 +1,167 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DraggableRow from '../components/DraggableRow';
+---
+<Layout>
+  <main class="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-12 md:py-20 flex flex-col gap-24">
+    <div class="flex items-center justify-start gap-8 text-[var(--text-muted)]">
+      <a href="https://github.com/KHROTU" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:text-white transition-colors group">
+        <img src="/github.svg" alt="GitHub" width="20" height="20" class="opacity-80 group-hover:opacity-100 transition-opacity" />
+        <span class="font-mono text-sm">/ khrotu</span>
+      </a>
+      <a href="https://www.linkedin.com/in/mohan-yan-43905437b/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:text-white transition-colors group">
+        <img src="/linkedin.svg" alt="LinkedIn" width="20" height="20" class="opacity-80 group-hover:opacity-100 transition-opacity" />
+        <span class="font-mono text-sm">/ me</span>
+      </a>
+      <a href="/blogs" class="flex items-center gap-3 hover:text-white transition-colors group">
+        <img src="/favicon-contrast.svg" alt="Blogs" width="20" height="20" class="opacity-80 group-hover:opacity-100 transition-opacity" />
+        <span class="font-mono text-sm">/ blogs</span>
+      </a>
+    </div>
+    <section class="flex flex-col gap-8">
+      <div class="flex items-center gap-6">
+        <img
+          src="/pfp.jpg"
+          alt="KHROTU Profile Picture"
+          width="96"
+          height="96"
+          class="rounded-sm object-cover bg-neutral-800"
+        />
+        <div class="flex flex-col gap-2">
+          <h1 class="text-2xl md:text-4xl font-medium text-[var(--text-main)]">
+            KHROTU / khrotu / khrotubutms
+          </h1>
+          <a href="/name" class="text-sm text-[var(--text-muted)] hover:text-white transition-colors w-fit">
+            what does that mean?
+          </a>
+        </div>
+      </div>
+      <div class="flex flex-col gap-3">
+        <p class="text-lg md:text-xl text-[var(--text-muted)] leading-relaxed md:whitespace-nowrap">
+          i'd like to think i'm a relatively competent dev; dabbles in ai/ml now and then
+        </p>
+        <a href="/serious" class="text-sm text-[var(--text-muted)] hover:text-white transition-colors w-fit">
+          boring version
+        </a>
+      </div>
+    </section>
+    <section class="flex flex-col gap-12">
+      <h2 class="text-3xl font-medium text-[var(--text-main)]">what I've been up to</h2>
+      <div class="flex flex-col gap-6">
+        <h3 class="text-xl font-medium text-[var(--text-muted)]">stuff i'm proud of</h3>
+        <DraggableRow client:load>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl"><span>USACO Platinum</span></h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2024 - present</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">pretty cool, right?</div>
+          </article>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://www.bloxdforge.com" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">BloxdForge</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2023 - present</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">
+              comprehensive studio for a block game i used to play. <a href="https://www.bloxdforge.com/studio/wiki/guides/bloxdforge-versions" target="_blank" rel="noopener noreferrer" class="underline hover:text-white transition-colors">full story</a>.
+            </div>
+          </article>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://github.com/KHROTU/mousemaster" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">MouseMaster</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2026</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">autoclicker that simulates realistic clicking that isn't just a random function.</div>
+          </article>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://github.com/KHROTU/schematic-diffusion" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">schematic-diffusion</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2025</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">a text-conditional 3D diffusion model for generating minecraft schematics.</div>
+          </article>
+        </DraggableRow>
+      </div>
+      <div class="flex flex-col gap-6">
+        <h3 class="text-xl font-medium text-[var(--text-muted)]">i mean it's fine ig</h3>
+        <DraggableRow client:load>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://www.satdbfor.me" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">Sat DB</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2025 - present</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">overpriced tutoring centre kept pushing me to buy their account so i made it free for everyone :></div>
+          </article>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://greasyfork.org/en/users/1465386-khrotu" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">userscripts</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2024 - present</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">i write userscripts and port extensions sometimes.</div>
+          </article>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://github.com/KHROTU/victordle" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">victordle</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2025</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">idiot loses at victordle repeatedly so immediately turns to cheating.</div>
+          </article>
+        </DraggableRow>
+      </div>
+      <div class="flex flex-col gap-6">
+        <h3 class="text-xl font-medium text-[var(--text-muted)]">must be the wind</h3>
+        <DraggableRow client:load>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://www.graphit.dev" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">GraphIt!</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2025</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">turns out there's a reason desmos exists.</div>
+          </article>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://not-llm.vercel.app" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">notLLM</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2025</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">first try at real time stuff using ably. shut down due to my incapability in not messing stuff up with connections.</div>
+          </article>
+          <article class="shrink-0 w-[85vw] md:w-[400px] bg-transparent border border-[var(--border-bezel)] p-8 flex flex-col gap-5 rounded-sm">
+            <div class="flex justify-between items-start gap-4">
+              <h4 class="font-medium text-[var(--text-main)] text-xl">
+                <a href="https://github.com/KHROTU/kortex" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-white/60">kortex</a>
+              </h4>
+              <span class="text-sm text-[var(--text-muted)] whitespace-nowrap pt-1">2025</span>
+            </div>
+            <div class="text-lg text-[var(--text-muted)] leading-relaxed">clippy better fr fr.</div>
+          </article>
+        </DraggableRow>
+      </div>
+    </section>
+    <section class="pt-16 border-t border-[var(--border-bezel)] border-opacity-20 flex flex-col gap-6">
+      <h2 class="text-2xl font-medium text-[var(--text-main)]">reach out</h2>
+      <div class="flex flex-wrap gap-x-8 gap-y-3 text-lg text-[var(--text-muted)]">
+        <a href="mailto:3o65iduqd@mozmail.com" class="hover:text-white transition-colors">email</a>
+        <a href="https://github.com/KHROTU" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">github</a>
+        <a href="https://x.com/khrotubutms/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">twitter</a>
+        <a href="https://bsky.app/profile/khrotubutbsky.bsky.social" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">bluesky</a>
+        <a href="https://www.linkedin.com/in/mohan-yan-43905437b/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">linkedin</a>
+      </div>
+    </section>
+  </main>
+</Layout>

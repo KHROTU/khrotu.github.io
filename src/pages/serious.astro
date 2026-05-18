@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { ArrowLeft } from 'lucide-react';
+import SeriousContent from '../components/SeriousContent';
+---
+<Layout title="Let's get serious | khrotu" description="Professional CV and skills overview of KHROTU">
+  <main class="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-20">
+    <a href="/" class="flex items-center gap-2 text-lg text-[var(--text-muted)] hover:text-white transition-colors w-fit">
+      <span class="w-6 h-6"><ArrowLeft class="w-6 h-6" /></span> back to me
+    </a>
+    <article class="flex flex-col gap-12 max-w-4xl">
+      <div class="flex flex-col gap-4">
+        <h1 class="text-4xl font-medium text-[var(--text-main)]">
+          Let's get serious then.
+        </h1>
+        <SeriousContent client:load />
+      </div>
+    </article>
+  </main>
+</Layout>

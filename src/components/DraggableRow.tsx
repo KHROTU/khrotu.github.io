@@ -1,7 +1,6 @@
-'use client'
-import { useDragScroll } from '@/lib/use-drag-scroll'
+import { useDragScroll } from '../hooks/useDragScroll';
 export default function DraggableRow({ children }: { children: React.ReactNode }) {
-  const ref = useDragScroll()
+  const ref = useDragScroll();
   return (
     <div
       ref={ref}
@@ -9,5 +8,5 @@ export default function DraggableRow({ children }: { children: React.ReactNode }
     >
       {children}
     </div>
-  )
+  );
 }

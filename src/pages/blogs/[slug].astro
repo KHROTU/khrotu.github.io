@@ -1,0 +1,34 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { ArrowLeft } from 'lucide-react';
+import BlogContent from '../../components/BlogContent';
+export async function getStaticPaths() {
+  const posts = await getCollection('blogs');
+  return posts.map((post) => ({
+    params: { slug: post.data.slug || post.id },
+    props: { post },
+  }));
+}
+const { post } = Astro.props;
+const rawDescription = (post.body || '').replace(/[#*`_\[\]!()]/g, '').slice(0, 160) || post.data.title;
+const pageTitle = `${post.data.title} | khrotu`;
+---
+<Layout title={pageTitle} description={rawDescription}>
+  <main class="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-20">
+    <a href="/blogs" class="flex items-center gap-2 text-lg text-[var(--text-muted)] hover:text-white transition-colors w-fit">
+      <span class="w-6 h-6"><ArrowLeft class="w-6 h-6" /></span> back to blogs
+    </a>
+    <article class="flex flex-col gap-10 max-w-4xl">
+      <div class="flex flex-col gap-4">
+        <h1 class="text-4xl font-medium text-[var(--text-main)]">
+          {post.data.title}
+        </h1>
+        <span class="text-lg text-[var(--text-muted)]">{post.data.date}</span>
+      </div>
+      <div class="markdown-body text-xl text-[var(--text-muted)] leading-relaxed">
+        <BlogContent content={post.body || ''} client:load />
+      </div>
+    </article>
+  </main>
+</Layout>
