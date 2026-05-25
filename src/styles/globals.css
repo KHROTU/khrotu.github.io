@@ -1,4 +1,46 @@
 @import "tailwindcss";
+@font-face {
+  font-family: 'Hyperlegible Sans';
+  src: url('/fonts/HyperlegibleSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hyperlegible Sans';
+  src: url('/fonts/HyperlegibleSans-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hyperlegible Sans';
+  src: url('/fonts/HyperlegibleSans-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hyperlegible Sans';
+  src: url('/fonts/HyperlegibleSans-MediumItalic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hyperlegible Sans';
+  src: url('/fonts/HyperlegibleSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hyperlegible Sans';
+  src: url('/fonts/HyperlegibleSans-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
 :root {
   --bg-main: #040404;
   --bg-card: #040404;
@@ -9,7 +51,7 @@
 body {
   background-color: var(--bg-main);
   color: var(--text-main);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Hyperlegible Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 ::-webkit-scrollbar {
