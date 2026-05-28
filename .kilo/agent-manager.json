@@ -5,15 +5,16 @@
       "worktreeId": null,
       "createdAt": "2026-05-18T07:16:16.397Z"
     },
-    "ses_1a1cc4b3fffe9fD4u2ikakcz2J": {
+    "ses_1905d3dd7ffeOTLXets1H47QAY": {
       "worktreeId": null,
-      "createdAt": "2026-05-25T08:15:07.493Z"
+      "createdAt": "2026-05-28T17:29:58.099Z"
     }
   },
   "tabOrder": {
     "local": [
+      "pending:1",
       "ses_1c60eb09bffej5ZBNy4IEXFEER",
-      "ses_1a1cc4b3fffe9fD4u2ikakcz2J"
+      "ses_1905d3dd7ffeOTLXets1H47QAY"
     ]
   }
 }
