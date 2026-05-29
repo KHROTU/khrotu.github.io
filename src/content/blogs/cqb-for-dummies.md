@@ -10,7 +10,7 @@ This is mostly just a summary of [this playlist](https://www.youtube.com/watch?v
 
 ### Split Stack
 
-A split stack is when at least one person is on either side of the door. You just get you and your buddy on both sides of the door, and you're good to go. This is where our first major concept is introduced, known as **attack the crack**. Whichever side is in the direction of the continuation of the line connecting the latch side and the hinge side when you open the door is the one attacking the crack.
+A split stack is when at least one person is on either side of the door. You just get you and your buddy on both sides of the door, and you're good to go. This is where our first major concept is introduced, known as attack the crack. Whichever side is in the direction of the continuation of the line connecting the latch side and the hinge side when you open the door is the one attacking the crack.
 
 If you are defending a door, you also want to position yourself to attack the crack in case the door is opened from the other side.
 
