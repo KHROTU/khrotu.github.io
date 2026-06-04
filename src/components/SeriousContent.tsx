@@ -1,4 +1,3 @@
-'use client';
 import { useEffect, useState } from 'react';
 function getGreeting() {
   const hour = new Date().getHours();

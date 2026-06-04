@@ -27,7 +27,7 @@ const pageTitle = `${post.data.title} | khrotu`;
         <span class="text-lg text-[var(--text-muted)]">{post.data.date}</span>
       </div>
       <div class="markdown-body text-xl text-[var(--text-muted)] leading-relaxed">
-        <BlogContent content={post.body || ''} client:load />
+        <BlogContent content={post.body || ''} />
       </div>
     </article>
   </main>
