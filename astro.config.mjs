@@ -3,7 +3,7 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: 'https://khrotu.github.io',
+  site: 'https://khrotu.org',
   output: 'static',
   integrations: [react()],
   vite: {
