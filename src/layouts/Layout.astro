@@ -20,7 +20,10 @@ const { title = 'khrotu', description = "i'd like to think i'm a relatively comp
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/HyperlegibleSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/HyperlegibleSans-Bold.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
+    <slot name="head" />
   </head>
   <body class="selection:bg-white/20">
     <slot />

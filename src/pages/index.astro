@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import DraggableRow from '../components/DraggableRow';
 ---
 <Layout>
+  <link rel="preload" href="/pfp.webp" as="image" slot="head" />
   <main class="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-12 md:py-20 flex flex-col gap-24">
     <div class="flex items-center justify-start gap-8 text-[var(--text-muted)]">
       <a href="https://github.com/KHROTU" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:text-white transition-colors group">
@@ -21,7 +22,7 @@ import DraggableRow from '../components/DraggableRow';
     <section class="flex flex-col gap-8">
       <div class="flex items-center gap-6">
         <img
-          src="/pfp.jpg"
+          src="/pfp.webp"
           alt="KHROTU Profile Picture"
           width="96"
           height="96"
