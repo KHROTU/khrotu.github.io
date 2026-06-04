@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-import { ArrowLeft } from 'lucide-react';
+import ArrowLeft from '../../components/icons/ArrowLeft.astro';
 import BlogContent from '../../components/BlogContent';
 export async function getStaticPaths() {
   const posts = await getCollection('blogs');
@@ -11,13 +11,13 @@ export async function getStaticPaths() {
   }));
 }
 const { post } = Astro.props;
-const rawDescription = (post.body || '').replace(/[#*`_\[\]!()]/g, '').slice(0, 160) || post.data.title;
+const rawDescription = (post.body || '').replace(/!\[.*?\]\(.*?\)/g, '').replace(/[#*`_\[\]]/g, '').slice(0, 160).trim() || post.data.title;
 const pageTitle = `${post.data.title} | khrotu`;
 ---
 <Layout title={pageTitle} description={rawDescription}>
   <main class="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-20">
     <a href="/blogs" class="flex items-center gap-2 text-lg text-[var(--text-muted)] hover:text-white transition-colors w-fit">
-      <span class="w-6 h-6"><ArrowLeft class="w-6 h-6" /></span> back to blogs
+      <span class="w-6 h-6"><ArrowLeft /></span> back to blogs
     </a>
     <article class="flex flex-col gap-10 max-w-4xl">
       <div class="flex flex-col gap-4">

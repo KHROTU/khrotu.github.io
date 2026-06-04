@@ -14,8 +14,6 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "astro": "^6.4.4",
-    "glob": "^13.0.6",
-    "lucide-react": "^0.564.0",
     "react": "^19.1.2",
     "react-dom": "^19.1.2",
     "react-markdown": "^10.1.0",
@@ -23,6 +21,7 @@
     "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "glob": "^13.0.6"
   }
 }

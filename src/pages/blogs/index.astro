@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
-import { ArrowLeft } from 'lucide-react';
+import ArrowLeft from '../../components/icons/ArrowLeft.astro';
 const posts = await getCollection('blogs');
 const sortedPosts = posts.sort((a, b) => b.data.date.localeCompare(a.data.date));
 const groups: { label: string; posts: typeof sortedPosts }[] = [];
@@ -27,7 +27,7 @@ const sortedGroups = groups.sort((a, b) => b.label.localeCompare(a.label)).map(g
 <Layout title="blogs | khrotu" description="thoughts, stories, and things i found interesting">
   <main class="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-20">
     <a href="/" class="flex items-center gap-2 text-lg text-[var(--text-muted)] hover:text-white transition-colors w-fit">
-      <span class="w-6 h-6"><ArrowLeft class="w-6 h-6" /></span> back to me
+      <span class="w-6 h-6"><ArrowLeft /></span> back to me
     </a>
     <article class="flex flex-col gap-16 max-w-4xl">
       <div class="flex flex-col gap-4">

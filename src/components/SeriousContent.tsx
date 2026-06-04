@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return 'Good morning';
@@ -10,10 +9,7 @@ function getYears(startYear: number) {
   return new Date().getFullYear() - startYear;
 }
 export default function SeriousContent() {
-  const [greeting, setGreeting] = useState('');
-  useEffect(() => {
-    setGreeting(getGreeting());
-  }, []);
+  const greeting = getGreeting();
   const webYears = getYears(2022);
   const pythonYears = getYears(2019);
   return (

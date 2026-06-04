@@ -1,5 +1,6 @@
+import { type ReactNode } from 'react';
 import { useDragScroll } from '../hooks/useDragScroll';
-export default function DraggableRow({ children }: { children: React.ReactNode }) {
+export default function DraggableRow({ children }: { children: ReactNode }) {
   const ref = useDragScroll();
   return (
     <div
