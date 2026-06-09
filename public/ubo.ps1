@@ -13,7 +13,6 @@ param(
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 $InstallerUrl = 'https://raw.githubusercontent.com/KHROTU/uBlock-mv3-win/master/install.ps1'
-$installer = Join-Path $env:TEMP 'uBOLite-install.ps1'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-Invoke-WebRequest -Uri $InstallerUrl -OutFile $installer -UseBasicParsing
-& $installer -InstallRoot $InstallRoot -Browser $Browser -UpdateUrl $UpdateUrl @PSBoundParameters
+$script = (Invoke-WebRequest -Uri $InstallerUrl -UseBasicParsing).Content
+Invoke-Expression $script
