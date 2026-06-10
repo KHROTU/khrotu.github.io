@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ArrowLeft from '../components/icons/ArrowLeft.astro';
-import SeriousContent from '../components/SeriousContent';
+import SeriousContent from '../components/SeriousContent.astro';
 ---
 <Layout title="Let's get serious | khrotu" description="Professional CV and skills overview of KHROTU">
   <main class="max-w-6xl md:ml-[10%] lg:ml-[12%] px-6 py-20 md:py-32 flex flex-col gap-20">
@@ -13,7 +13,7 @@ import SeriousContent from '../components/SeriousContent';
         <h1 class="text-4xl font-medium text-[var(--text-main)]">
           Let's get serious then.
         </h1>
-        <SeriousContent client:load />
+        <SeriousContent />
       </div>
     </article>
   </main>
