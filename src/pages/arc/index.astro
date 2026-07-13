@@ -40,6 +40,10 @@ const safeguards = [
     </header>
     <main>
       <section class="hero" aria-labelledby="hero-title">
+        <aside class="glm-banner" id="glm-banner" aria-label="Limited time promotional offer">
+          <p><strong>Limited Time Offer:</strong> Free GLM&nbsp;5.2 access for all Arc users. See Settings &gt; Providers in the extension.</p>
+          <button type="button" class="glm-banner-close" id="glm-banner-close" aria-label="Dismiss offer">&times;</button>
+        </aside>
         <div class="hero-grid" aria-hidden="true"></div>
         <div class="hero-copy reveal">
           <h1 id="hero-title">A sharper way to<br /><span>work with agents.</span></h1>
@@ -232,6 +236,11 @@ const safeguards = [
     </footer>
   </div>
 </Layout>
+<script>
+  document.getElementById('glm-banner-close')?.addEventListener('click', () => {
+    document.getElementById('glm-banner')?.remove();
+  });
+</script>
 <style>
   @font-face {
     font-family: 'Hubot Sans';
@@ -299,6 +308,11 @@ const safeguards = [
   .site-header nav a:hover, footer a:hover { color: white; }
   .header-install { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; }
   .header-install span { color: var(--blue); font-size: 18px; }
+  .glm-banner { position: absolute; top: 68px; left: 0; right: 0; z-index: 9; display: flex; align-items: center; justify-content: center; gap: 12px; background: linear-gradient(135deg, #0d1722, #0a0f15); border-bottom: 1px solid #1e3045; }
+  .glm-banner p { margin: 0; padding: 13px 4vw 13px 4vw; text-align: center; color: #aebfcf; font-size: 14px; line-height: 1.5; }
+  .glm-banner strong { color: #5dade2; font-weight: 700; }
+  .glm-banner-close { flex-shrink: 0; margin-right: 16px; padding: 4px 10px; background: none; border: 1px solid #3b4652; color: #7d8a96; font-size: 18px; line-height: 1; cursor: pointer; transition: color 160ms ease, border-color 160ms ease; }
+  .glm-banner-close:hover { color: #c8d6e5; border-color: #6b7d8e; }
   .hero {
     position: relative;
     min-height: calc(100vh - 68px);
@@ -461,6 +475,8 @@ const safeguards = [
   }
   @media (max-width: 700px) {
     .site-header { height: auto; min-height: 58px; padding: 10px 16px; flex-direction: column; gap: 10px; align-items: center; justify-content: center; position: relative; }
+    .glm-banner { position: static; }
+    .glm-banner p { font-size: 12px; padding: 10px 16px; }
     .site-header nav { gap: 16px; font-size: 12px; display: flex; }
     .header-install { gap: 8px; font-size: 11px; }
     .hero { padding: 40px 20px 44px; gap: 42px; }
