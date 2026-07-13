@@ -1,0 +1,450 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ArcProcessDemo from '../../components/ArcProcessDemo.astro';
+const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=khrotu.arc-code';
+const githubUrl = 'https://github.com/KHROTU/arc';
+const tools = [
+  ['Workspace', 'Read, edit, grep, glob, semantic search, LSP diagnostics, and notebooks.'],
+  ['Execution', 'Shell processes, OS sandboxing, browser automation, and post-edit verification.'],
+  ['Coordination', 'Subagents, full handoffs, per-file locks, persistent plans, and session resume.'],
+  ['Extensibility', 'MCP tools, resources, prompts, custom skills, rules, modes, and memory.'],
+];
+const safeguards = [
+  ['Pre-write secret scanning', 'Keys and tokens are caught before content reaches the filesystem.'],
+  ['Content-addressed checkpoints', 'Changed files are hashed, deduplicated, restorable, and garbage-collected.'],
+  ['Tamper-evident audit logs', 'Exported JSONL traces are SHA-256 hash-chained and independently verifiable.'],
+  ['Constrained modes', 'Per-mode write globs define exactly where an agent is allowed to make changes.'],
+];
+---
+<Layout
+  title="Arc - A lightweight agentic coding assistant"
+  description="Arc is a high-performance, lightweight agentic coding assistant for VS Code with multi-model orchestration, 150+ providers, and a deep native toolset."
+>
+  <link rel="preload" href="/fonts/HubotSans-Bold.ttf" as="font" type="font/ttf" crossorigin slot="head" />
+  <link rel="preload" href="/fonts/IBMPlexMono-Regular.ttf" as="font" type="font/ttf" crossorigin slot="head" />
+    <link rel="preload" href="/arc/arc-logo-mono-text.svg" as="image" type="image/svg+xml" slot="head" />
+  <div class="arc-site">
+    <header class="site-header">
+      <a class="brand" href="/arc" aria-label="Arc home">
+        <img src="/arc/arc-logo-mono-text.svg" alt="Arc" width="92" height="26" />
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#architecture">Architecture</a>
+        <a href="#tools">Tools</a>
+        <a href={githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+      <a class="header-install" href={marketplaceUrl} target="_blank" rel="noopener noreferrer">
+        Install for VS Code
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid" aria-hidden="true"></div>
+        <div class="hero-copy reveal">
+          <h1 id="hero-title">A sharper way to<br /><span>work with agents.</span></h1>
+          <p class="hero-lede">
+            Arc is a high-performance coding agent that stays inside VS Code. It routes work across models,
+            uses the tools your repository demands, and keeps every change visible.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href={marketplaceUrl} target="_blank" rel="noopener noreferrer">
+              Install Arc <span aria-hidden="true">&rarr;</span>
+            </a>
+            <a class="button button-secondary" href={githubUrl} target="_blank" rel="noopener noreferrer">
+              View source
+            </a>
+          </div>
+        </div>
+        <div class="product-window reveal reveal-delay">
+          <ArcProcessDemo />
+        </div>
+      </section>
+      <section class="proof-strip" aria-label="Arc product summary">
+        <div><strong>0.20 MB</strong><span>Extension size</span></div>
+        <div><strong>150+</strong><span>Built-in providers</span></div>
+        <div><strong>4 tiers</strong><span>Model registry</span></div>
+        <div><strong>Native</strong><span>VS Code workflows</span></div>
+      </section>
+      <section class="statement section-shell">
+        <div>
+          <h2>Small footprint.<br />Serious machinery.</h2>
+          <p>
+            Capability should not require a hundred-megabyte extension or a second place to work.
+            Arc optimizes its dependency tree, leans on native VS Code APIs, and ships the agentic stack in 0.20 MB.
+          </p>
+        </div>
+      </section>
+      <section class="size-section section-shell" aria-labelledby="size-title">
+        <div class="size-copy">
+          <h2 id="size-title">Less extension.<br />More attention on code.</h2>
+          <p>Arc's tiny extension footprint leaves more room for the code, tools, and models that do the work.</p>
+        </div>
+        <div class="size-chart" tabindex="0">
+          <div class="hover-cue">
+            <span>Hover me</span>
+            <svg viewBox="0 0 110 50" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M 102 12 C 85 4, 72 4, 68 16 C 64 28, 88 28, 82 16 C 76 4, 35 12, 12 38" /><path d="M 24 37 L 12 38 L 16 26" /></svg>
+          </div>
+          <div class="chart-row is-arc"><span>Arc</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 0.1794%"></div></div></div><strong>0.20 MB</strong></div>
+          <div class="chart-row"><span>Cline</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 9.1317%"><em>50.9x Arc</em></div></div></div><strong>10.18 MB</strong></div>
+          <div class="chart-row"><span>Roo Code</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 27.0093%"><em>150.6x Arc</em></div></div></div><strong>30.11 MB</strong></div>
+          <div class="chart-row"><span>Kilo Code</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 91.8183%"><em>511.8x Arc</em></div></div></div><strong>102.36 MB</strong></div>
+          <div class="chart-row"><span>Continue</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 100%"><em>557.4x Arc</em></div></div></div><strong>111.48 MB</strong></div>
+        </div>
+      </section>
+      <section id="architecture" class="routing-section">
+        <div class="section-shell routing-inner">
+          <div class="routing-copy">
+            <h2>Use the right model.<br />Not just one model.</h2>
+            <p>
+              Start with a capable default. Arc delegates routine work downward to cheaper models and hands hard problems
+              upward, preserving the plan and conversation as control moves between agents.
+            </p>
+            <ul>
+              <li>Multi-provider failover</li>
+              <li>Weighted load balancing</li>
+              <li>BYOK across 150+ providers</li>
+              <li>Per-task model and tier pinning</li>
+            </ul>
+          </div>
+          <div class="routing-diagram" aria-label="Arc routes tasks between free, light, default, and heavy model tiers">
+            <div class="route-axis"><span>Lower cost</span></div>
+            <div class="tier tier-free"><strong>Free</strong><span>Lookup and routine tasks</span></div>
+            <div class="route-connector"><span>&rarr;</span><small>delegate</small></div>
+            <div class="tier tier-light"><strong>Light</strong><span>Focused implementation</span></div>
+            <div class="route-connector"><span>&rarr;</span><small>return</small></div>
+            <div class="tier tier-default active"><strong>Default</strong><span>Primary session owner</span><i>Active</i></div>
+            <div class="route-connector"><span>&rarr;</span><small>handoff</small></div>
+            <div class="tier tier-heavy"><strong>Heavy</strong><span>Ambiguous, difficult work</span></div>
+            <div class="route-axis route-axis-bottom"><span>Deeper reasoning</span></div>
+          </div>
+        </div>
+      </section>
+      <section id="tools" class="tools-section section-shell" aria-labelledby="tools-title">
+        <div class="tools-heading">
+          <h2 id="tools-title">Enough context to do the work.</h2>
+          <p>Arc does not stop at text generation. It operates across the same surfaces you use to understand, change, and validate software.</p>
+        </div>
+        <div class="tool-list">
+          {tools.map(([title, description]) => (
+            <article class="tool-row">
+              <h3>{title}</h3>
+              <p>{description}</p>
+              <i aria-hidden="true">&rarr;</i>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section class="demo-section section-shell" aria-labelledby="demo-title">
+        <div class="demo-heading">
+          <div>
+            <h2 id="demo-title">Follow the whole process.</h2>
+          </div>
+          <p>A complex task can move through search, language intelligence, execution, delegation, edits, browser checks, and verification without hiding the path it took.</p>
+        </div>
+        <div class="live-demo-frame">
+          <ArcProcessDemo variant="complex" />
+        </div>
+      </section>
+      <section class="integrity-section">
+        <div class="section-shell integrity-inner">
+          <div class="integrity-heading">
+            <h2>Trust is a system property.</h2>
+            <p>Agentic work needs more than a permission dialog. Arc makes containment, recovery, and evidence part of the execution path.</p>
+          </div>
+          <div class="safeguard-grid">
+            {safeguards.map(([title, description]) => (
+              <article>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </article>
+            ))}
+          </div>
+          <p class="audit-note">Audit exports are SHA-256 hash-chained and can be checked independently with <code>arc audit verify session.jsonl</code>.</p>
+        </div>
+      </section>
+      <section class="principles-section section-shell">
+        <div class="principles-grid">
+          <h2>An agent is a tool.<br /><strong>You</strong> are still the engineer.</h2>
+          <div class="not-list">
+            <div><p><strong>Not a remote replacement for your editor.</strong> Arc stays where the code, diagnostics, and diffs already are.</p></div>
+            <div><p><strong>Not an opaque cloud router.</strong> Configure providers and keys directly, with granular proxy controls.</p></div>
+            <div><p><strong>Not a terminal hidden behind a GUI.</strong> Modes and context are visible controls, not hidden slash commands.</p></div>
+            <div><p><strong>Not another autocomplete engine.</strong> Arc focuses on deliberate tasks that you can inspect and review.</p></div>
+          </div>
+        </div>
+      </section>
+      <section class="final-cta">
+        <img src="/arc/arc-logo-mono.svg" alt="" width="64" height="52" loading="lazy" />
+        <h2>Keep the agent close.<br />Keep control closer.</h2>
+        <div class="hero-actions">
+          <a class="button button-primary" href={marketplaceUrl} target="_blank" rel="noopener noreferrer">
+            Install from Marketplace <span aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="button button-secondary" href={githubUrl} target="_blank" rel="noopener noreferrer">Read the source</a>
+        </div>
+        <code>code --install-extension khrotu.arc-code</code>
+      </section>
+    </main>
+    <footer>
+      <a class="brand" href="/arc"><img src="/arc/arc-logo-mono-text.svg" alt="Arc" width="78" height="22" /></a>
+      <div><a href={githubUrl}>GitHub</a><a href={marketplaceUrl}>Marketplace</a><a href="#hero-title">Top &uarr;</a></div>
+    </footer>
+  </div>
+</Layout>
+<style>
+  @font-face {
+    font-family: 'Hubot Sans';
+    src: url('/fonts/HubotSans-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Hubot Sans';
+    src: url('/fonts/HubotSans-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'IBM Plex Mono';
+    src: url('/fonts/IBMPlexMono-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'IBM Plex Mono';
+    src: url('/fonts/IBMPlexMono-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-display: swap;
+  }
+  :global(html) { background: #080a0d; }
+  :global(body) { margin: 0; background: #080a0d; }
+  :global(body:has(.arc-site)) { --bg-main: #080a0d; overflow-x: hidden; }
+  .arc-site {
+    --bg: #080a0d;
+    --bg-raised: #0e1116;
+    --bg-soft: #12161c;
+    --line: #272d36;
+    --line-strong: #3b444f;
+    --text: #f1f3f5;
+    --muted: #929ba6;
+    --muted-2: #69737f;
+    --blue: #1696e8;
+    --blue-soft: rgba(22, 150, 232, 0.13);
+    --green: #7ccf91;
+    min-height: 100vh;
+    color: var(--text);
+    background: var(--bg);
+    font-family: 'Hyperlegible Sans', sans-serif;
+    letter-spacing: 0;
+  }
+  .arc-site * { box-sizing: border-box; }
+  .arc-site a { color: inherit; text-decoration: none; }
+  .site-header {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 10;
+    height: 68px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 32px;
+    padding: 0 4vw;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    background: rgba(8,10,13,.78);
+    backdrop-filter: blur(16px);
+  }
+  .brand { display: inline-flex; align-items: center; width: fit-content; }
+  .brand img { object-fit: contain; }
+  .site-header nav { display: flex; align-items: center; gap: 28px; color: #b6bdc5; font-size: 13px; }
+  .site-header nav a, footer a { transition: color 160ms ease; }
+  .site-header nav a:hover, footer a:hover { color: white; }
+  .header-install { justify-self: end; display: inline-flex; align-items: center; gap: 18px; font-size: 13px; font-weight: 700; }
+  .header-install span { color: var(--blue); font-size: 18px; }
+  .hero {
+    position: relative;
+    min-height: min(960px, calc(100vh - 52px));
+    padding: 150px max(4vw, calc((100vw - 1440px) / 2)) 70px;
+    display: grid;
+    grid-template-columns: minmax(390px, .8fr) minmax(560px, 1.2fr);
+    align-items: center;
+    gap: clamp(50px, 7vw, 110px);
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(ellipse at 78% 54%, rgba(23, 105, 160, .13), transparent 46%),
+      linear-gradient(180deg, #090c10 0%, #080a0d 100%);
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 68px 0 0;
+    opacity: .16;
+    background-image: linear-gradient(rgba(255,255,255,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.09) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(to bottom, black, transparent 82%);
+  }
+  .hero-copy, .product-window { position: relative; z-index: 1; }
+  h1, h2 { margin: 0; font-family: 'Hubot Sans', sans-serif; letter-spacing: 0; }
+  h1 { font-size: clamp(58px, 5.3vw, 90px); line-height: .94; font-weight: 700; }
+  h1 span { color: #8b949e; }
+  .hero-lede { max-width: 610px; margin: 32px 0 0; color: #aab1b9; font-size: clamp(17px, 1.35vw, 21px); line-height: 1.55; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
+  .button { min-height: 48px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 26px; border: 1px solid var(--line-strong); font-size: 14px; font-weight: 700; transition: background 160ms ease, border-color 160ms ease, color 160ms ease; }
+  .button-primary { background: #f1f3f5; border-color: #f1f3f5; color: #090b0e !important; }
+  .button-primary:hover { background: white; border-color: white; }
+  .button-primary span { font-size: 18px; }
+  .button-secondary { background: rgba(8,10,13,.7); }
+  .button-secondary:hover { border-color: #737d88; background: #11151a; }
+  .product-window { min-width: 0; height: 610px; border: 1px solid #38414b; border-radius: 8px; overflow: hidden; background: #181818; box-shadow: 0 40px 100px rgba(0,0,0,.48), 0 0 0 1px rgba(255,255,255,.025) inset; }
+  .proof-strip { min-height: 128px; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 max(4vw, calc((100vw - 1440px) / 2)); border-bottom: 1px solid var(--line); }
+  .proof-strip div { display: flex; flex-direction: column; justify-content: center; gap: 7px; padding: 24px clamp(18px, 3vw, 48px); border-left: 1px solid var(--line); }
+  .proof-strip div:last-child { border-right: 1px solid var(--line); }
+  .proof-strip strong { font: 700 clamp(25px, 2.2vw, 36px) 'Hubot Sans', sans-serif; }
+  .proof-strip span { color: var(--muted); font-size: 12px; }
+  .section-shell { width: min(1320px, 92vw); margin: 0 auto; }
+  .statement { min-height: 520px; padding-top: 120px; padding-bottom: 120px; }
+  .statement > div { max-width: 960px; }
+  .statement h2, .routing-copy h2, .tools-heading h2, .demo-heading h2, .integrity-heading h2, .principles-grid h2, .final-cta h2, .size-copy h2 { font-size: clamp(42px, 5vw, 76px); line-height: 1.02; }
+  .statement > div > p { max-width: 700px; margin: 36px 0 0 auto; color: #a4acb5; font-size: 20px; line-height: 1.65; }
+  .size-section { padding: 110px 0 130px; display: grid; grid-template-columns: .85fr 1.4fr; gap: clamp(60px, 10vw, 150px); border-top: 1px solid var(--line); }
+  .size-copy h2 { font-size: clamp(40px, 4vw, 64px); }
+  .size-copy > p:last-child { max-width: 470px; margin-top: 28px; color: var(--muted); line-height: 1.6; }
+  .size-chart { position: relative; display: flex; flex-direction: column; gap: 20px; justify-content: center; outline: none; }
+  .hover-cue { position: absolute; right: 12%; top: -76px; display: flex; flex-direction: column; align-items: center; gap: 1px; color: #a8b0b9; font-size: 13px; transform: rotate(-3deg); }
+  .hover-cue svg { width: 100px; height: 40px; fill: none; stroke: #7f8993; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .chart-row { display: grid; grid-template-columns: 90px 1fr 85px; align-items: center; gap: 16px; color: #929ba5; font: 11px 'IBM Plex Mono', monospace; }
+  .bar-viewport { width: 100%; overflow: hidden; }
+  .bar-scale { width: 100%; transition: width 700ms cubic-bezier(.2,.75,.25,1); }
+  .size-bar { width: var(--size); height: 10px; display: flex; align-items: center; overflow: hidden; background: #3b434d; transition: height 500ms cubic-bezier(.2,.75,.25,1); }
+  .size-bar em { min-width: max-content; padding: 0 10px; opacity: 0; color: #e6e9ec; font: normal 10px 'IBM Plex Mono', monospace; transition: opacity 200ms ease 320ms; }
+  .chart-row strong { font-weight: 400; text-align: right; }
+  .chart-row.is-arc { color: #e4e8ec; }
+  .chart-row.is-arc .size-bar { background: var(--blue); box-shadow: 0 0 18px rgba(22,150,232,.3); }
+  .chart-row.is-arc strong { color: var(--blue); font-weight: 500; }
+  .size-chart:hover .bar-scale, .size-chart:focus-visible .bar-scale { width: 5000%; }
+  .size-chart:hover .size-bar, .size-chart:focus-visible .size-bar { height: 26px; }
+  .size-chart:hover .size-bar em, .size-chart:focus-visible .size-bar em { opacity: 1; }
+  .size-chart:hover .hover-cue, .size-chart:focus-visible .hover-cue { opacity: 0; }
+  .routing-section { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #0b0e12; }
+  .routing-inner { padding-top: 130px; padding-bottom: 130px; display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(70px, 9vw, 130px); }
+  .routing-copy h2 { font-size: clamp(45px, 4.6vw, 72px); }
+  .routing-copy > p:not(.section-index) { margin: 30px 0 0; color: #a1a9b2; font-size: 18px; line-height: 1.65; }
+  .routing-copy ul { margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; list-style: none; border-top: 1px solid var(--line); }
+  .routing-copy li { padding: 13px 0; border-bottom: 1px solid var(--line); color: #b7bdc4; font-size: 12px; }
+  .routing-copy li:nth-child(odd) { padding-right: 12px; }
+  .route-axis { display: flex; justify-content: space-between; margin-bottom: 13px; color: #59636e; font: 9px 'IBM Plex Mono', monospace; }
+  .route-axis-bottom { margin: 13px 0 0; }
+  .tier { position: relative; min-height: 92px; padding: 16px 18px; display: grid; grid-template-columns: 120px 1fr; align-items: center; border: 1px solid #2a3139; background: #0f1318; }
+  .tier strong { font: 700 16px 'Hubot Sans', sans-serif; }
+  .tier span { color: #87919b; font-size: 12px; }
+  .tier.active { border-color: #286f9c; background: rgba(22,150,232,.075); box-shadow: 0 0 0 1px rgba(22,150,232,.08) inset; }
+  .tier.active strong { color: #60b9ed; }
+  .tier i { position: absolute; top: 8px; right: 9px; color: var(--green); font: normal 8px 'IBM Plex Mono', monospace; }
+  .route-connector { height: 39px; padding-left: 39px; display: flex; align-items: center; gap: 12px; color: #59636e; }
+  .route-connector span { transform: rotate(90deg); color: #69747f; }
+  .route-connector small { font: 9px 'IBM Plex Mono', monospace; }
+  .tools-section { padding-top: 130px; padding-bottom: 140px; }
+  .tools-heading { display: grid; grid-template-columns: 1.25fr 1fr; align-items: end; gap: 45px; margin-bottom: 80px; }
+  .tools-heading h2 { font-size: clamp(43px, 4.7vw, 70px); }
+  .tools-heading > p:last-child { margin: 0; color: var(--muted); line-height: 1.65; }
+  .tool-list { border-top: 1px solid var(--line-strong); }
+  .tool-row { min-height: 132px; display: grid; grid-template-columns: .8fr 1.4fr 30px; align-items: center; gap: 40px; border-bottom: 1px solid var(--line); transition: background 180ms ease; }
+  .tool-row:hover { background: #0d1115; }
+  .tool-row h3 { margin: 0; font: 700 28px 'Hubot Sans', sans-serif; }
+  .tool-row p { margin: 0; color: #929ba5; line-height: 1.55; }
+  .tool-row i { color: #5f6974; font: normal 20px 'IBM Plex Mono', monospace; transition: transform 180ms ease, color 180ms ease; }
+  .tool-row:hover i { transform: translateX(5px); color: var(--blue); }
+  .demo-section { padding-bottom: 140px; }
+  .demo-heading { display: grid; grid-template-columns: 1.5fr .7fr; gap: 80px; align-items: end; margin-bottom: 45px; }
+  .demo-heading > p { margin: 0; color: var(--muted); line-height: 1.65; }
+  .live-demo-frame { height: min(780px, 82vh); min-height: 660px; border: 1px solid #343c45; border-radius: 8px; overflow: hidden; background: #181818; box-shadow: 0 35px 90px rgba(0,0,0,.35); }
+  .integrity-section { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #e8eaec; color: #11151a; }
+  .integrity-inner { padding-top: 130px; padding-bottom: 130px; }
+  .integrity-heading { display: grid; grid-template-columns: 1.25fr 1fr; align-items: end; gap: 45px; }
+  .integrity-heading h2 { font-size: clamp(45px, 5vw, 74px); }
+  .integrity-heading > p { margin: 0; color: #4f5963; line-height: 1.65; }
+  .safeguard-grid { margin-top: 82px; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #aeb5bb; border-left: 1px solid #aeb5bb; }
+  .safeguard-grid article { min-height: 270px; padding: 24px; border-right: 1px solid #aeb5bb; border-bottom: 1px solid #aeb5bb; }
+  .safeguard-grid h3 { margin: 42px 0 14px; font: 700 22px/1.15 'Hubot Sans', sans-serif; }
+  .safeguard-grid p { margin: 0; color: #505a64; font-size: 14px; line-height: 1.55; }
+  .audit-note { margin: 0; padding: 18px 20px; border: 1px solid #aeb5bb; border-top: 0; color: #4f5963; font-size: 14px; line-height: 1.6; }
+  .audit-note code { color: #11151a; font: 12px 'IBM Plex Mono', monospace; }
+  .principles-section { padding-top: 140px; padding-bottom: 150px; }
+  .principles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(60px, 10vw, 160px); }
+  .principles-grid h2 { font-size: clamp(44px, 4.4vw, 68px); }
+  .principles-grid h2 strong { color: var(--blue); font-weight: 700; }
+  .not-list { border-top: 1px solid var(--line-strong); }
+  .not-list > div { min-height: 108px; display: flex; align-items: center; border-bottom: 1px solid var(--line); }
+  .not-list p { margin: 0; color: #8e97a1; line-height: 1.5; }
+  .not-list strong { display: block; margin-bottom: 4px; color: #d3d7dc; font-weight: 700; }
+  .final-cta { min-height: 680px; padding: 120px 5vw; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-top: 1px solid var(--line); background:
+    linear-gradient(rgba(8,10,13,.65), rgba(8,10,13,.96)),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(255,255,255,.055) 80px),
+    repeating-linear-gradient(0deg, transparent 0 79px, rgba(255,255,255,.055) 80px);
+  }
+  .final-cta > img { margin-bottom: 34px; }
+  .final-cta h2 { font-size: clamp(52px, 6vw, 88px); }
+  .final-cta .hero-actions { justify-content: center; }
+  .final-cta > code { margin-top: 24px; color: #747e88; font: 11px 'IBM Plex Mono', monospace; }
+  footer { min-height: 96px; padding: 0 4vw; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 30px; border-top: 1px solid var(--line); color: #737d87; font-size: 11px; }
+  footer .brand { color: #cbd0d5; font-size: 15px; }
+  footer p { margin: 0; }
+  footer > div { justify-self: end; display: flex; gap: 24px; }
+  .reveal { animation: rise-in 700ms cubic-bezier(.2,.75,.25,1) both; }
+  .reveal-delay { animation-delay: 120ms; }
+  @keyframes rise-in { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .reveal { animation: none; } .arc-site * { scroll-behavior: auto !important; } }
+  @media (max-width: 1050px) {
+    .site-header { grid-template-columns: 1fr auto; }
+    .site-header nav { display: none; }
+    .hero { height: calc(100svh - 52px); min-height: 620px; grid-template-columns: 1fr; padding-top: 125px; overflow: hidden; }
+    .hero-copy { max-width: 780px; }
+    .product-window { width: min(850px, 100%); }
+    .statement { grid-template-columns: .35fr 1fr; }
+    .size-section, .routing-inner { grid-template-columns: 1fr; }
+    .size-copy { max-width: 700px; }
+    .routing-copy { max-width: 760px; }
+    .tools-heading, .integrity-heading { grid-template-columns: 1fr 1fr; }
+    .safeguard-grid { grid-template-columns: 1fr 1fr; }
+    .principles-grid { grid-template-columns: 1fr; }
+    .principles-grid h2 { max-width: 780px; }
+  }
+  @media (max-width: 700px) {
+    .site-header { height: 58px; padding: 0 20px; }
+    .header-install { gap: 8px; font-size: 11px; }
+    .hero { height: calc(100svh - 48px); min-height: 720px; padding: 108px 20px 44px; gap: 42px; }
+    .hero-grid { inset-top: 58px; background-size: 44px 44px; }
+    h1 { font-size: clamp(48px, 15vw, 68px); }
+    .hero-lede { font-size: 17px; }
+    .button { flex: 1 1 180px; }
+    .product-window { border-radius: 6px; font-size: 9px; }
+    .product-window { height: 470px; }
+    .proof-strip { grid-template-columns: 1fr 1fr; padding: 0; }
+    .proof-strip div { min-height: 100px; border-bottom: 1px solid var(--line); }
+    .section-shell { width: calc(100% - 40px); }
+    .statement { min-height: 0; padding: 90px 0; grid-template-columns: 1fr; }
+    .statement > div > p { margin-top: 25px; font-size: 17px; }
+    .size-section, .routing-inner, .tools-section, .integrity-inner, .principles-section { padding-top: 90px; padding-bottom: 90px; }
+    .chart-row { grid-template-columns: 72px 1fr 68px; gap: 9px; font-size: 9px; }
+    .routing-inner { gap: 55px; }
+    .routing-copy ul { grid-template-columns: 1fr; }
+    .tier { min-height: 78px; padding: 12px; grid-template-columns: 85px 1fr; }
+    .tier strong { font-size: 13px; }
+    .tier span { font-size: 10px; }
+    .tools-heading, .integrity-heading { grid-template-columns: 1fr; margin-bottom: 50px; }
+    .tool-row { min-height: 140px; padding: 22px 0; grid-template-columns: 1fr 20px; gap: 12px; }
+    .tool-row h3 { font-size: 23px; }
+    .tool-row p { grid-column: 1 / 3; font-size: 14px; }
+    .tool-row i { grid-column: 2; grid-row: 1; }
+    .demo-section { padding-bottom: 90px; }
+    .demo-heading { grid-template-columns: 1fr; gap: 25px; }
+    .safeguard-grid { grid-template-columns: 1fr; margin-top: 50px; }
+    .safeguard-grid article { min-height: 220px; }
+    .safeguard-grid h3 { margin-top: 42px; }
+    .not-list > div { padding: 18px 0; align-items: start; }
+    .final-cta { min-height: 600px; padding: 90px 20px; }
+    footer { padding: 28px 20px; grid-template-columns: 1fr auto; }
+    footer p { display: none; }
+    footer > div { gap: 14px; }
+  }
+</style>

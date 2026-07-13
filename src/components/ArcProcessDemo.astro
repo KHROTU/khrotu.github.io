@@ -1,0 +1,352 @@
+---
+interface Props {
+  variant?: 'compact' | 'complex';
+}
+const { variant = 'compact' } = Astro.props;
+const complex = variant === 'complex';
+---
+<div class:list={['arc-demo-shell', { 'is-complex': complex }]} aria-label={complex ? 'Arc working through a complex coding task' : 'Arc process interface'}>
+  <div class="arc-demo-topbar">
+    <button type="button" class="arc-model-trigger">
+      <span>Claude Sonnet 5</span>
+      <small>heavy</small>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+    </button>
+    <button type="button" class="arc-mode-trigger">Code</button>
+    <span class="arc-demo-spacer"></span>
+    <span class="arc-demo-cost">$0.04</span>
+    <span class="arc-demo-context">22%</span>
+    <button type="button" class="arc-iconbtn" aria-label="More options">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
+    </button>
+  </div>
+  <div class="arc-demo-transcript">
+    <div class="arc-bubble-user">
+      <div class="arc-bubble-text">
+        {complex
+          ? 'Replace the polling dashboard with a live event stream, preserve reconnect behavior, and verify it in the browser.'
+          : 'Trace the checkout regression, fix it, and verify the payment tests.'}
+      </div>
+    </div>
+    <div class:list={['arc-proc', { 'is-staged': complex }]}>
+      <div class="arc-proc-group stage stage-1">
+        <button type="button" class="arc-proc-group-toggle" aria-expanded="true">
+          <span class="arc-proc-group-icon-wrap">
+            <svg class="arc-proc-group-icon-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+            <svg class="arc-proc-group-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8" /></svg>
+          </span>
+          <span class="arc-proc-group-title">Called</span>
+          <span class="arc-proc-group-meta"><span class="arc-proc-count">{complex ? 11 : 5}</span> tools</span>
+        </button>
+        <div class="arc-proc-children-wrap">
+          <div class="arc-proc-children">
+            {complex && (
+              <>
+                <div class="arc-proc-node arc-proc-node-thought stage stage-2">
+                  <button type="button" class="arc-proc-row" disabled>
+                    <span class="arc-proc-row-mark">
+                      <svg class="arc-proc-dot-icon is-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z" /></svg>
+                    </span>
+                    <span class="arc-proc-title arc-proc-title-thought">Thought for 4.8 seconds</span>
+                  </button>
+                </div>
+                <div class="arc-proc-node arc-proc-node-todo_list stage stage-3">
+                  <button type="button" class="arc-proc-row" aria-expanded="true">
+                    <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
+                    <span class="arc-proc-title">Planned implementation</span>
+                    <svg class="arc-proc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                  </button>
+                  <div class="arc-proc-detail-wrap">
+                    <div class="arc-proc-detail">
+                      <ul class="arc-proc-todos">
+                        <li class="arc-proc-todo arc-proc-todo-done"><span class="arc-proc-todo-mark">✓</span><span class="arc-proc-todo-text">Map the polling and reconnect paths</span></li>
+                        <li class="arc-proc-todo arc-proc-todo-done"><span class="arc-proc-todo-mark">✓</span><span class="arc-proc-todo-text">Implement the event stream hook</span></li>
+                        <li class="arc-proc-todo arc-proc-todo-in_progress"><span class="arc-proc-todo-mark"><span class="arc-proc-todo-pulse"></span></span><span class="arc-proc-todo-text">Verify reconnect and rendering behavior</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            <div class="arc-proc-node arc-proc-node-tool stage stage-4">
+              <button type="button" class="arc-proc-row" disabled>
+                <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
+                <span class="arc-proc-title">Searched for {complex ? 'dashboard polling and reconnect logic' : 'payment session callers'}</span>
+              </button>
+            </div>
+            <div class="arc-proc-node arc-proc-node-tool stage stage-5">
+              <button type="button" class="arc-proc-row" disabled>
+                <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
+                <span class="arc-proc-title">Read {complex ? 'src/dashboard/useMetrics.ts' : 'src/checkout/session.ts'}</span>
+              </button>
+            </div>
+            {complex && (
+              <>
+                <div class="arc-proc-node arc-proc-node-tool stage stage-6">
+                  <button type="button" class="arc-proc-row" disabled>
+                    <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
+                    <span class="arc-proc-title">Found references to createPollingClient</span>
+                  </button>
+                </div>
+                <div class="arc-proc-node arc-proc-node-tool stage stage-7">
+                  <button type="button" class="arc-proc-row" aria-expanded="true">
+                    <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
+                    <span class="arc-proc-title">Ran dashboard tests</span>
+                    <svg class="arc-proc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                  </button>
+                  <div class="arc-proc-detail-wrap">
+                    <div class="arc-proc-detail">
+                      <div class="arc-proc-block"><span class="arc-proc-block-label">Command</span><div class="arc-code"><span class="arc-code-text"><span class="arc-syn-kw">pnpm</span> test dashboard --run</span></div></div>
+                      <div class="arc-proc-block"><span class="arc-proc-block-label">Output</span><div class="arc-code arc-code-output"><span class="arc-code-text">18 passed · 1 failed<br /><span class="arc-syn-err">Error:</span> reconnect resumes duplicate stream</span></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="arc-proc-group stage stage-8">
+                  <button type="button" class="arc-proc-group-toggle" aria-expanded="true">
+                    <span class="arc-proc-group-icon-wrap">
+                      <svg class="arc-proc-group-icon is-accent" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8" /><rect x="4" y="8" width="16" height="12" rx="2" /><path d="M9 13v2m6-2v2" /></svg>
+                    </span>
+                    <span class="arc-proc-group-title">Asked a subagent to inspect stream lifecycle edge cases</span>
+                  </button>
+                  <div class="arc-proc-children-wrap">
+                    <div class="arc-proc-children">
+                      <div class="arc-proc-node"><button type="button" class="arc-proc-row" disabled><span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span><span class="arc-proc-title">Read server event contract</span></button></div>
+                      <div class="arc-proc-node arc-proc-node-result"><button type="button" class="arc-proc-row" disabled><span class="arc-proc-row-mark"><span class="arc-proc-dot-icon is-ok">✓</span></span><span class="arc-proc-title">Found stale EventSource retained across retries</span></button></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="arc-proc-node arc-proc-node-handoff stage stage-9">
+                  <button type="button" class="arc-proc-row" aria-expanded="true">
+                    <span class="arc-proc-row-mark"><span class="arc-proc-dot-icon is-accent">→</span></span>
+                    <span class="arc-proc-title">Handed off for implementation</span>
+                    <svg class="arc-proc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                  </button>
+                  <div class="arc-proc-detail-wrap"><div class="arc-proc-detail"><div class="arc-proc-handoff"><div class="arc-proc-handoff-route"><span class="arc-proc-handoff-from">Claude Sonnet 5</span><span class="arc-proc-handoff-arrow">→</span><span class="arc-proc-handoff-to">GPT-5.6 Sol</span></div><div class="arc-proc-handoff-reason">Preserve the reconnect contract while replacing the transport.</div></div></div></div>
+                </div>
+              </>
+            )}
+            <div class="arc-proc-node arc-proc-node-tool stage stage-10">
+              <button type="button" class="arc-proc-row" aria-expanded="true">
+                <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
+                <span class="arc-proc-title">Edited {complex ? 'src/dashboard/useMetrics.ts' : 'src/checkout/session.ts'}</span>
+                <svg class="arc-proc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+              </button>
+              <div class="arc-proc-detail-wrap">
+                <div class="arc-proc-detail">
+                  <div class="arc-proc-block">
+                    <span class="arc-proc-block-label">Diff</span>
+                    <div class="arc-diff">
+                      <div class="arc-diff-file"><span class="arc-diff-file-icon">+</span><span class="arc-diff-file-name">{complex ? 'src/dashboard/useMetrics.ts' : 'src/checkout/session.ts'}</span><span class="arc-diff-file-spacer"></span></div>
+                      <div class="arc-diff-body">
+                        {complex ? (
+                          <>
+                            <div class="arc-diff-rem"><span class="arc-diff-sign">-</span><span class="arc-diff-old">42</span><span class="arc-diff-new"></span><span class="arc-diff-text">const timer = setInterval(refresh, 5000);</span></div>
+                            <div class="arc-diff-add"><span class="arc-diff-sign">+</span><span class="arc-diff-old"></span><span class="arc-diff-new">42</span><span class="arc-diff-text">const stream = connectMetrics(&#123; signal &#125;);</span></div>
+                            <div class="arc-diff-add"><span class="arc-diff-sign">+</span><span class="arc-diff-old"></span><span class="arc-diff-new">43</span><span class="arc-diff-text">stream.onmessage = applyMetricEvent;</span></div>
+                          </>
+                        ) : (
+                          <>
+                            <div class="arc-diff-rem"><span class="arc-diff-sign">-</span><span class="arc-diff-old">84</span><span class="arc-diff-new"></span><span class="arc-diff-text">return createSession(cart);</span></div>
+                            <div class="arc-diff-add"><span class="arc-diff-sign">+</span><span class="arc-diff-old"></span><span class="arc-diff-new">84</span><span class="arc-diff-text">return createSession(cart, idempotencyKey);</span></div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {complex && (
+              <div class="arc-proc-node arc-proc-node-tool stage stage-11">
+                <button type="button" class="arc-proc-row" disabled>
+                  <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
+                  <span class="arc-proc-title">Checked problems · 0 diagnostics</span>
+                </button>
+              </div>
+            )}
+            <div class="arc-proc-node arc-proc-node-result stage stage-12">
+              <button type="button" class="arc-proc-row" aria-expanded="true">
+                <span class="arc-proc-row-mark"><span class="arc-proc-dot-icon is-ok">✓</span></span>
+                <span class="arc-proc-title">{complex ? 'Verified tests and reconnect behavior in the browser' : 'Verified payment tests · 12 passed'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="arc-demo-footer">
+    <div class="arc-composer">
+      <span>Ask Arc anything...</span>
+      <div class="arc-composer-bar">
+        <button type="button" class="arc-composer-tool" aria-label="Attach context">+</button>
+        <span class="arc-demo-spacer"></span>
+        <span class="arc-composer-hint">Shift+Enter for new line</span>
+        <button type="button" class="arc-composer-send" aria-label="Send">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7M12 19V5" /></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .arc-demo-shell {
+    --vscode-foreground: #cccccc;
+    --vscode-descriptionForeground: #858585;
+    --vscode-sideBar-background: #181818;
+    --vscode-input-background: #242424;
+    --arc-accent: #007fd4;
+    --arc-accent-soft: rgba(0, 127, 212, 0.12);
+    --arc-radius: 6px;
+    --arc-radius-lg: 8px;
+    --arc-dur: 180ms;
+    --arc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --arc-line: rgba(128, 128, 128, 0.22);
+    --arc-line-faint: rgba(127, 127, 127, 0.18);
+    --arc-line-tree: rgba(127, 127, 127, 0.28);
+    --arc-hover: rgba(127, 127, 127, 0.09);
+    --arc-toolbar-hover: rgba(127, 127, 127, 0.13);
+    --arc-code-bg: rgba(127, 127, 127, 0.1);
+    --arc-ok: #89d185;
+    --arc-err: #f14c4c;
+    --arc-info: #4cc2ff;
+    --arc-syn-kw: #c678dd;
+    color: var(--vscode-foreground);
+    background: var(--vscode-sideBar-background);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+  button { font: inherit; }
+  svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .arc-demo-topbar { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-bottom: 1px solid var(--arc-line); min-height: 38px; flex-shrink: 0; }
+  .arc-model-trigger, .arc-mode-trigger { display: inline-flex; align-items: center; gap: 5px; background: transparent; color: var(--vscode-foreground); border: 1px solid transparent; border-radius: 5px; padding: 2px 6px; font-size: 12px; }
+  .arc-model-trigger small { color: var(--vscode-descriptionForeground); font-size: 9.5px; font-weight: 600; }
+  .arc-mode-trigger { border-left-color: var(--arc-line); border-radius: 0; }
+  .arc-demo-spacer { flex: 1; }
+  .arc-demo-cost { font-variant-numeric: tabular-nums; }
+  .arc-demo-context { color: var(--vscode-descriptionForeground); font-size: 11px; }
+  .arc-iconbtn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; background: transparent; border: 0; border-radius: 5px; color: var(--vscode-descriptionForeground); }
+  .arc-iconbtn svg { fill: currentColor; stroke: none; }
+  .arc-demo-transcript { flex: 1; min-height: 0; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+  .is-complex .arc-demo-transcript { overflow-y: auto; scrollbar-width: thin; }
+  .arc-bubble-user { align-self: flex-end; max-width: 90%; }
+  .arc-bubble-text { background: var(--arc-accent-soft); padding: 7px 12px; border-radius: 10px 10px 2px 10px; line-height: 1.5; }
+  .arc-demo-footer { padding: 8px 10px 10px; flex-shrink: 0; }
+  .arc-composer { display: flex; flex-direction: column; min-height: 72px; background: var(--vscode-input-background); border: 1px solid var(--arc-line); border-radius: var(--arc-radius-lg); padding: 9px 8px 4px; color: var(--vscode-descriptionForeground); }
+  .arc-composer-bar { display: flex; align-items: center; gap: 6px; margin-top: auto; }
+  .arc-composer-tool { width: 26px; height: 26px; background: transparent; border: 0; color: var(--vscode-descriptionForeground); font-size: 20px; }
+  .arc-composer-hint { font-size: 10.5px; opacity: 0.75; }
+  .arc-composer-send { display: inline-flex; align-items: center; justify-content: center; width: 27px; height: 27px; border: 0; border-radius: 8px; background: var(--arc-accent); color: #fff; }
+  .arc-proc { display: flex; flex-direction: column; gap: 1px; font-size: 13px; padding: 2px 0; }
+  .arc-proc-group { display: flex; flex-direction: column; position: relative; }
+  .arc-proc-group-toggle { display: inline-flex; align-items: center; gap: 6px; width: max-content; max-width: 100%; background: transparent; border: 0; color: var(--vscode-descriptionForeground); font-size: 12.5px; padding: 3px 8px 3px 4px; border-radius: 5px; }
+  .arc-proc-group-icon-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+  .arc-proc-group-icon-chevron { position: absolute; opacity: 0; transform: rotate(90deg); }
+  .arc-proc-group-icon { position: absolute; color: var(--vscode-descriptionForeground); }
+  .arc-proc-group-icon.is-accent { color: var(--arc-info); }
+  .arc-proc-group-title { color: var(--vscode-foreground); font-weight: 500; }
+  .arc-proc-group-meta { display: inline-flex; gap: 3px; color: var(--vscode-descriptionForeground); }
+  .arc-proc-count { font-weight: 600; color: var(--vscode-foreground); }
+  .arc-proc-children-wrap, .arc-proc-detail-wrap { overflow: visible; }
+  .arc-proc-children { position: relative; margin-left: 8px; padding-left: 16px; display: flex; flex-direction: column; gap: 1px; }
+  .arc-proc-children > .arc-proc-node, .arc-proc-children > .arc-proc-group { position: relative; }
+  .arc-proc-children > .arc-proc-node::before, .arc-proc-children > .arc-proc-group::before { content: ''; position: absolute; left: -16px; top: 4px; width: 16px; height: 12px; border-left: 1px solid var(--arc-line-tree); border-bottom: 1px solid var(--arc-line-tree); border-radius: 0 0 0 8px; }
+  .arc-proc-children > .arc-proc-node::after, .arc-proc-children > .arc-proc-group::after { content: ''; position: absolute; left: -16px; top: 0; height: 7px; width: 1px; background: var(--arc-line-tree); }
+  .arc-proc-children > .arc-proc-node:not(:last-child)::after, .arc-proc-children > .arc-proc-group:not(:last-child)::after { height: auto; bottom: -2px; }
+  .arc-proc-row { display: flex; align-items: center; gap: 8px; width: max-content; max-width: 100%; background: transparent; border: 0; color: inherit; text-align: left; padding: 4px 8px 4px 4px; border-radius: 5px; }
+  .arc-proc-row-mark { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+  .arc-proc-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--vscode-descriptionForeground); opacity: 0.55; }
+  .arc-proc-dot-icon { width: 12px; height: 12px; }
+  span.arc-proc-dot-icon { display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .arc-proc-dot-icon.is-ok { color: var(--arc-ok); }
+  .arc-proc-dot-icon.is-accent { color: var(--arc-info); }
+  .arc-proc-dot-icon.is-muted { color: var(--vscode-descriptionForeground); }
+  .arc-proc-title { color: var(--vscode-descriptionForeground); font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .arc-proc-row[aria-expanded='true'] .arc-proc-title, .arc-proc-node-result .arc-proc-title { color: var(--vscode-foreground); }
+  .arc-proc-title-thought { font-style: italic; }
+  .arc-proc-chevron { color: var(--vscode-descriptionForeground); margin-left: 2px; }
+  .arc-proc-detail { margin: 2px 0 8px 11px; padding-left: 16px; border-left: 1px solid var(--arc-line-faint); display: flex; flex-direction: column; gap: 8px; }
+  .arc-proc-block { display: flex; flex-direction: column; gap: 4px; }
+  .arc-proc-block-label { font-size: 10px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--vscode-descriptionForeground); }
+  .arc-code { background: var(--arc-code-bg); border: 1px solid var(--arc-line); border-radius: var(--arc-radius); padding: 8px 10px; overflow-x: auto; }
+  .arc-code-text { font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.55; white-space: pre-wrap; }
+  .arc-syn-kw { color: var(--arc-syn-kw); }
+  .arc-syn-err { color: var(--arc-err); font-weight: 600; }
+  .arc-proc-todos { list-style: none; margin: 0; padding: 2px 0; display: flex; flex-direction: column; gap: 4px; }
+  .arc-proc-todo { display: flex; align-items: flex-start; gap: 9px; line-height: 1.5; }
+  .arc-proc-todo-mark { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 18px; flex-shrink: 0; color: var(--vscode-descriptionForeground); }
+  .arc-proc-todo-done .arc-proc-todo-mark { color: var(--arc-ok); }
+  .arc-proc-todo-text { color: var(--vscode-descriptionForeground); }
+  .arc-proc-todo-in_progress .arc-proc-todo-text { color: var(--vscode-foreground); }
+  .arc-proc-todo-pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--arc-info); animation: arc-pulse 1.4s var(--arc-ease) infinite; }
+  .arc-proc-handoff { border-left: 2px solid var(--arc-accent); background: var(--arc-accent-soft); border-radius: 0 var(--arc-radius) var(--arc-radius) 0; padding: 7px 10px; }
+  .arc-proc-handoff-route { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
+  .arc-proc-handoff-from, .arc-proc-handoff-arrow { color: var(--vscode-descriptionForeground); }
+  .arc-proc-handoff-to { color: var(--arc-info); font-weight: 600; }
+  .arc-proc-handoff-reason { color: var(--vscode-descriptionForeground); font-size: 12.5px; margin-top: 4px; line-height: 1.45; }
+  .arc-diff { border: 1px solid var(--arc-line); border-radius: var(--arc-radius); overflow: hidden; }
+  .arc-diff-file { display: flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 12px; font-weight: 500; background: var(--arc-code-bg); border-bottom: 1px solid var(--arc-line); }
+  .arc-diff-file-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 3px; background: var(--arc-ok); color: #fff; font-size: 11px; font-weight: 700; }
+  .arc-diff-file-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .arc-diff-file-spacer { flex: 1; }
+  .arc-diff-body { font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.55; }
+  .arc-diff-body > div { display: flex; min-height: 1.55em; }
+  .arc-diff-sign { width: 18px; flex-shrink: 0; text-align: center; font-weight: 600; opacity: 0.65; }
+  .arc-diff-old, .arc-diff-new { width: 36px; flex-shrink: 0; text-align: right; opacity: 0.4; padding-right: 6px; }
+  .arc-diff-text { flex: 1; white-space: pre-wrap; word-break: break-word; padding-right: 8px; }
+  .arc-diff-add { background: color-mix(in srgb, var(--arc-ok) 12%, transparent); }
+  .arc-diff-rem { background: color-mix(in srgb, var(--arc-err) 12%, transparent); }
+  .arc-diff-add .arc-diff-sign { color: var(--arc-ok); opacity: 1; }
+  .arc-diff-rem .arc-diff-sign { color: var(--arc-err); opacity: 1; }
+  .is-staged .stage { opacity: 1; }
+  .is-staged.is-playing .stage { animation: stage-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .is-staged .stage-1 { animation-delay: 150ms; }
+  .is-staged .stage-2 { animation-delay: 700ms; }
+  .is-staged .stage-3 { animation-delay: 1200ms; }
+  .is-staged .stage-4 { animation-delay: 1900ms; }
+  .is-staged .stage-5 { animation-delay: 2400ms; }
+  .is-staged .stage-6 { animation-delay: 2900ms; }
+  .is-staged .stage-7 { animation-delay: 3500ms; }
+  .is-staged .stage-8 { animation-delay: 4400ms; }
+  .is-staged .stage-9 { animation-delay: 5300ms; }
+  .is-staged .stage-10 { animation-delay: 6100ms; }
+  .is-staged .stage-11 { animation-delay: 7000ms; }
+  .is-staged .stage-12 { animation-delay: 7600ms; }
+  @keyframes stage-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes arc-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.28); } }
+  @media (prefers-reduced-motion: reduce) { .is-staged .stage { opacity: 1; animation: none; } }
+  @media (max-width: 600px) {
+    .arc-demo-topbar { padding-inline: 5px; }
+    .arc-model-trigger small, .arc-demo-context, .arc-composer-hint { display: none; }
+    .arc-demo-transcript { padding: 8px; }
+    .arc-proc-detail { margin-left: 5px; padding-left: 10px; }
+    .arc-diff-old, .arc-diff-new { width: 24px; }
+  }
+</style>
+<script>
+  const demos = document.querySelectorAll<HTMLElement>('.arc-demo-shell.is-complex');
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const demo = entry.target as HTMLElement;
+      const transcript = demo.querySelector<HTMLElement>('.arc-demo-transcript');
+      demo.classList.add('is-playing');
+      const followStage = (selector: string) => {
+        const stage = demo.querySelector<HTMLElement>(selector);
+        if (!transcript || !stage) return;
+        const offset = stage.getBoundingClientRect().top - transcript.getBoundingClientRect().top + transcript.scrollTop - 48;
+        transcript.scrollTo({ top: offset, behavior: 'smooth' });
+      };
+      window.setTimeout(() => followStage('.stage-8'), 4500);
+      window.setTimeout(() => followStage('.stage-10'), 6200);
+      window.setTimeout(() => followStage('.stage-12'), 7700);
+      observer.unobserve(entry.target);
+    }
+  }, { threshold: 0.28 });
+  demos.forEach((demo) => observer.observe(demo));
+</script>
