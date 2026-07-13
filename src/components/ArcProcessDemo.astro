@@ -7,18 +7,18 @@ const complex = variant === 'complex';
 ---
 <div class:list={['arc-demo-shell', { 'is-complex': complex }]} aria-label={complex ? 'Arc working through a complex coding task' : 'Arc process interface'}>
   <div class="arc-demo-topbar">
-    <button type="button" class="arc-model-trigger">
+    <div class="arc-model-trigger" aria-hidden="true">
       <span>Claude Sonnet 5</span>
       <small>heavy</small>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-    </button>
-    <button type="button" class="arc-mode-trigger">Code</button>
+    </div>
+    <div class="arc-mode-trigger" aria-hidden="true">Code</div>
     <span class="arc-demo-spacer"></span>
     <span class="arc-demo-cost">$0.04</span>
     <span class="arc-demo-context">22%</span>
-    <button type="button" class="arc-iconbtn" aria-label="More options">
+    <div class="arc-iconbtn" aria-hidden="true">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
-    </button>
+    </div>
   </div>
   <div class="arc-demo-transcript">
     <div class="arc-bubble-user">
@@ -29,33 +29,33 @@ const complex = variant === 'complex';
       </div>
     </div>
     <div class:list={['arc-proc', { 'is-staged': complex }]}>
-      <div class="arc-proc-group stage stage-1">
-        <button type="button" class="arc-proc-group-toggle" aria-expanded="true">
+      <details class="arc-proc-group stage stage-1" open>
+        <summary class="arc-proc-group-toggle">
           <span class="arc-proc-group-icon-wrap">
             <svg class="arc-proc-group-icon-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
             <svg class="arc-proc-group-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8" /></svg>
           </span>
           <span class="arc-proc-group-title">Called</span>
           <span class="arc-proc-group-meta"><span class="arc-proc-count">{complex ? 11 : 5}</span> tools</span>
-        </button>
+        </summary>
         <div class="arc-proc-children-wrap">
           <div class="arc-proc-children">
             {complex && (
               <>
                 <div class="arc-proc-node arc-proc-node-thought stage stage-2">
-                  <button type="button" class="arc-proc-row" disabled>
+                  <div class="arc-proc-row">
                     <span class="arc-proc-row-mark">
                       <svg class="arc-proc-dot-icon is-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z" /></svg>
                     </span>
                     <span class="arc-proc-title arc-proc-title-thought">Thought for 4.8 seconds</span>
-                  </button>
+                  </div>
                 </div>
-                <div class="arc-proc-node arc-proc-node-todo_list stage stage-3">
-                  <button type="button" class="arc-proc-row" aria-expanded="true">
+                <details class="arc-proc-node arc-proc-node-todo_list stage stage-3" open>
+                  <summary class="arc-proc-row">
                     <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
                     <span class="arc-proc-title">Planned implementation</span>
                     <svg class="arc-proc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-                  </button>
+                  </summary>
                   <div class="arc-proc-detail-wrap">
                     <div class="arc-proc-detail">
                       <ul class="arc-proc-todos">
@@ -65,72 +65,72 @@ const complex = variant === 'complex';
                       </ul>
                     </div>
                   </div>
-                </div>
+                </details>
               </>
             )}
             <div class="arc-proc-node arc-proc-node-tool stage stage-4">
-              <button type="button" class="arc-proc-row" disabled>
+              <div class="arc-proc-row">
                 <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
                 <span class="arc-proc-title">Searched for {complex ? 'dashboard polling and reconnect logic' : 'payment session callers'}</span>
-              </button>
+              </div>
             </div>
             <div class="arc-proc-node arc-proc-node-tool stage stage-5">
-              <button type="button" class="arc-proc-row" disabled>
+              <div class="arc-proc-row">
                 <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
                 <span class="arc-proc-title">Read {complex ? 'src/dashboard/useMetrics.ts' : 'src/checkout/session.ts'}</span>
-              </button>
+              </div>
             </div>
             {complex && (
               <>
                 <div class="arc-proc-node arc-proc-node-tool stage stage-6">
-                  <button type="button" class="arc-proc-row" disabled>
+                  <div class="arc-proc-row">
                     <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
                     <span class="arc-proc-title">Found references to createPollingClient</span>
-                  </button>
+                  </div>
                 </div>
-                <div class="arc-proc-node arc-proc-node-tool stage stage-7">
-                  <button type="button" class="arc-proc-row" aria-expanded="true">
+                <details class="arc-proc-node arc-proc-node-tool stage stage-7" open>
+                  <summary class="arc-proc-row">
                     <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
                     <span class="arc-proc-title">Ran dashboard tests</span>
                     <svg class="arc-proc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-                  </button>
+                  </summary>
                   <div class="arc-proc-detail-wrap">
                     <div class="arc-proc-detail">
                       <div class="arc-proc-block"><span class="arc-proc-block-label">Command</span><div class="arc-code"><span class="arc-code-text"><span class="arc-syn-kw">pnpm</span> test dashboard --run</span></div></div>
                       <div class="arc-proc-block"><span class="arc-proc-block-label">Output</span><div class="arc-code arc-code-output"><span class="arc-code-text">18 passed · 1 failed<br /><span class="arc-syn-err">Error:</span> reconnect resumes duplicate stream</span></div></div>
                     </div>
                   </div>
-                </div>
-                <div class="arc-proc-group stage stage-8">
-                  <button type="button" class="arc-proc-group-toggle" aria-expanded="true">
+                </details>
+                <details class="arc-proc-group stage stage-8" open>
+                  <summary class="arc-proc-group-toggle">
                     <span class="arc-proc-group-icon-wrap">
                       <svg class="arc-proc-group-icon is-accent" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8" /><rect x="4" y="8" width="16" height="12" rx="2" /><path d="M9 13v2m6-2v2" /></svg>
                     </span>
                     <span class="arc-proc-group-title">Asked a subagent to inspect stream lifecycle edge cases</span>
-                  </button>
+                  </summary>
                   <div class="arc-proc-children-wrap">
                     <div class="arc-proc-children">
-                      <div class="arc-proc-node"><button type="button" class="arc-proc-row" disabled><span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span><span class="arc-proc-title">Read server event contract</span></button></div>
-                      <div class="arc-proc-node arc-proc-node-result"><button type="button" class="arc-proc-row" disabled><span class="arc-proc-row-mark"><span class="arc-proc-dot-icon is-ok">✓</span></span><span class="arc-proc-title">Found stale EventSource retained across retries</span></button></div>
+                      <div class="arc-proc-node"><div class="arc-proc-row"><span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span><span class="arc-proc-title">Read server event contract</span></div></div>
+                      <div class="arc-proc-node arc-proc-node-result"><div class="arc-proc-row"><span class="arc-proc-row-mark"><span class="arc-proc-dot-icon is-ok">✓</span></span><span class="arc-proc-title">Found stale EventSource retained across retries</span></div></div>
                     </div>
                   </div>
-                </div>
-                <div class="arc-proc-node arc-proc-node-handoff stage stage-9">
-                  <button type="button" class="arc-proc-row" aria-expanded="true">
+                </details>
+                <details class="arc-proc-node arc-proc-node-handoff stage stage-9" open>
+                  <summary class="arc-proc-row">
                     <span class="arc-proc-row-mark"><span class="arc-proc-dot-icon is-accent">→</span></span>
                     <span class="arc-proc-title">Handed off for implementation</span>
                     <svg class="arc-proc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-                  </button>
+                  </summary>
                   <div class="arc-proc-detail-wrap"><div class="arc-proc-detail"><div class="arc-proc-handoff"><div class="arc-proc-handoff-route"><span class="arc-proc-handoff-from">Claude Sonnet 5</span><span class="arc-proc-handoff-arrow">→</span><span class="arc-proc-handoff-to">GPT-5.6 Sol</span></div><div class="arc-proc-handoff-reason">Preserve the reconnect contract while replacing the transport.</div></div></div></div>
-                </div>
+                </details>
               </>
             )}
-            <div class="arc-proc-node arc-proc-node-tool stage stage-10">
-              <button type="button" class="arc-proc-row" aria-expanded="true">
+            <details class="arc-proc-node arc-proc-node-tool stage stage-10" open>
+              <summary class="arc-proc-row">
                 <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
                 <span class="arc-proc-title">Edited {complex ? 'src/dashboard/useMetrics.ts' : 'src/checkout/session.ts'}</span>
                 <svg class="arc-proc-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-              </button>
+              </summary>
               <div class="arc-proc-detail-wrap">
                 <div class="arc-proc-detail">
                   <div class="arc-proc-block">
@@ -155,36 +155,36 @@ const complex = variant === 'complex';
                   </div>
                 </div>
               </div>
-            </div>
+            </details>
             {complex && (
               <div class="arc-proc-node arc-proc-node-tool stage stage-11">
-                <button type="button" class="arc-proc-row" disabled>
+                <div class="arc-proc-row">
                   <span class="arc-proc-row-mark"><span class="arc-proc-dot"></span></span>
                   <span class="arc-proc-title">Checked problems · 0 diagnostics</span>
-                </button>
+                </div>
               </div>
             )}
-            <div class="arc-proc-node arc-proc-node-result stage stage-12">
-              <button type="button" class="arc-proc-row" aria-expanded="true">
+            <details class="arc-proc-node arc-proc-node-result stage stage-12" open>
+              <summary class="arc-proc-row">
                 <span class="arc-proc-row-mark"><span class="arc-proc-dot-icon is-ok">✓</span></span>
                 <span class="arc-proc-title">{complex ? 'Verified tests and reconnect behavior in the browser' : 'Verified payment tests · 12 passed'}</span>
-              </button>
-            </div>
+              </summary>
+            </details>
           </div>
         </div>
-      </div>
+      </details>
     </div>
   </div>
   <div class="arc-demo-footer">
     <div class="arc-composer">
       <span>Ask Arc anything...</span>
       <div class="arc-composer-bar">
-        <button type="button" class="arc-composer-tool" aria-label="Attach context">+</button>
+        <div class="arc-composer-tool" aria-hidden="true">+</div>
         <span class="arc-demo-spacer"></span>
         <span class="arc-composer-hint">Shift+Enter for new line</span>
-        <button type="button" class="arc-composer-send" aria-label="Send">
+        <div class="arc-composer-send" aria-hidden="true">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7M12 19V5" /></svg>
-        </button>
+        </div>
       </div>
     </div>
   </div>
@@ -221,7 +221,6 @@ const complex = variant === 'complex';
     height: 100%;
     min-height: 0;
   }
-  button { font: inherit; }
   svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .arc-demo-topbar { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-bottom: 1px solid var(--arc-line); min-height: 38px; flex-shrink: 0; }
   .arc-model-trigger, .arc-mode-trigger { display: inline-flex; align-items: center; gap: 5px; background: transparent; color: var(--vscode-foreground); border: 1px solid transparent; border-radius: 5px; padding: 2px 6px; font-size: 12px; }
@@ -239,12 +238,19 @@ const complex = variant === 'complex';
   .arc-demo-footer { padding: 8px 10px 10px; flex-shrink: 0; }
   .arc-composer { display: flex; flex-direction: column; min-height: 72px; background: var(--vscode-input-background); border: 1px solid var(--arc-line); border-radius: var(--arc-radius-lg); padding: 9px 8px 4px; color: var(--vscode-descriptionForeground); }
   .arc-composer-bar { display: flex; align-items: center; gap: 6px; margin-top: auto; }
-  .arc-composer-tool { width: 26px; height: 26px; background: transparent; border: 0; color: var(--vscode-descriptionForeground); font-size: 20px; }
+  .arc-composer-tool { width: 26px; height: 26px; background: transparent; border: 0; color: var(--vscode-descriptionForeground); font-size: 20px; display: flex; align-items: center; justify-content: center; }
   .arc-composer-hint { font-size: 10.5px; opacity: 0.75; }
   .arc-composer-send { display: inline-flex; align-items: center; justify-content: center; width: 27px; height: 27px; border: 0; border-radius: 8px; background: var(--arc-accent); color: #fff; }
   .arc-proc { display: flex; flex-direction: column; gap: 1px; font-size: 13px; padding: 2px 0; }
   .arc-proc-group { display: flex; flex-direction: column; position: relative; }
-  .arc-proc-group-toggle { display: inline-flex; align-items: center; gap: 6px; width: max-content; max-width: 100%; background: transparent; border: 0; color: var(--vscode-descriptionForeground); font-size: 12.5px; padding: 3px 8px 3px 4px; border-radius: 5px; }
+  details > summary {
+    list-style: none;
+    outline: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+  .arc-proc-group-toggle { display: inline-flex; align-items: center; gap: 6px; width: max-content; max-width: 100%; background: transparent; border: 0; color: var(--vscode-descriptionForeground); font-size: 12.5px; padding: 3px 8px 3px 4px; border-radius: 5px; cursor: pointer; font: inherit; }
   .arc-proc-group-icon-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
   .arc-proc-group-icon-chevron { position: absolute; opacity: 0; transform: rotate(90deg); }
   .arc-proc-group-icon { position: absolute; color: var(--vscode-descriptionForeground); }
@@ -258,7 +264,8 @@ const complex = variant === 'complex';
   .arc-proc-children > .arc-proc-node::before, .arc-proc-children > .arc-proc-group::before { content: ''; position: absolute; left: -16px; top: 4px; width: 16px; height: 12px; border-left: 1px solid var(--arc-line-tree); border-bottom: 1px solid var(--arc-line-tree); border-radius: 0 0 0 8px; }
   .arc-proc-children > .arc-proc-node::after, .arc-proc-children > .arc-proc-group::after { content: ''; position: absolute; left: -16px; top: 0; height: 7px; width: 1px; background: var(--arc-line-tree); }
   .arc-proc-children > .arc-proc-node:not(:last-child)::after, .arc-proc-children > .arc-proc-group:not(:last-child)::after { height: auto; bottom: -2px; }
-  .arc-proc-row { display: flex; align-items: center; gap: 8px; width: max-content; max-width: 100%; background: transparent; border: 0; color: inherit; text-align: left; padding: 4px 8px 4px 4px; border-radius: 5px; }
+  .arc-proc-row { display: flex; align-items: center; gap: 8px; width: max-content; max-width: 100%; background: transparent; border: 0; color: inherit; text-align: left; padding: 4px 8px 4px 4px; border-radius: 5px; font: inherit; }
+  details.arc-proc-node > summary.arc-proc-row { cursor: pointer; }
   .arc-proc-row-mark { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
   .arc-proc-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--vscode-descriptionForeground); opacity: 0.55; }
   .arc-proc-dot-icon { width: 12px; height: 12px; }
@@ -267,7 +274,7 @@ const complex = variant === 'complex';
   .arc-proc-dot-icon.is-accent { color: var(--arc-info); }
   .arc-proc-dot-icon.is-muted { color: var(--vscode-descriptionForeground); }
   .arc-proc-title { color: var(--vscode-descriptionForeground); font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .arc-proc-row[aria-expanded='true'] .arc-proc-title, .arc-proc-node-result .arc-proc-title { color: var(--vscode-foreground); }
+  details[open] > summary.arc-proc-row .arc-proc-title, .arc-proc-node-result .arc-proc-title { color: var(--vscode-foreground); }
   .arc-proc-title-thought { font-style: italic; }
   .arc-proc-chevron { color: var(--vscode-descriptionForeground); margin-left: 2px; }
   .arc-proc-detail { margin: 2px 0 8px 11px; padding-left: 16px; border-left: 1px solid var(--arc-line-faint); display: flex; flex-direction: column; gap: 8px; }
@@ -304,20 +311,20 @@ const complex = variant === 'complex';
   .arc-diff-add .arc-diff-sign { color: var(--arc-ok); opacity: 1; }
   .arc-diff-rem .arc-diff-sign { color: var(--arc-err); opacity: 1; }
   .is-staged .stage { opacity: 1; }
-  .is-staged.is-playing .stage { animation: stage-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-  .is-staged .stage-1 { animation-delay: 150ms; }
-  .is-staged .stage-2 { animation-delay: 700ms; }
-  .is-staged .stage-3 { animation-delay: 1200ms; }
-  .is-staged .stage-4 { animation-delay: 1900ms; }
-  .is-staged .stage-5 { animation-delay: 2400ms; }
-  .is-staged .stage-6 { animation-delay: 2900ms; }
-  .is-staged .stage-7 { animation-delay: 3500ms; }
-  .is-staged .stage-8 { animation-delay: 4400ms; }
-  .is-staged .stage-9 { animation-delay: 5300ms; }
-  .is-staged .stage-10 { animation-delay: 6100ms; }
-  .is-staged .stage-11 { animation-delay: 7000ms; }
-  .is-staged .stage-12 { animation-delay: 7600ms; }
-  @keyframes stage-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .is-staged.is-playing .stage { animation: stage-in 400ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .is-staged .stage-1 { animation-delay: 50ms; }
+  .is-staged .stage-2 { animation-delay: 200ms; }
+  .is-staged .stage-3 { animation-delay: 400ms; }
+  .is-staged .stage-4 { animation-delay: 600ms; }
+  .is-staged .stage-5 { animation-delay: 800ms; }
+  .is-staged .stage-6 { animation-delay: 1000ms; }
+  .is-staged .stage-7 { animation-delay: 1200ms; }
+  .is-staged .stage-8 { animation-delay: 1400ms; }
+  .is-staged .stage-9 { animation-delay: 1600ms; }
+  .is-staged .stage-10 { animation-delay: 1800ms; }
+  .is-staged .stage-11 { animation-delay: 2000ms; }
+  .is-staged .stage-12 { animation-delay: 2200ms; }
+  @keyframes stage-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes arc-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.28); } }
   @media (prefers-reduced-motion: reduce) { .is-staged .stage { opacity: 1; animation: none; } }
   @media (max-width: 600px) {
@@ -334,17 +341,7 @@ const complex = variant === 'complex';
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       const demo = entry.target as HTMLElement;
-      const transcript = demo.querySelector<HTMLElement>('.arc-demo-transcript');
       demo.classList.add('is-playing');
-      const followStage = (selector: string) => {
-        const stage = demo.querySelector<HTMLElement>(selector);
-        if (!transcript || !stage) return;
-        const offset = stage.getBoundingClientRect().top - transcript.getBoundingClientRect().top + transcript.scrollTop - 48;
-        transcript.scrollTo({ top: offset, behavior: 'smooth' });
-      };
-      window.setTimeout(() => followStage('.stage-8'), 4500);
-      window.setTimeout(() => followStage('.stage-10'), 6200);
-      window.setTimeout(() => followStage('.stage-12'), 7700);
       observer.unobserve(entry.target);
     }
   }, { threshold: 0.28 });

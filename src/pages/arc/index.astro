@@ -22,13 +22,13 @@ const safeguards = [
 >
   <link rel="preload" href="/fonts/HubotSans-Bold.ttf" as="font" type="font/ttf" crossorigin slot="head" />
   <link rel="preload" href="/fonts/IBMPlexMono-Regular.ttf" as="font" type="font/ttf" crossorigin slot="head" />
-    <link rel="preload" href="/arc/arc-logo-mono-text.svg" as="image" type="image/svg+xml" slot="head" />
+  <link rel="preload" href="/arc/arc-logo-mono-text.svg" as="image" type="image/svg+xml" slot="head" />
   <div class="arc-site">
     <header class="site-header">
       <a class="brand" href="/arc" aria-label="Arc home">
-        <img src="/arc/arc-logo-mono-text.svg" alt="Arc" width="92" height="26" />
+        <img src="/arc/arc-logo-mono-text.svg" alt="Arc logo" width="92" height="26" />
       </a>
-      <nav aria-label="Primary navigation">
+      <nav aria-label="Primary navigation" class="site-nav">
         <a href="#architecture">Architecture</a>
         <a href="#tools">Tools</a>
         <a href={githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -80,17 +80,57 @@ const safeguards = [
           <h2 id="size-title">Less extension.<br />More attention on code.</h2>
           <p>Arc's tiny extension footprint leaves more room for the code, tools, and models that do the work.</p>
         </div>
-        <div class="size-chart" tabindex="0">
+        <dl class="size-chart" tabindex="0" aria-label="Extension package size comparison. Focus or hover to magnify scale differences.">
           <div class="hover-cue">
             <span>Hover me</span>
             <svg viewBox="0 0 110 50" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M 102 12 C 85 4, 72 4, 68 16 C 64 28, 88 28, 82 16 C 76 4, 35 12, 12 38" /><path d="M 24 37 L 12 38 L 16 26" /></svg>
           </div>
-          <div class="chart-row is-arc"><span>Arc</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 0.1794%"></div></div></div><strong>0.20 MB</strong></div>
-          <div class="chart-row"><span>Cline</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 9.1317%"><em>50.9x Arc</em></div></div></div><strong>10.18 MB</strong></div>
-          <div class="chart-row"><span>Roo Code</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 27.0093%"><em>150.6x Arc</em></div></div></div><strong>30.11 MB</strong></div>
-          <div class="chart-row"><span>Kilo Code</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 91.8183%"><em>511.8x Arc</em></div></div></div><strong>102.36 MB</strong></div>
-          <div class="chart-row"><span>Continue</span><div class="bar-viewport"><div class="bar-scale"><div class="size-bar" style="--size: 100%"><em>557.4x Arc</em></div></div></div><strong>111.48 MB</strong></div>
-        </div>
+          <div class="chart-row is-arc">
+            <dt>Arc</dt>
+            <dd class="bar-viewport">
+              <div class="bar-scale">
+                <div class="size-bar" style="--size: 0.1794%" aria-hidden="true"></div>
+              </div>
+            </dd>
+            <dd class="chart-val"><strong>0.20 MB</strong><span class="sr-only">(Reference size)</span></dd>
+          </div>
+          <div class="chart-row">
+            <dt>Cline</dt>
+            <dd class="bar-viewport">
+              <div class="bar-scale">
+                <div class="size-bar" style="--size: 9.1317%" aria-hidden="true"><em>50.9x Arc</em></div>
+              </div>
+            </dd>
+            <dd class="chart-val"><strong>10.18 MB</strong><span class="sr-only">(50.9 times larger than Arc)</span></dd>
+          </div>
+          <div class="chart-row">
+            <dt>Roo Code</dt>
+            <dd class="bar-viewport">
+              <div class="bar-scale">
+                <div class="size-bar" style="--size: 27.0093%" aria-hidden="true"><em>150.6x Arc</em></div>
+              </div>
+            </dd>
+            <dd class="chart-val"><strong>30.11 MB</strong><span class="sr-only">(150.6 times larger than Arc)</span></dd>
+          </div>
+          <div class="chart-row">
+            <dt>Kilo Code</dt>
+            <dd class="bar-viewport">
+              <div class="bar-scale">
+                <div class="size-bar" style="--size: 91.8183%" aria-hidden="true"><em>511.8x Arc</em></div>
+              </div>
+            </dd>
+            <dd class="chart-val"><strong>102.36 MB</strong><span class="sr-only">(511.8 times larger than Arc)</span></dd>
+          </div>
+          <div class="chart-row">
+            <dt>Continue</dt>
+            <dd class="bar-viewport">
+              <div class="bar-scale">
+                <div class="size-bar" style="--size: 100%" aria-hidden="true"><em>557.4x Arc</em></div>
+              </div>
+            </dd>
+            <dd class="chart-val"><strong>111.48 MB</strong><span class="sr-only">(557.4 times larger than Arc)</span></dd>
+          </div>
+        </dl>
       </section>
       <section id="architecture" class="routing-section">
         <div class="section-shell routing-inner">
@@ -107,17 +147,17 @@ const safeguards = [
               <li>Per-task model and tier pinning</li>
             </ul>
           </div>
-          <div class="routing-diagram" aria-label="Arc routes tasks between free, light, default, and heavy model tiers">
-            <div class="route-axis"><span>Lower cost</span></div>
-            <div class="tier tier-free"><strong>Free</strong><span>Lookup and routine tasks</span></div>
-            <div class="route-connector"><span>&rarr;</span><small>delegate</small></div>
-            <div class="tier tier-light"><strong>Light</strong><span>Focused implementation</span></div>
-            <div class="route-connector"><span>&rarr;</span><small>return</small></div>
-            <div class="tier tier-default active"><strong>Default</strong><span>Primary session owner</span><i>Active</i></div>
-            <div class="route-connector"><span>&rarr;</span><small>handoff</small></div>
-            <div class="tier tier-heavy"><strong>Heavy</strong><span>Ambiguous, difficult work</span></div>
-            <div class="route-axis route-axis-bottom"><span>Deeper reasoning</span></div>
-          </div>
+          <ol class="routing-diagram" aria-label="Arc model routing hierarchy, sequential from lowest cost to deepest reasoning">
+            <li class="route-axis"><span>Lower cost</span></li>
+            <li class="tier tier-free"><strong>Free</strong><span>Lookup and routine tasks</span></li>
+            <li class="route-connector" aria-hidden="true"><span>&rarr;</span><small>delegate</small></li>
+            <li class="tier tier-light"><strong>Light</strong><span>Focused implementation</span></li>
+            <li class="route-connector" aria-hidden="true"><span>&rarr;</span><small>return</small></li>
+            <li class="tier tier-default active"><strong>Default</strong><span>Primary session owner</span><i>Active</i></li>
+            <li class="route-connector" aria-hidden="true"><span>&rarr;</span><small>handoff</small></li>
+            <li class="tier tier-heavy"><strong>Heavy</strong><span>Ambiguous, difficult work</span></li>
+            <li class="route-axis route-axis-bottom"><span>Deeper reasoning</span></li>
+          </ol>
         </div>
       </section>
       <section id="tools" class="tools-section section-shell" aria-labelledby="tools-title">
@@ -187,7 +227,7 @@ const safeguards = [
       </section>
     </main>
     <footer>
-      <a class="brand" href="/arc"><img src="/arc/arc-logo-mono-text.svg" alt="Arc" width="78" height="22" /></a>
+      <a class="brand" href="/arc" aria-label="Arc home"><img src="/arc/arc-logo-mono-text.svg" alt="Arc logo" width="78" height="22" /></a>
       <div><a href={githubUrl}>GitHub</a><a href={marketplaceUrl}>Marketplace</a><a href="#hero-title">Top &uarr;</a></div>
     </footer>
   </div>
@@ -235,7 +275,6 @@ const safeguards = [
     min-height: 100vh;
     color: var(--text);
     background: var(--bg);
-    font-family: 'Hyperlegible Sans', sans-serif;
     letter-spacing: 0;
   }
   .arc-site * { box-sizing: border-box; }
@@ -245,10 +284,9 @@ const safeguards = [
     inset: 0 0 auto;
     z-index: 10;
     height: 68px;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
     align-items: center;
-    gap: 32px;
+    justify-content: space-between;
     padding: 0 4vw;
     border-bottom: 1px solid rgba(255,255,255,.12);
     background: rgba(8,10,13,.78);
@@ -256,19 +294,19 @@ const safeguards = [
   }
   .brand { display: inline-flex; align-items: center; width: fit-content; }
   .brand img { object-fit: contain; }
-  .site-header nav { display: flex; align-items: center; gap: 28px; color: #b6bdc5; font-size: 13px; }
+  .site-header nav { display: flex; align-items: center; gap: clamp(12px, 2.5vw, 28px); color: #b6bdc5; font-size: 13px; }
   .site-header nav a, footer a { transition: color 160ms ease; }
   .site-header nav a:hover, footer a:hover { color: white; }
-  .header-install { justify-self: end; display: inline-flex; align-items: center; gap: 18px; font-size: 13px; font-weight: 700; }
+  .header-install { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; }
   .header-install span { color: var(--blue); font-size: 18px; }
   .hero {
     position: relative;
-    min-height: min(960px, calc(100vh - 52px));
-    padding: 150px max(4vw, calc((100vw - 1440px) / 2)) 70px;
+    min-height: calc(100vh - 68px);
+    padding: 120px max(4vw, calc((100vw - 1440px) / 2)) 80px;
     display: grid;
-    grid-template-columns: minmax(390px, .8fr) minmax(560px, 1.2fr);
+    grid-template-columns: 1.1fr 1.3fr;
     align-items: center;
-    gap: clamp(50px, 7vw, 110px);
+    gap: clamp(40px, 6vw, 100px);
     overflow: hidden;
     border-bottom: 1px solid var(--line);
     background:
@@ -295,7 +333,18 @@ const safeguards = [
   .button-primary span { font-size: 18px; }
   .button-secondary { background: rgba(8,10,13,.7); }
   .button-secondary:hover { border-color: #737d88; background: #11151a; }
-  .product-window { min-width: 0; height: 610px; border: 1px solid #38414b; border-radius: 8px; overflow: hidden; background: #181818; box-shadow: 0 40px 100px rgba(0,0,0,.48), 0 0 0 1px rgba(255,255,255,.025) inset; }
+  .product-window {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: 650px;
+    border: 1px solid #38414b;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #181818;
+    box-shadow: 0 40px 100px rgba(0,0,0,.48), 0 0 0 1px rgba(255,255,255,.025) inset;
+  }
   .proof-strip { min-height: 128px; display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 max(4vw, calc((100vw - 1440px) / 2)); border-bottom: 1px solid var(--line); }
   .proof-strip div { display: flex; flex-direction: column; justify-content: center; gap: 7px; padding: 24px clamp(18px, 3vw, 48px); border-left: 1px solid var(--line); }
   .proof-strip div:last-child { border-right: 1px solid var(--line); }
@@ -309,22 +358,24 @@ const safeguards = [
   .size-section { padding: 110px 0 130px; display: grid; grid-template-columns: .85fr 1.4fr; gap: clamp(60px, 10vw, 150px); border-top: 1px solid var(--line); }
   .size-copy h2 { font-size: clamp(40px, 4vw, 64px); }
   .size-copy > p:last-child { max-width: 470px; margin-top: 28px; color: var(--muted); line-height: 1.6; }
-  .size-chart { position: relative; display: flex; flex-direction: column; gap: 20px; justify-content: center; outline: none; }
-  .hover-cue { position: absolute; right: 12%; top: -76px; display: flex; flex-direction: column; align-items: center; gap: 1px; color: #a8b0b9; font-size: 13px; transform: rotate(-3deg); }
+  .size-chart { position: relative; display: flex; flex-direction: column; gap: 20px; justify-content: center; outline: none; margin: 0; padding: 0; }
+  .hover-cue { position: absolute; right: 12%; top: -76px; display: flex; flex-direction: column; align-items: center; gap: 1px; color: #a8b0b9; font-size: 13px; transform: rotate(-3deg); transition: opacity 300ms ease; }
   .hover-cue svg { width: 100px; height: 40px; fill: none; stroke: #7f8993; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .chart-row { display: grid; grid-template-columns: 90px 1fr 85px; align-items: center; gap: 16px; color: #929ba5; font: 11px 'IBM Plex Mono', monospace; }
+  .chart-row { display: grid; grid-template-columns: 110px 1fr 85px; align-items: center; gap: 16px; color: #929ba5; font: 11px 'IBM Plex Mono', monospace; margin: 0; }
+  .chart-row dt { font-weight: 500; color: inherit; }
+  .chart-row dd { margin: 0; }
   .bar-viewport { width: 100%; overflow: hidden; }
   .bar-scale { width: 100%; transition: width 700ms cubic-bezier(.2,.75,.25,1); }
   .size-bar { width: var(--size); height: 10px; display: flex; align-items: center; overflow: hidden; background: #3b434d; transition: height 500ms cubic-bezier(.2,.75,.25,1); }
   .size-bar em { min-width: max-content; padding: 0 10px; opacity: 0; color: #e6e9ec; font: normal 10px 'IBM Plex Mono', monospace; transition: opacity 200ms ease 320ms; }
-  .chart-row strong { font-weight: 400; text-align: right; }
+  .chart-val { text-align: right; }
   .chart-row.is-arc { color: #e4e8ec; }
   .chart-row.is-arc .size-bar { background: var(--blue); box-shadow: 0 0 18px rgba(22,150,232,.3); }
   .chart-row.is-arc strong { color: var(--blue); font-weight: 500; }
-  .size-chart:hover .bar-scale, .size-chart:focus-visible .bar-scale { width: 5000%; }
-  .size-chart:hover .size-bar, .size-chart:focus-visible .size-bar { height: 26px; }
-  .size-chart:hover .size-bar em, .size-chart:focus-visible .size-bar em { opacity: 1; }
-  .size-chart:hover .hover-cue, .size-chart:focus-visible .hover-cue { opacity: 0; }
+  .size-chart:hover .bar-scale, .size-chart:focus-within .bar-scale { width: 5000%; }
+  .size-chart:hover .size-bar, .size-chart:focus-within .size-bar { height: 26px; }
+  .size-chart:hover .size-bar em, .size-chart:focus-within .size-bar em { opacity: 1; }
+  .size-chart:hover .hover-cue, .size-chart:focus-within .hover-cue { opacity: 0; }
   .routing-section { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #0b0e12; }
   .routing-inner { padding-top: 130px; padding-bottom: 130px; display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(70px, 9vw, 130px); }
   .routing-copy h2 { font-size: clamp(45px, 4.6vw, 72px); }
@@ -332,6 +383,7 @@ const safeguards = [
   .routing-copy ul { margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; list-style: none; border-top: 1px solid var(--line); }
   .routing-copy li { padding: 13px 0; border-bottom: 1px solid var(--line); color: #b7bdc4; font-size: 12px; }
   .routing-copy li:nth-child(odd) { padding-right: 12px; }
+  .routing-diagram { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
   .route-axis { display: flex; justify-content: space-between; margin-bottom: 13px; color: #59636e; font: 9px 'IBM Plex Mono', monospace; }
   .route-axis-bottom { margin: 13px 0 0; }
   .tier { position: relative; min-height: 92px; padding: 16px 18px; display: grid; grid-template-columns: 120px 1fr; align-items: center; border: 1px solid #2a3139; background: #0f1318; }
@@ -390,14 +442,12 @@ const safeguards = [
   footer .brand { color: #cbd0d5; font-size: 15px; }
   footer p { margin: 0; }
   footer > div { justify-self: end; display: flex; gap: 24px; }
-  .reveal { animation: rise-in 700ms cubic-bezier(.2,.75,.25,1) both; }
-  .reveal-delay { animation-delay: 120ms; }
-  @keyframes rise-in { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { animation: rise-in 300ms cubic-bezier(.2,.75,.25,1) both; }
+  .reveal-delay { animation-delay: 50ms; }
+  @keyframes rise-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .reveal { animation: none; } .arc-site * { scroll-behavior: auto !important; } }
   @media (max-width: 1050px) {
-    .site-header { grid-template-columns: 1fr auto; }
-    .site-header nav { display: none; }
-    .hero { height: calc(100svh - 52px); min-height: 620px; grid-template-columns: 1fr; padding-top: 125px; overflow: hidden; }
+    .hero { grid-template-columns: 1fr; padding-top: 100px; padding-bottom: 60px; min-height: auto; }
     .hero-copy { max-width: 780px; }
     .product-window { width: min(850px, 100%); }
     .statement { grid-template-columns: .35fr 1fr; }
@@ -410,15 +460,15 @@ const safeguards = [
     .principles-grid h2 { max-width: 780px; }
   }
   @media (max-width: 700px) {
-    .site-header { height: 58px; padding: 0 20px; }
+    .site-header { height: auto; min-height: 58px; padding: 10px 16px; flex-direction: column; gap: 10px; align-items: center; justify-content: center; position: relative; }
+    .site-header nav { gap: 16px; font-size: 12px; display: flex; }
     .header-install { gap: 8px; font-size: 11px; }
-    .hero { height: calc(100svh - 48px); min-height: 720px; padding: 108px 20px 44px; gap: 42px; }
+    .hero { padding: 40px 20px 44px; gap: 42px; }
     .hero-grid { inset-top: 58px; background-size: 44px 44px; }
     h1 { font-size: clamp(48px, 15vw, 68px); }
     .hero-lede { font-size: 17px; }
     .button { flex: 1 1 180px; }
-    .product-window { border-radius: 6px; font-size: 9px; }
-    .product-window { height: 470px; }
+    .product-window { aspect-ratio: auto; height: 480px; }
     .proof-strip { grid-template-columns: 1fr 1fr; padding: 0; }
     .proof-strip div { min-height: 100px; border-bottom: 1px solid var(--line); }
     .section-shell { width: calc(100% - 40px); }
