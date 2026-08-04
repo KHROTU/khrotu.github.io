@@ -21,11 +21,33 @@ function getMediaTypeFromHref(href: string): 'video' | 'audio' | null {
   if (AUDIO_EXTENSIONS.some((ext) => path.endsWith(ext))) return 'audio';
   return null;
 }
+function extractFootnotes(content: string): { body: string; footnotes: Record<string, string> } {
+  const footnotes: Record<string, string> = {};
+  const bodyLines: string[] = [];
+  let currentId: string | null = null;
+
+  for (const line of content.split(/\r?\n/)) {
+    const match = line.match(/^\[\^(\w+)\]:[ \t]?(.*)$/);
+    if (match) {
+      currentId = match[1];
+      footnotes[currentId] = match[2];
+    } else if (currentId) {
+      footnotes[currentId] += `\n${line}`;
+    } else {
+      bodyLines.push(line);
+    }
+  }
+  return { body: bodyLines.join('\n').trim(), footnotes };
+}
 export default function BlogContent({ content }: Props) {
+  const { body, footnotes } = extractFootnotes(content);
+  const hasFootnotes = Object.keys(footnotes).length > 0;
+  const bodyWithFootnoteLinks = body.replace(/\[\^(\w+)\]/g, '[$1](#footnote-$1)');
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
+    <>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
         p: ({ children }) => {
           const childArray = React.Children.toArray(children).filter(
             (child) => typeof child !== 'string' || child.trim().length > 0
@@ -96,24 +118,32 @@ export default function BlogContent({ content }: Props) {
           </figure>
         ),
         a: ({ href, children }) => (
-          <a
-            href={href}
-            className="text-[var(--text-main)] underline underline-offset-4 hover:text-white transition-colors"
-            target={href?.startsWith('http') ? '_blank' : undefined}
-            rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-          >
-            {children}
-          </a>
+          href?.startsWith('#footnote-') ? (
+            <sup className="ml-0.5" id={`footnote-ref-${href.slice('#footnote-'.length)}`}>
+              <a href={href} className="text-[var(--text-main)] underline underline-offset-2">
+                {children}
+              </a>
+            </sup>
+          ) : (
+            <a
+              href={href}
+              className="text-[var(--text-main)] underline underline-offset-4 hover:text-white transition-colors"
+              target={href?.startsWith('http') ? '_blank' : undefined}
+              rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+            >
+              {children}
+            </a>
+          )
         ),
         code: ({ children, className }) => {
           const isInline = !className;
           return isInline ? (
-            <code className="bg-[#111] px-1.5 py-0.5 rounded text-sm font-mono text-[var(--text-main)]">
+            <code className="bg-[#111] px-1.5 py-0.5 rounded text-[1em] font-mono text-[var(--text-main)]">
               {children}
             </code>
           ) : (
             <pre className="bg-[#111] p-4 rounded overflow-x-auto my-6">
-              <code className={`${className} text-sm font-mono`}>
+              <code className={`${className} text-[1em] font-mono`}>
                 {children}
               </code>
             </pre>
@@ -121,7 +151,26 @@ export default function BlogContent({ content }: Props) {
         },
       }}
     >
-      {content}
+      {bodyWithFootnoteLinks}
     </ReactMarkdown>
+    {hasFootnotes && (
+      <section
+        aria-label="Footnotes"
+        className="mt-16 border-t border-[rgba(255,255,255,0.14)] pt-8 text-base text-[var(--text-muted)]"
+      >
+        <ol className="list-decimal space-y-8 pl-6 marker:font-mono marker:text-[var(--text-main)]">
+          {Object.entries(footnotes).map(([id, markdown]) => (
+            <li key={id} id={`footnote-${id}`} className="pl-2">
+              <div className="markdown-body">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {markdown.trim()}
+                </ReactMarkdown>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+    </>
   );
 }
