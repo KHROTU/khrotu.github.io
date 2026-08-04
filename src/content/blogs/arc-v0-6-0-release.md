@@ -10,7 +10,7 @@ Arc version 0.6.0, first released on August 5, 2026.
 
 ### Auto Mode (Beta)
 
-v0.6.0 brings the new Auto mode to Arc, which automatically routes prompts to the cheapest model that can handle the task. Relying on an in-house fine-tuned model, Auto mode makes sub-10ms decisions[^1] at 0.757 AUC[^2] based on internal testing. Crucially, Auto mode **isn't** limited to a specific set of models, and instead adapts to your configuration. [Learn more.](/blogs/arc-auto-mode-beta).
+v0.6.0 brings the new Auto mode to Arc, which automatically routes prompts to the cheapest model that can handle the task. Relying on an in-house fine-tuned model, Auto mode makes sub-10ms decisions[^1] at 0.757 AUC[^2] based on internal testing. Crucially, Auto mode **isn't** limited to a specific set of models, and instead adapts to your configuration. [Learn more](/blogs/arc-auto-mode-beta).
 
 ### Prompt Polishing
 
