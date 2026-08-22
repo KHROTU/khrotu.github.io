@@ -22,7 +22,7 @@ const referencedJs = new Set();
 const referencedCss = new Set();
 for (const html of htmlFiles) {
   const content = readFileSync(html, 'utf-8');
-  for (const m of content.matchAll(/(?:src|href)="(\/_astro\/[^"]+\.(?:js|css))"/g)) {
+  for (const m of content.matchAll(/(?:[a-zA-Z-]+-url|src|href)="(\/_astro\/[^"]+\.(?:js|css))"/g)) {
     const ref = m[1].replace(/^\//, '').split('/').join(posix.sep);
     if (ref.endsWith('.js')) referencedJs.add(ref);
     else referencedCss.add(ref);

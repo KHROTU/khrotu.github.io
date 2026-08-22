@@ -6,7 +6,6 @@ interface Props {
 }
 const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.ogv', '.mov', '.m4v'];
 const AUDIO_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac'];
-
 function cleanPathFromHref(href: string): string {
   try {
     const base = typeof window === 'undefined' ? 'https://example.com' : window.location.origin;
@@ -25,7 +24,6 @@ function extractFootnotes(content: string): { body: string; footnotes: Record<st
   const footnotes: Record<string, string> = {};
   const bodyLines: string[] = [];
   let currentId: string | null = null;
-
   for (const line of content.split(/\r?\n/)) {
     const match = line.match(/^\[\^(\w+)\]:[ \t]?(.*)$/);
     if (match) {
