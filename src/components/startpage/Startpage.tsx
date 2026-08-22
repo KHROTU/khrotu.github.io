@@ -3,6 +3,8 @@ import type { Shortcut } from './types';
 import { useStartpageConfig } from './storage';
 import { recordUse, usageCount } from './usage';
 import SettingsPanel from './SettingsPanel';
+import WidgetLayer from './widgets/WidgetLayer';
+import { useWidgets } from './widgets/useWidgets';
 type Command = { name: string; run: () => void };
 function hostOf(url?: string): string {
   if (!url) return '';
@@ -14,7 +16,9 @@ function hostOf(url?: string): string {
 }
 export default function Startpage() {
   const { config, update, ready } = useStartpageConfig();
+  const { widgets, add, update: updateWidget, remove: removeWidget, focus: focusWidget, clearAll } = useWidgets();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [widgetEdit, setWidgetEdit] = useState(false);
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,6 +42,7 @@ export default function Startpage() {
   const commands: Command[] = useMemo(() => {
     const cmds: Command[] = [
       { name: '!settings', run: () => setSettingsOpen(true) },
+      { name: '!widgets', run: () => setWidgetEdit((v) => !v) },
       ...config.engines.map((e) => ({
         name: `!${e.name.toLowerCase()}`,
         run: () => update({ activeEngine: e.id }),
@@ -95,7 +100,14 @@ export default function Startpage() {
     }
   };
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 relative">
+      <WidgetLayer widgets={widgets} editMode={widgetEdit} onUpdate={updateWidget} onRemove={removeWidget} onFocus={focusWidget} onAdd={add} />
+      {widgetEdit && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-2 bg-[#040404] border border-white/25 rounded-sm text-sm">
+          <span className="font-mono text-xs text-[var(--text-muted)]">editing widgets</span>
+          <button onClick={() => setWidgetEdit(false)} className="text-[var(--text-muted)] hover:text-white transition-colors">done</button>
+        </div>
+      )}
       <div className="flex flex-col items-center gap-5 w-full" style={{ maxWidth: config.searchWidth }}>
         {config.logo.enabled && (
           <button
@@ -210,7 +222,17 @@ export default function Startpage() {
           </a>
         )}
       </div>
-      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} config={config} update={update} />
+      <SettingsPanel
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        config={config}
+        update={update}
+        onAddWidget={(type) => { add(type); setWidgetEdit(true); }}
+        widgets={widgets}
+        onRemoveWidget={removeWidget}
+        onEnterWidgetEdit={() => setWidgetEdit(true)}
+        onClearWidgets={clearAll}
+      />
     </div>
   );
 }

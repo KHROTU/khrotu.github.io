@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Shortcut, SearchEngine } from './types';
 import { DEFAULT_CONFIG } from './types';
+import type { WidgetType, WidgetInstance } from './widgets/types';
+import { WIDGET_DEFAULTS } from './widgets/useWidgets';
 type Props = {
   open: boolean;
   onClose: () => void;
   config: import('./types').StartpageConfig;
   update: (patch: Partial<import('./types').StartpageConfig>) => void;
+  onAddWidget?: (type: WidgetType) => void;
+  widgets?: WidgetInstance[];
+  onRemoveWidget?: (id: string) => void;
+  onEnterWidgetEdit?: () => void;
+  onClearWidgets?: () => void;
 };
 const field = 'w-full bg-transparent border border-white/15 rounded-sm px-3 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[var(--border-bezel)] transition-colors';
 const btnGhost = 'px-3 py-1.5 text-xs font-mono text-[var(--text-muted)] border border-white/15 rounded-sm hover:text-white hover:border-white/40 transition-colors';
@@ -138,7 +145,7 @@ async function fetchPageTitle(url: string): Promise<string | null> {
 function deriveName(url: string): Promise<string | null> {
   return fetchPageTitle(url);
 }
-export default function SettingsPanel({ open, onClose, config, update }: Props) {
+export default function SettingsPanel({ open, onClose, config, update, onAddWidget, widgets, onRemoveWidget, onEnterWidgetEdit, onClearWidgets }: Props) {
   const [logoText, setLogoText] = useState(config.logo.text);
   const [logoSrc, setLogoSrc] = useState(config.logo.src ?? '');
   const [engines, setEngines] = useState<SearchEngine[]>(config.engines);
@@ -447,6 +454,34 @@ export default function SettingsPanel({ open, onClose, config, update }: Props) 
             <p className="text-xs text-[var(--text-muted)] leading-relaxed">
               title and favicon are filled from the url the first time you type it. press enter in a url field to re-derive them.
             </p>
+          </Section>
+          <Section id="widgets" title="widgets" openIds={openSections} toggle={toggleSection}>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(WIDGET_DEFAULTS) as WidgetType[]).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => { onAddWidget?.(type); onEnterWidgetEdit?.(); }}
+                  className={btnGhost}
+                >
+                  {WIDGET_DEFAULTS[type].label}
+                </button>
+              ))}
+            </div>
+            {(widgets?.length ?? 0) > 0 && (
+              <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
+                <span className="text-sm text-[var(--text-muted)]">placed ({widgets!.length})</span>
+                {widgets!.map((w) => (
+                  <div key={w.id} className="flex items-center justify-between gap-2">
+                    <span className="text-sm text-[var(--text-main)]">{WIDGET_DEFAULTS[w.type]?.label ?? w.type}</span>
+                    <button onClick={() => onRemoveWidget?.(w.id)} aria-label={`remove ${w.type}`} className={`${btnGhost} hover:border-white/40`}>remove</button>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2 mt-1">
+                  <button onClick={() => { onClose(); onEnterWidgetEdit?.(); }} className={btnGhost}>edit</button>
+                  <button onClick={onClearWidgets} className={btnGhost}>remove all</button>
+                </div>
+              </div>
+            )}
           </Section>
         </div>
       </aside>
