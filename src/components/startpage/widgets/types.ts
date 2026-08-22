@@ -1,4 +1,11 @@
-export type WidgetType = 'clock' | 'notes' | 'todo' | 'pomodoro' | 'timer' | 'kanban' | 'weather' | 'ambient' | 'custom';
+export type WidgetType =
+  | 'clock' | 'notes' | 'todo' | 'pomodoro' | 'timer' | 'kanban' | 'weather' | 'ambient' | 'custom'
+  | 'wheel' | 'matrix'
+  | 'worldclocks' | 'calendar' | 'countdown' | 'stopwatch'
+  | 'github'
+  | 'wordle' | 'art' | 'currency' | 'quotes' | 'dice'
+  | 'converter' | 'textutils' | 'lorem'
+  | 'stats';
 export type WidgetInstance = {
   id: string;
   type: WidgetType;

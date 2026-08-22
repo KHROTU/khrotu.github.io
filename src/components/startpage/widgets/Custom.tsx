@@ -58,13 +58,13 @@ export default function Custom({ id, editMode }: { id: string; editMode: boolean
     );
   }
   return (
-    <div className="w-full h-full flex flex-col min-h-0">
+    <div className="w-full h-full flex flex-col min-h-0 relative">
       <div ref={frameRef} className="w-full h-full min-h-0" />
       {editMode && (
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => setEditing(true)}
-          className="shrink-0 w-fit text-[10px] font-mono text-[var(--text-muted)] hover:text-white transition-colors"
+          className="absolute bottom-1 right-1 z-10 text-[10px] font-mono text-[var(--text-muted)] hover:text-white bg-[#040404]/90 border border-white/15 rounded-sm px-1.5 py-0.5"
         >
           edit code
         </button>

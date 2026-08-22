@@ -3,6 +3,10 @@ import type { Shortcut, SearchEngine } from './types';
 import { DEFAULT_CONFIG } from './types';
 import type { WidgetType, WidgetInstance } from './widgets/types';
 import { WIDGET_DEFAULTS } from './widgets/useWidgets';
+import BackgroundSection from './settings/BackgroundSection';
+import CssEditorSection from './settings/CssEditorSection';
+import BackupSection from './settings/BackupSection';
+import { sectionTitle, fieldLabel, rowLabel, hintText, inputField, ghostBtn, linkBtn } from './settings/typography';
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -14,8 +18,8 @@ type Props = {
   onEnterWidgetEdit?: () => void;
   onClearWidgets?: () => void;
 };
-const field = 'w-full bg-transparent border border-white/15 rounded-sm px-3 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[var(--border-bezel)] transition-colors';
-const btnGhost = 'px-3 py-1.5 text-xs font-mono text-[var(--text-muted)] border border-white/15 rounded-sm hover:text-white hover:border-white/40 transition-colors';
+const field = inputField;
+const btnGhost = ghostBtn;
 function Section({ id, title, openIds, toggle, children }: { id: string; title: string; openIds: Set<string>; toggle: (id: string) => void; children: React.ReactNode }) {
   const open = openIds.has(id);
   return (
@@ -23,14 +27,14 @@ function Section({ id, title, openIds, toggle, children }: { id: string; title: 
       <button
         onClick={() => toggle(id)}
         aria-expanded={open}
-        className="flex items-center justify-between w-full py-2 text-left group"
+        className="flex items-center justify-between w-full py-1 text-left group"
       >
-        <h3 className="text-sm font-medium text-[var(--text-main)] group-hover:text-white transition-colors">{title}</h3>
+        <h3 className={`${sectionTitle} group-hover:text-white transition-colors`}>{title}</h3>
         <span className="text-xs font-mono text-[var(--text-muted)] group-hover:text-white transition-colors px-1">
           {open ? '−' : '+'}
         </span>
       </button>
-      {open && <div className="flex flex-col gap-4 pl-3 border-l border-white/10 ml-1 mb-2">{children}</div>}
+      {open && <div className="flex flex-col gap-4 pl-3 border-l border-white/10 ml-1 mt-1 mb-3">{children}</div>}
     </section>
   );
 }
@@ -109,7 +113,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-sm text-[var(--text-main)]">{label}</span>
+      <span className={rowLabel}>{label}</span>
       {children}
     </div>
   );
@@ -318,16 +322,16 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
               <button onClick={onClose} aria-label="close" className="text-[var(--text-muted)] hover:text-white transition-colors text-xl leading-none px-1">×</button>
             </div>
           </div>
-          <Section id="logo" title="logo & title" openIds={openSections} toggle={toggleSection}>
-            <Row label="enabled">
+          <Section id="customize" title="customize" openIds={openSections} toggle={toggleSection}>
+            <Row label="logo enabled">
               <Toggle checked={config.logo.enabled} onChange={(v) => update({ logo: { ...config.logo, enabled: v } })} />
             </Row>
             <div className="flex flex-col gap-2">
-              <span className="text-sm text-[var(--text-muted)]">image url (blank for none)</span>
+              <span className={fieldLabel}>logo image url (blank for none)</span>
               <input value={logoSrc} onChange={(e) => setLogoSrc(e.target.value)} onBlur={commitLogo} onKeyDown={(e) => e.key === 'Enter' && commitLogo()} placeholder="/favicon.svg or https://…" className={field} />
             </div>
             <div className="flex flex-col gap-2">
-              <span className="text-sm text-[var(--text-muted)]">title text</span>
+              <span className={fieldLabel}>title text</span>
               <input value={logoText} onChange={(e) => setLogoText(e.target.value)} onBlur={commitLogo} onKeyDown={(e) => e.key === 'Enter' && commitLogo()} placeholder="Startpage" className={field} />
             </div>
             <Row label="icon size">
@@ -339,6 +343,10 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
             <Row label="show back link">
               <Toggle checked={config.showBackLink} onChange={(v) => update({ showBackLink: v })} />
             </Row>
+            <div className="pt-2 border-t border-white/10 flex flex-col gap-4">
+              <BackgroundSection />
+              <CssEditorSection />
+            </div>
           </Section>
           <Section id="engine" title="search engine" openIds={openSections} toggle={toggleSection}>
             <div className="flex flex-col gap-2">
@@ -358,7 +366,7 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
               ))}
             </div>
             <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-              <span className="text-sm text-[var(--text-muted)]">add custom engine</span>
+              <span className={fieldLabel}>add custom engine</span>
               <input value={newEngineName} onChange={(e) => setNewEngineName(e.target.value)} placeholder="name" className={field} />
               <input
                 value={newEngineUrl}
@@ -407,7 +415,7 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
                       <button
                         onClick={() => commitShortcuts(shortcutsDraft.filter((_, j) => j !== i))}
                         aria-label={`remove shortcut ${i + 1}`}
-                        className="text-xs font-mono text-[var(--text-muted)] hover:text-white transition-colors"
+                        className={linkBtn}
                       >
                         remove
                       </button>
@@ -440,7 +448,7 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
               )}
             </div>
             <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-              <span className="text-sm text-[var(--text-muted)]">add shortcut</span>
+              <span className={fieldLabel}>add shortcut</span>
               <input value={newScName} onChange={(e) => setNewScName(e.target.value)} placeholder="title (blank = auto from page title)" className={field} />
               <input
                 value={newScUrl}
@@ -451,13 +459,15 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
               />
               <button onClick={addShortcut} className={btnGhost + ' w-fit'}>add shortcut</button>
             </div>
-            <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-              title and favicon are filled from the url the first time you type it. press enter in a url field to re-derive them.
+            <p className={hintText}>
+              title and favicon are fetched from the url the first time you type it. press enter in a url field to refetch them.
             </p>
           </Section>
           <Section id="widgets" title="widgets" openIds={openSections} toggle={toggleSection}>
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(WIDGET_DEFAULTS) as WidgetType[]).map((type) => (
+              {(Object.keys(WIDGET_DEFAULTS) as WidgetType[])
+                .sort((a, b) => WIDGET_DEFAULTS[a].label.localeCompare(WIDGET_DEFAULTS[b].label))
+                .map((type) => (
                 <button
                   key={type}
                   onClick={() => { onAddWidget?.(type); onEnterWidgetEdit?.(); }}
@@ -469,10 +479,10 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
             </div>
             {(widgets?.length ?? 0) > 0 && (
               <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-                <span className="text-sm text-[var(--text-muted)]">placed ({widgets!.length})</span>
+                <span className={fieldLabel}>placed ({widgets!.length})</span>
                 {widgets!.map((w) => (
                   <div key={w.id} className="flex items-center justify-between gap-2">
-                    <span className="text-sm text-[var(--text-main)]">{WIDGET_DEFAULTS[w.type]?.label ?? w.type}</span>
+                    <span className={rowLabel}>{WIDGET_DEFAULTS[w.type]?.label ?? w.type}</span>
                     <button onClick={() => onRemoveWidget?.(w.id)} aria-label={`remove ${w.type}`} className={`${btnGhost} hover:border-white/40`}>remove</button>
                   </div>
                 ))}
@@ -482,6 +492,31 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
                 </div>
               </div>
             )}
+          </Section>
+          <Section id="about" title="about" openIds={openSections} toggle={toggleSection}>
+            <div className="flex flex-col gap-2 text-xs text-[var(--text-muted)] leading-relaxed">
+              <span className={rowLabel}>commands</span>
+              {[
+                ['!settings', 'open this panel'],
+                ['!widgets', 'toggle widget edit mode'],
+                ['!<engine>', 'switch search engine (e.g. !google)'],
+                ['tab', 'accept the ghost suggestion'],
+                ['↑ ↓', 'move through command suggestions'],
+                ['shift + drag', 'snap a widget to others/edges'],
+                ['esc', 'clear the search / close this panel'],
+              ].map(([cmd, desc]) => (
+                <div key={cmd} className="flex justify-between gap-3">
+                  <span className="font-mono">{cmd}</span>
+                  <span className="text-right">{desc}</span>
+                </div>
+              ))}
+            </div>
+            <div className="pt-2 border-t border-white/10">
+              <BackupSection />
+            </div>
+            <p className="pt-2 border-t border-white/10 text-xs text-[var(--text-muted)] leading-relaxed">
+              khrotu's Startpage · v0.1.0 · last updated: 8/22/2026
+            </p>
           </Section>
         </div>
       </aside>

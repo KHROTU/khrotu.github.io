@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-const KEY = 'startpage-widget-weather';
+import { useLocation, LocationControls } from './location';
+import EditOverlay from './EditOverlay';
+type Tab = 'weather' | 'sun' | 'air';
 type WeatherData = {
   temp: number;
   code: number;
@@ -22,108 +24,123 @@ function describeCode(code: number): string {
   return '—';
 }
 export default function Weather({ width, height, editMode }: { width: number; height: number; editMode: boolean }) {
+  const { loc, status, cityInput, setCityInput, geocode, resetLocation } = useLocation();
+  const [tab, setTab] = useState<Tab>('weather');
   const [data, setData] = useState<WeatherData | null>(null);
-  const [status, setStatus] = useState<'idle' | 'locating' | 'loading' | 'error'>('idle');
-  const [cityInput, setCityInput] = useState('');
-  const loadWeather = async (lat: number, lon: number, city: string) => {
-    setStatus('loading');
-    try {
-      const r = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`
-      );
-      const j = await r.json();
-      setData({
-        temp: Math.round(j.current.temperature_2m),
-        code: j.current.weather_code,
-        wind: Math.round(j.current.wind_speed_10m),
-        high: Math.round(j.daily.temperature_2m_max[0]),
-        low: Math.round(j.daily.temperature_2m_min[0]),
-        city,
-      });
-      setStatus('idle');
-    } catch {
-      setStatus('error');
-    }
-  };
-  const locate = () => {
-    setStatus('locating');
-    navigator.geolocation.getCurrentPosition(
-      (pos) => loadWeather(pos.coords.latitude, pos.coords.longitude, 'here'),
-      () => setStatus('error')
-    );
-  };
-  const geocodeCity = async () => {
-    const name = cityInput.trim();
-    if (!name) return;
-    setStatus('loading');
-    try {
-      const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1`);
-      const j = await r.json();
-      const hit = j.results?.[0];
-      if (!hit) return setStatus('error');
-      localStorage.setItem(KEY, JSON.stringify({ lat: hit.latitude, lon: hit.longitude, city: hit.name }));
-      loadWeather(hit.latitude, hit.longitude, hit.name);
-      setCityInput('');
-    } catch {
-      setStatus('error');
-    }
-  };
+  const [solar, setSolar] = useState<{ sunrise: string; sunset: string; remaining: string } | null>(null);
+  const [aqi, setAqi] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null');
-      if (saved?.lat != null) {
-        loadWeather(saved.lat, saved.lon, saved.city ?? 'here');
-        return;
-      }
-    } catch {}
-    locate();
-  }, []);
-  const bigFont = Math.min(width / 8, height / 3.5, 42);
+    if (!loc) return;
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const r = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=1`
+        );
+        const j = await r.json();
+        if (!cancelled) {
+          setData({
+            temp: Math.round(j.current.temperature_2m),
+            code: j.current.weather_code,
+            wind: Math.round(j.current.wind_speed_10m),
+            high: Math.round(j.daily.temperature_2m_max[0]),
+            low: Math.round(j.daily.temperature_2m_min[0]),
+            city: loc.city,
+          });
+          const sunrise = new Date(j.daily.sunrise[0]);
+          const sunset = new Date(j.daily.sunset[0]);
+          const now = new Date();
+          const remainingMs = Math.max(0, sunset.getTime() - now.getTime());
+          const h = Math.floor(remainingMs / 3600000);
+          const m = Math.floor((remainingMs % 3600000) / 60000);
+          setSolar({
+            sunrise: sunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            sunset: sunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            remaining: now > sunset ? 'sun has set' : `${h}h ${m}m of light left`,
+          });
+        }
+      } catch {}
+      try {
+        const r2 = await fetch(
+          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${loc.lat}&longitude=${loc.lon}&current=european_aqi&timezone=auto`
+        );
+        const j2 = await r2.json();
+        if (!cancelled) setAqi(Math.round(j2.current.european_aqi));
+      } catch {}
+      if (!cancelled) setLoading(false);
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [loc]);
+  const aqiLabel = aqi == null ? '' : aqi <= 20 ? 'good' : aqi <= 40 ? 'fair' : aqi <= 60 ? 'moderate' : aqi <= 80 ? 'poor' : 'very poor';
+  const bigFont = Math.min(width / 7, height / 4.5, 42);
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'weather', label: 'now' },
+    { key: 'sun', label: 'sun' },
+    { key: 'air', label: 'air' },
+  ];
   return (
-    <div className="w-full h-full flex flex-col justify-center select-none min-h-0">
-      {!data && status !== 'error' && <span className="text-sm text-[var(--text-muted)]">{status === 'locating' ? 'locating…' : 'loading…'}</span>}
-      {status === 'error' && !data && (
-        <div className="flex flex-col gap-2">
-          <span className="text-sm text-[var(--text-muted)]">location unavailable</span>
-          {editMode && (
-            <div className="flex gap-1">
-              <input
-                value={cityInput}
-                onChange={(e) => setCityInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && geocodeCity()}
-                placeholder="city…"
-                className="flex-1 min-w-0 bg-transparent border border-white/15 rounded-sm px-2 py-1 text-xs text-[var(--text-main)] outline-none focus:border-[var(--border-bezel)] transition-colors placeholder:text-[var(--text-muted)]/60"
-              />
-              <button onClick={locate} className="text-xs font-mono text-[var(--text-muted)] hover:text-white px-1">gps</button>
-            </div>
-          )}
-        </div>
-      )}
-      {data && (
-        <>
-          <span className="text-[var(--text-main)] font-medium tabular-nums leading-none" style={{ fontSize: bigFont }}>
-            {data.temp}°
-          </span>
-          <span className="text-[var(--text-muted)] text-sm truncate">{describeCode(data.code)}</span>
-          {height >= 110 && (
-            <span className="text-[var(--text-muted)] text-xs mt-1">
-              h {data.high}° · l {data.low}° · {data.wind} km/h
+    <div className="w-full h-full flex flex-col select-none min-h-0">
+      <div className="flex gap-1 shrink-0 mb-1.5">
+        {tabs.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm transition-colors ${
+              tab === key ? 'border border-white/50 text-[var(--text-main)]' : 'border border-transparent text-[var(--text-muted)] hover:text-white'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar flex flex-col justify-center">
+        {!loc && status === 'error' && <span className="text-sm text-[var(--text-muted)]">location needed</span>}
+        {(status === 'loading' || loading) && !data && <span className="text-sm text-[var(--text-muted)]">loading…</span>}
+        {tab === 'weather' && data && (
+          <>
+            <span className="text-[var(--text-main)] font-medium tabular-nums leading-none" style={{ fontSize: bigFont }}>
+              {data.temp}°
             </span>
-          )}
-          {editMode && height >= 140 && width >= 200 && (
-            <div className="flex items-center gap-2 mt-1">
-              <input
-                value={cityInput}
-                onChange={(e) => setCityInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && geocodeCity()}
-                placeholder={data.city}
-                className="w-28 bg-transparent border border-white/15 rounded-sm px-1.5 py-0.5 text-[10px] font-mono text-[var(--text-main)] outline-none focus:border-[var(--border-bezel)] transition-colors placeholder:text-[var(--text-muted)]/60"
-              />
-              <button onClick={() => { localStorage.removeItem(KEY); setData(null); locate(); }} className="text-[10px] font-mono text-[var(--text-muted)] hover:text-white">reset loc</button>
+            <span className="text-[var(--text-muted)] text-sm truncate">{describeCode(data.code)}</span>
+            {height >= 130 && (
+              <span className="text-[var(--text-muted)] text-xs mt-1">
+                h {data.high}° · l {data.low}° · {data.wind} km/h
+              </span>
+            )}
+          </>
+        )}
+        {tab === 'sun' && solar && (
+          <>
+            <div className="flex items-baseline justify-between">
+              <span className="text-xs text-[var(--text-muted)]">↑</span>
+              <span className="text-sm text-[var(--text-main)] tabular-nums">{solar.sunrise}</span>
             </div>
-          )}
-        </>
-      )}
+            <div className="flex items-baseline justify-between mt-0.5">
+              <span className="text-xs text-[var(--text-muted)]">↓</span>
+              <span className="text-sm text-[var(--text-main)] tabular-nums">{solar.sunset}</span>
+            </div>
+            {height >= 150 && <span className="text-xs text-[var(--text-main)] mt-1">{solar.remaining}</span>}
+          </>
+        )}
+        {tab === 'air' && aqi != null && (
+          <>
+            <span className="text-[var(--text-main)] font-medium tabular-nums leading-none" style={{ fontSize: bigFont }}>
+              {aqi}
+            </span>
+            <span className="text-xs text-[var(--text-muted)]">{aqiLabel} · eu aqi</span>
+          </>
+        )}
+        {editMode && (
+          <EditOverlay>
+            <LocationControls loc={loc} status={status} cityInput={cityInput} setCityInput={setCityInput} geocode={geocode} resetLocation={resetLocation} />
+          </EditOverlay>
+        )}
+      </div>
     </div>
   );
 }

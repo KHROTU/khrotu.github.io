@@ -5,6 +5,8 @@ import { recordUse, usageCount } from './usage';
 import SettingsPanel from './SettingsPanel';
 import WidgetLayer from './widgets/WidgetLayer';
 import { useWidgets } from './widgets/useWidgets';
+import { getBackground } from './settings/BackgroundSection';
+import { getCustomCss } from './settings/CssEditorSection';
 type Command = { name: string; run: () => void };
 function hostOf(url?: string): string {
   if (!url) return '';
@@ -23,8 +25,32 @@ export default function Startpage() {
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
+    const bg = getBackground();
+    document.body.style.background = bg.image ? `url(${bg.image}) center/cover no-repeat fixed` : bg.color;
+    const css = getCustomCss();
+    if (css) {
+      const style = document.createElement('style');
+      style.id = 'custom-widget-css';
+      style.textContent = css;
+      document.head.appendChild(style);
+    }
+  }, []);
+  useEffect(() => {
     inputRef.current?.focus();
   }, [ready]);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const target = e.target as HTMLElement;
+      const tag = target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable) return;
+      if (target.closest('iframe')) return;
+      e.preventDefault();
+      inputRef.current?.focus();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== window.location.origin) return;

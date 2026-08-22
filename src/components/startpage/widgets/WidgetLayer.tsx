@@ -10,6 +10,22 @@ import Kanban from './Kanban';
 import Weather from './Weather';
 import Ambient from './Ambient';
 import Custom from './Custom';
+import Wheel from './Wheel';
+import Matrix from './Matrix';
+import WorldClocks from './WorldClocks';
+import Calendar from './Calendar';
+import Countdown from './Countdown';
+import Stopwatch from './Stopwatch';
+import GitHub from './GitHub';
+import Art from './Art';
+import Quotes from './Quotes';
+import Dice from './Dice';
+import Currency from './Currency';
+import Converter from './Converter';
+import TextUtils from './TextUtils';
+import Lorem from './Lorem';
+import Wordle from './Wordle';
+import Stats from './Stats';
 const MIN_W = 120;
 const MIN_H = 80;
 const HANDLE = 12;
@@ -26,6 +42,22 @@ function renderWidget(w: WidgetInstance, editMode: boolean) {
     case 'weather': return <Weather width={w.width} height={w.height} editMode={editMode} />;
     case 'ambient': return <Ambient />;
     case 'custom': return <Custom id={w.id} editMode={editMode} />;
+    case 'wheel': return <Wheel />;
+    case 'matrix': return <Matrix />;
+    case 'worldclocks': return <WorldClocks width={w.width} height={w.height} />;
+    case 'calendar': return <Calendar />;
+    case 'countdown': return <Countdown height={w.height} />;
+    case 'stopwatch': return <Stopwatch width={w.width} height={w.height} />;
+    case 'github': return <GitHub editMode={editMode} />;
+    case 'wordle': return <Wordle height={w.height} />;
+    case 'art': return <Art width={w.width} height={w.height} />;
+    case 'currency': return <Currency />;
+    case 'quotes': return <Quotes />;
+    case 'dice': return <Dice height={w.height} />;
+    case 'converter': return <Converter />;
+    case 'textutils': return <TextUtils />;
+    case 'lorem': return <Lorem height={w.height} />;
+    case 'stats': return <Stats height={w.height} />;
     default: return null;
   }
 }
@@ -162,6 +194,9 @@ export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onF
   }, [draggingId, onPointerMove, onPointerUp]);
   const startDrag = (e: React.PointerEvent, w: WidgetInstance, mode: 'move' | 'resize') => {
     if (!editMode) return;
+    const target = e.target as HTMLElement;
+    if (mode === 'move' && target.closest('input, textarea, select, button, a, iframe, [contenteditable]')) return;
+    if (e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
     onFocus(w.id);
@@ -268,7 +303,9 @@ export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onF
           data-snap-target="true"
         >
           <span className="font-mono text-xs text-[var(--text-muted)]">add:</span>
-          {(Object.keys(WIDGET_DEFAULTS) as WidgetType[]).map((type) => (
+          {(Object.keys(WIDGET_DEFAULTS) as WidgetType[])
+            .sort((a, b) => WIDGET_DEFAULTS[a].label.localeCompare(WIDGET_DEFAULTS[b].label))
+            .map((type) => (
             <button key={type} onClick={() => onAdd(type)} className="text-xs font-mono text-[var(--text-muted)] hover:text-white transition-colors px-1">
               {WIDGET_DEFAULTS[type].label}
             </button>
