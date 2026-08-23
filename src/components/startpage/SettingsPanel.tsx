@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import type { Shortcut, SearchEngine } from './types';
 import { DEFAULT_CONFIG } from './types';
 import type { WidgetType, WidgetInstance } from './widgets/types';
-import { WIDGET_DEFAULTS } from './widgets/useWidgets';
-import BackgroundSection from './settings/BackgroundSection';
-import CssEditorSection from './settings/CssEditorSection';
-import BackupSection from './settings/BackupSection';
-import { sectionTitle, fieldLabel, rowLabel, hintText, inputField, ghostBtn, linkBtn } from './settings/typography';
+import { ghostBtn } from './settings/typography';
+import AutocompleteSection from './settings/AutocompleteSection';
+import AboutSection from './settings/AboutSection';
+import CustomizeSection from './settings/CustomizeSection';
+import EngineSection from './settings/EngineSection';
+import ShortcutsSection from './settings/ShortcutsSection';
+import WidgetsSection from './settings/WidgetsSection';
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -17,108 +19,9 @@ type Props = {
   onRemoveWidget?: (id: string) => void;
   onEnterWidgetEdit?: () => void;
   onClearWidgets?: () => void;
-  onBackgroundChange?: (bg: import('./settings/BackgroundSection').Background) => void;
+  onBackgroundChange?: (bg: import('./settings/CustomizeSection').Background) => void;
 };
-const field = inputField;
 const btnGhost = ghostBtn;
-function Section({ id, title, openIds, toggle, children }: { id: string; title: string; openIds: Set<string>; toggle: (id: string) => void; children: React.ReactNode }) {
-  const open = openIds.has(id);
-  return (
-    <section className="flex flex-col">
-      <button
-        onClick={() => toggle(id)}
-        aria-expanded={open}
-        className="flex items-center justify-between w-full py-1 text-left group"
-      >
-        <h3 className={`${sectionTitle} group-hover:text-white transition-colors`}>{title}</h3>
-        <span className="text-xs font-mono text-[var(--text-muted)] group-hover:text-white transition-colors px-1">
-          {open ? '−' : '+'}
-        </span>
-      </button>
-      {open && <div className="flex flex-col gap-4 pl-3 border-l border-white/10 ml-1 mt-1 mb-3">{children}</div>}
-    </section>
-  );
-}
-function Slider({ value, min, max, step, onChange, unit }: { value: number; min: number; max: number; step: number; onChange: (v: number) => void; unit?: string }) {
-  const pct = ((value - min) / (max - min)) * 100;
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(String(value));
-  useEffect(() => {
-    if (!editing) setDraft(String(value));
-  }, [value, editing]);
-  const commit = () => {
-    const n = Number(draft);
-    if (!Number.isNaN(n)) onChange(Math.min(max, Math.max(min, n)));
-    setEditing(false);
-  };
-  return (
-    <div className="flex items-center gap-3 flex-1">
-      <div className="relative flex-1 h-5 flex items-center group">
-        <div className="absolute inset-x-0 h-px bg-white/20" />
-        <div className="absolute h-px bg-[var(--border-bezel)]" style={{ width: `${pct}%` }} />
-        <div
-          className="absolute w-2.5 h-2.5 rounded-full bg-[var(--border-bezel)] -translate-x-1/2 pointer-events-none transition-transform group-hover:scale-125"
-          style={{ left: `${pct}%` }}
-        />
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="absolute inset-0 w-full opacity-0 cursor-pointer"
-        />
-      </div>
-      {editing ? (
-        <input
-          autoFocus
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') commit();
-            if (e.key === 'Escape') setEditing(false);
-          }}
-          className="w-14 bg-transparent border border-white/30 rounded-sm px-1 py-0.5 text-xs font-mono text-[var(--text-main)] text-right outline-none focus:border-[var(--border-bezel)]"
-        />
-      ) : (
-        <button
-          onClick={() => {
-            setDraft(String(value));
-            setEditing(true);
-          }}
-          title="click to edit"
-          className="w-14 px-1 py-0.5 text-xs font-mono text-[var(--text-muted)] text-right hover:text-white border border-transparent hover:border-white/20 rounded-sm transition-colors"
-        >
-          {value}
-          {unit ?? ''}
-        </button>
-      )}
-    </div>
-  );
-}
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      onClick={() => onChange(!checked)}
-      aria-pressed={checked}
-      className={`w-9 h-5 rounded-full border transition-colors relative ${checked ? 'bg-white/90 border-white' : 'bg-transparent border-white/25'}`}
-    >
-      <span
-        className={`absolute top-1/2 -translate-y-1/2 rounded-full transition-all ${checked ? 'left-[calc(100%-14px)] w-3 h-3 bg-black' : 'left-0.5 w-3 h-3 bg-white/50'}`}
-      />
-    </button>
-  );
-}
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className={rowLabel}>{label}</span>
-      {children}
-    </div>
-  );
-}
 async function fetchPageTitle(url: string): Promise<string | null> {
   const endpoints = [
     `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
@@ -221,6 +124,13 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
     setShortcutsDraft(list);
     update({ shortcuts: list });
   };
+  const removeShortcut = (index: number) => commitShortcuts(shortcutsDraft.filter((_, current) => current !== index));
+  const updateShortcutName = (index: number, name: string) => {
+    const list = [...shortcutsDraft];
+    if (!list[index]) return;
+    list[index] = { ...list[index]!, name };
+    commitShortcuts(list);
+  };
   const addShortcut = () => {
     const url = newScUrl.trim();
     if (!url) return;
@@ -314,7 +224,7 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <button aria-label="Close settings" onClick={onClose} className="absolute inset-0 bg-black/60 cursor-default" />
-      <aside className="relative h-full w-1/2 min-w-[480px] bg-[#040404] border-l border-white/15 overflow-y-auto">
+      <aside className="relative h-full w-1/2 min-w-[480px] bg-[#040404] border-l border-white/15 overflow-y-auto hide-scrollbar">
         <div className="flex flex-col gap-6 p-8 pb-24">
           <div className="flex items-center justify-between sticky top-0 bg-[#040404] py-4 -mt-2 z-10 border-b border-white/10">
             <h2 className="text-lg font-medium text-[var(--text-main)]">settings</h2>
@@ -323,202 +233,12 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
               <button onClick={onClose} aria-label="close" className="text-[var(--text-muted)] hover:text-white transition-colors text-xl leading-none px-1">×</button>
             </div>
           </div>
-          <Section id="customize" title="customize" openIds={openSections} toggle={toggleSection}>
-            <Row label="logo enabled">
-              <Toggle checked={config.logo.enabled} onChange={(v) => update({ logo: { ...config.logo, enabled: v } })} />
-            </Row>
-            <div className="flex flex-col gap-2">
-              <span className={fieldLabel}>logo image url (blank for none)</span>
-              <input value={logoSrc} onChange={(e) => setLogoSrc(e.target.value)} onBlur={commitLogo} onKeyDown={(e) => e.key === 'Enter' && commitLogo()} placeholder="/favicon.svg or https://…" className={field} />
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className={fieldLabel}>title text</span>
-              <input value={logoText} onChange={(e) => setLogoText(e.target.value)} onBlur={commitLogo} onKeyDown={(e) => e.key === 'Enter' && commitLogo()} placeholder="Startpage" className={field} />
-            </div>
-            <Row label="icon size">
-              <Slider value={config.logo.size} min={12} max={160} step={2} onChange={(v) => update({ logo: { ...config.logo, size: v } })} unit="px" />
-            </Row>
-            <Row label="gap">
-              <Slider value={config.logo.gap} min={0} max={64} step={2} onChange={(v) => update({ logo: { ...config.logo, gap: v } })} unit="px" />
-            </Row>
-            <Row label="show back link">
-              <Toggle checked={config.showBackLink} onChange={(v) => update({ showBackLink: v })} />
-            </Row>
-            <div className="pt-2 border-t border-white/10 flex flex-col gap-4">
-              <BackgroundSection onChange={onBackgroundChange} />
-              <CssEditorSection />
-            </div>
-          </Section>
-          <Section id="engine" title="search engine" openIds={openSections} toggle={toggleSection}>
-            <div className="flex flex-col gap-2">
-              {engines.map((engine) => (
-                <div key={engine.id} className="flex items-center gap-2">
-                  <button
-                    onClick={() => setActive(engine.id)}
-                    className={`flex-1 flex items-center justify-between gap-2 border rounded-sm px-3 py-2 text-sm transition-colors ${
-                      activeEngineId === engine.id ? 'border-white/70 text-[var(--text-main)]' : 'border-white/15 text-[var(--text-muted)] hover:border-white/40'
-                    }`}
-                  >
-                    <span>{engine.name}</span>
-                    {activeEngineId === engine.id && <span className="font-mono text-xs">active</span>}
-                  </button>
-                  <button onClick={() => removeEngine(engine.id)} disabled={engines.length <= 1} aria-label={`remove ${engine.name}`} className={`${btnGhost} disabled:opacity-30`}>del</button>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-              <span className={fieldLabel}>add custom engine</span>
-              <input value={newEngineName} onChange={(e) => setNewEngineName(e.target.value)} placeholder="name" className={field} />
-              <input
-                value={newEngineUrl}
-                onChange={(e) => setNewEngineUrl(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addEngine()}
-                placeholder="https://example.com/search?q=%s"
-                className={field}
-              />
-              <button onClick={addEngine} className={btnGhost + ' w-fit'}>add engine</button>
-            </div>
-          </Section>
-          <Section id="shortcuts" title="shortcuts" openIds={openSections} toggle={toggleSection}>
-            <Row label="tile size">
-              <Slider value={config.shortcutSize} min={40} max={128} step={4} onChange={(v) => update({ shortcutSize: v })} unit="px" />
-            </Row>
-            <Row label="icon size">
-              <Slider value={config.shortcutIconSize} min={12} max={64} step={2} onChange={(v) => update({ shortcutIconSize: v })} unit="px" />
-            </Row>
-            <Row label="tile gap">
-              <Slider value={config.shortcutGap} min={4} max={48} step={2} onChange={(v) => update({ shortcutGap: v })} unit="px" />
-            </Row>
-            <Row label="overflow after">
-              <Slider value={config.shortcutOverflowAfter} min={3} max={32} step={1} onChange={(v) => update({ shortcutOverflowAfter: v })} />
-            </Row>
-            <Row label="overflow">
-              <div className="flex items-center gap-2">
-                {(['none', 'scroll', 'wrap'] as const).map((mode) => (
-                  <button
-                    key={mode}
-                    onClick={() => update({ shortcutOverflow: mode })}
-                    className={`px-3 py-1.5 text-xs border rounded-sm transition-colors ${
-                      config.shortcutOverflow === mode ? 'border-white/70 text-[var(--text-main)]' : 'border-white/15 text-[var(--text-muted)] hover:border-white/40'
-                    }`}
-                  >
-                    {mode}
-                  </button>
-                ))}
-              </div>
-            </Row>
-            <div className="flex flex-col gap-3 pt-2 border-t border-white/10">
-              {shortcutsDraft.map((sc, i) =>
-                sc ? (
-                  <div key={i} className="flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono text-[var(--text-muted)]">{i + 1}</span>
-                      <button
-                        onClick={() => commitShortcuts(shortcutsDraft.filter((_, j) => j !== i))}
-                        aria-label={`remove shortcut ${i + 1}`}
-                        className={linkBtn}
-                      >
-                        remove
-                      </button>
-                    </div>
-                    <input
-                      value={fetchingIds.has(sc.id) ? 'fetching...' : sc.name ?? ''}
-                      placeholder="title"
-                      disabled={fetchingIds.has(sc.id)}
-                      onChange={(e) => {
-                        const list = [...shortcutsDraft];
-                        list[i] = { ...sc, name: e.target.value };
-                        commitShortcuts(list);
-                      }}
-                      className={`${field}${fetchingIds.has(sc.id) ? ' opacity-50' : ''}`}
-                    />
-                    <input
-                      value={sc.url ?? ''}
-                      placeholder="https://…"
-                      onChange={(e) => onShortcutUrlInput(i, e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          onShortcutUrlEnter(i);
-                          (e.target as HTMLInputElement).blur();
-                        }
-                      }}
-                      className={field}
-                    />
-                  </div>
-                ) : null
-              )}
-            </div>
-            <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-              <span className={fieldLabel}>add shortcut</span>
-              <input value={newScName} onChange={(e) => setNewScName(e.target.value)} placeholder="title (blank = auto from page title)" className={field} />
-              <input
-                value={newScUrl}
-                onChange={(e) => setNewScUrl(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addShortcut()}
-                placeholder="https://…"
-                className={field}
-              />
-              <button onClick={addShortcut} className={btnGhost + ' w-fit'}>add shortcut</button>
-            </div>
-            <p className={hintText}>
-              title and favicon are fetched from the url the first time you type it. press enter in a url field to refetch them.
-            </p>
-          </Section>
-          <Section id="widgets" title="widgets" openIds={openSections} toggle={toggleSection}>
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(WIDGET_DEFAULTS) as WidgetType[])
-                .sort((a, b) => WIDGET_DEFAULTS[a].label.localeCompare(WIDGET_DEFAULTS[b].label))
-                .map((type) => (
-                <button
-                  key={type}
-                  onClick={() => { onAddWidget?.(type); onEnterWidgetEdit?.(); }}
-                  className={btnGhost}
-                >
-                  {WIDGET_DEFAULTS[type].label}
-                </button>
-              ))}
-            </div>
-            {(widgets?.length ?? 0) > 0 && (
-              <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-                <span className={fieldLabel}>placed ({widgets!.length})</span>
-                {widgets!.map((w) => (
-                  <div key={w.id} className="flex items-center justify-between gap-2">
-                    <span className={rowLabel}>{WIDGET_DEFAULTS[w.type]?.label ?? w.type}</span>
-                    <button onClick={() => onRemoveWidget?.(w.id)} aria-label={`remove ${w.type}`} className={`${btnGhost} hover:border-white/40`}>remove</button>
-                  </div>
-                ))}
-                <div className="flex items-center gap-2 mt-1">
-                  <button onClick={() => { onClose(); onEnterWidgetEdit?.(); }} className={btnGhost}>edit</button>
-                  <button onClick={onClearWidgets} className={btnGhost}>remove all</button>
-                </div>
-              </div>
-            )}
-          </Section>
-          <Section id="about" title="about" openIds={openSections} toggle={toggleSection}>
-            <div className="flex flex-col gap-2 text-xs text-[var(--text-muted)] leading-relaxed">
-              <span className={rowLabel}>commands</span>
-              {[
-                ['!settings', 'open this panel'],
-                ['!widgets', 'toggle widget edit mode'],
-                ['!<engine>', 'switch search engine (e.g. !google)'],
-                ['tab', 'accept the ghost suggestion'],
-                ['↑ ↓', 'move through command suggestions'],
-                ['shift + drag', 'snap a widget to others/edges'],
-                ['esc', 'clear the search / close this panel'],
-              ].map(([cmd, desc]) => (
-                <div key={cmd} className="flex justify-between gap-3">
-                  <span className="font-mono">{cmd}</span>
-                  <span className="text-right">{desc}</span>
-                </div>
-              ))}
-            </div>
-            <div className="pt-2 border-t border-white/10">
-              <BackupSection />
-            </div>
-            <p className="pt-2 border-t border-white/10 text-xs text-[var(--text-muted)] leading-relaxed">
-              khrotu's Startpage · v0.1.0 · last updated: 8/22/2026
-            </p>
-          </Section>
+          <CustomizeSection config={config} logoText={logoText} logoSrc={logoSrc} update={update} openIds={openSections} toggle={toggleSection} onLogoTextChange={setLogoText} onLogoSrcChange={setLogoSrc} onCommitLogo={commitLogo} onBackgroundChange={onBackgroundChange} />
+          <EngineSection openIds={openSections} toggle={toggleSection} engines={engines} activeEngineId={activeEngineId} onSetActive={setActive} onRemove={removeEngine} newName={newEngineName} newUrl={newEngineUrl} onNameChange={setNewEngineName} onUrlChange={setNewEngineUrl} onAdd={addEngine} />
+          <ShortcutsSection config={config} openIds={openSections} toggle={toggleSection} update={update} shortcutsDraft={shortcutsDraft} fetchingIds={fetchingIds} onRemoveShortcut={removeShortcut} onNameChange={updateShortcutName} onUrlInput={onShortcutUrlInput} onUrlEnter={onShortcutUrlEnter} newName={newScName} newUrl={newScUrl} onNewNameChange={setNewScName} onNewUrlChange={setNewScUrl} onAddShortcut={addShortcut} />
+          <WidgetsSection openIds={openSections} toggle={toggleSection} onAddWidget={onAddWidget} widgets={widgets} onRemoveWidget={onRemoveWidget} onEnterWidgetEdit={onEnterWidgetEdit} onClose={onClose} onClearWidgets={onClearWidgets} />
+          <AutocompleteSection openIds={openSections} toggle={toggleSection} />
+          <AboutSection openIds={openSections} toggle={toggleSection} />
         </div>
       </aside>
     </div>

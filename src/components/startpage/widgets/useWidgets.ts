@@ -28,7 +28,12 @@ export const WIDGET_DEFAULTS: Record<WidgetType, { width: number; height: number
   textutils: { width: 290, height: 240, label: 'text utils' },
   lorem: { width: 280, height: 200, label: 'lorem ipsum' },
   stats: { width: 190, height: 140, label: 'system stats' },
+  image: { width: 300, height: 200, label: 'image' },
 };
+export const WIDGET_TYPES: WidgetType[] = [
+  ...(Object.keys(WIDGET_DEFAULTS).filter((type) => type !== 'image') as WidgetType[]),
+  'image',
+];
 export function loadWidgets(): WidgetInstance[] {
   try {
     const raw = localStorage.getItem(KEY);

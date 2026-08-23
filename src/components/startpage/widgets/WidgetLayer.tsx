@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WidgetInstance, WidgetType } from './types';
-import { WIDGET_DEFAULTS } from './useWidgets';
+import { WIDGET_DEFAULTS, WIDGET_TYPES } from './useWidgets';
 import Clock from './Clock';
 import Notes from './Notes';
 import Todo from './Todo';
@@ -26,6 +26,7 @@ import TextUtils from './TextUtils';
 import Lorem from './Lorem';
 import Wordle from './Wordle';
 import Stats from './Stats';
+import ImageWidget from './Image';
 const MIN_W = 120;
 const MIN_H = 80;
 const HANDLE = 12;
@@ -58,6 +59,7 @@ function renderWidget(w: WidgetInstance, editMode: boolean) {
     case 'textutils': return <TextUtils />;
     case 'lorem': return <Lorem height={w.height} />;
     case 'stats': return <Stats height={w.height} />;
+    case 'image': return <ImageWidget id={w.id} width={w.width} height={w.height} />;
     default: return null;
   }
 }
@@ -303,7 +305,7 @@ export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onF
           data-snap-target="true"
         >
           <span className="font-mono text-xs text-[var(--text-muted)]">add:</span>
-          {(Object.keys(WIDGET_DEFAULTS) as WidgetType[])
+          {WIDGET_TYPES
             .sort((a, b) => WIDGET_DEFAULTS[a].label.localeCompare(WIDGET_DEFAULTS[b].label))
             .map((type) => (
             <button key={type} onClick={() => onAdd(type)} className="text-xs font-mono text-[var(--text-muted)] hover:text-white transition-colors px-1">

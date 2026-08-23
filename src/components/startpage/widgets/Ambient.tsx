@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import Slider from '../settings/Slider';
 type SoundKey = 'rain' | 'brown' | 'white' | 'wind';
 const SOUNDS: { key: SoundKey; label: string }[] = [
   { key: 'rain', label: 'rain' },
@@ -265,24 +266,7 @@ export default function Ambient() {
         >
           {paused ? '▶' : '❚❚'}
         </button>
-        <div className="flex items-center gap-3 flex-1">
-          <div className="relative flex-1 h-5 flex items-center group">
-            <div className="absolute inset-x-0 h-px bg-white/20" />
-            <div className="absolute h-px bg-[var(--border-bezel)]" style={{ width: `${volume * 100}%` }} />
-            <div
-              className="absolute w-2.5 h-2.5 rounded-full bg-[var(--border-bezel)] -translate-x-1/2 pointer-events-none transition-transform group-hover:scale-125"
-              style={{ left: `${volume * 100}%` }}
-            />
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={volume * 100}
-              onChange={(e) => setVolume(Number(e.target.value) / 100)}
-              className="absolute inset-0 w-full opacity-0 cursor-pointer"
-            />
-          </div>
-        </div>
+        <Slider value={volume * 100} min={0} max={100} step={1} onChange={(value) => setVolume(value / 100)} unit="%" />
       </div>
     </div>
   );

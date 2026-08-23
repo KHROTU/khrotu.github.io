@@ -5,10 +5,11 @@ import { recordUse, usageCount } from './usage';
 import SettingsPanel from './SettingsPanel';
 import WidgetLayer from './widgets/WidgetLayer';
 import { useWidgets } from './widgets/useWidgets';
-import { getBackground } from './settings/BackgroundSection';
-import type { Background } from './settings/BackgroundSection';
+import { getBackground, type Background } from './settings/CustomizeSection';
 import ArtBackground from './settings/ArtBackground';
-import { getCustomCss } from './settings/CssEditorSection';
+import { getCustomCss } from './settings/CustomizeSection';
+import { isUrlLike, normalizeUrl } from './url';
+import { recordTerm, getSuggestions } from './autocomplete';
 type Command = { name: string; run: () => void };
 function hostOf(url?: string): string {
   if (!url) return '';
@@ -90,10 +91,23 @@ export default function Startpage() {
   }, [config.engines, update]);
   const matchedCommands = query.startsWith('!') ? commands.filter((c) => c.name.startsWith(query.toLowerCase())) : [];
   const isCommandMode = query.startsWith('!');
-  const activeIndex = Math.min(selected, Math.max(0, matchedCommands.length - 1));
-  const ghostCompletion = isCommandMode && matchedCommands[activeIndex] && query.length < matchedCommands[activeIndex].name.length
-    ? matchedCommands[activeIndex].name.slice(query.length)
-    : '';
+  const [suggestions, setSuggestions] = useState<{ term: string; kind: string; score?: number }[]>([]);
+  const urlLike = !isCommandMode && isUrlLike(query);
+  const listLen = isCommandMode ? matchedCommands.length : suggestions.length;
+  const activeIndex = Math.min(selected, Math.max(0, listLen - 1));
+  const cmdGhost = isCommandMode && matchedCommands[activeIndex] && query.length < matchedCommands[activeIndex].name.length ? matchedCommands[activeIndex].name.slice(query.length) : '';
+  const suggestGhost = !isCommandMode && suggestions[0] && suggestions[0].term.toLowerCase().startsWith(query.toLowerCase()) ? suggestions[0].term.slice(query.length) : '';
+  const ghostCompletion = isCommandMode ? cmdGhost : suggestGhost;
+  useEffect(() => {
+    if (isCommandMode || !query.trim()) { setSuggestions([]); return; }
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      const s = await getSuggestions(query, 6);
+      if (cancelled) return;
+      setSuggestions(s);
+    }, 140);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [query, isCommandMode]);
   const runCommand = (cmd: Command | undefined) => {
     if (!cmd) return;
     setQuery('');
@@ -101,32 +115,42 @@ export default function Startpage() {
     recordUse(cmd.name);
     cmd.run();
   };
+  const navigateSearch = (q: string) => {
+    if (!engine) return;
+    const kind = isUrlLike(q) ? 'url' as const : 'search' as const;
+    recordTerm(q, kind);
+    if (kind === 'url') { window.location.href = normalizeUrl(q); return; }
+    window.location.href = engine.url.includes('%s') ? engine.url.replace('%s', encodeURIComponent(q)) : engine.url + encodeURIComponent(q);
+  };
   const submit = () => {
     const q = query.trim();
     if (!q) return;
-    if (isCommandMode) {
-      runCommand(matchedCommands[activeIndex]);
-      return;
+    if (isCommandMode) { runCommand(matchedCommands[activeIndex]); return; }
+    if (urlLike) { navigateSearch(q); return; }
+    if (suggestions.length > 0 && activeIndex < suggestions.length) {
+      const picked = suggestions[activeIndex];
+      if (picked) { navigateSearch(picked.term); return; }
     }
-    if (!engine) return;
-    window.location.href = engine.url.includes('%s') ? engine.url.replace('%s', encodeURIComponent(q)) : engine.url + encodeURIComponent(q);
+    navigateSearch(q);
   };
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       submit();
-    } else if (e.key === 'ArrowDown' && isCommandMode && matchedCommands.length > 0) {
+    } else if (e.key === 'ArrowDown' && listLen > 0) {
       e.preventDefault();
-      setSelected((i) => Math.min(i + 1, matchedCommands.length - 1));
-    } else if (e.key === 'ArrowUp' && isCommandMode && matchedCommands.length > 0) {
+      setSelected((i) => Math.min(i + 1, listLen - 1));
+    } else if (e.key === 'ArrowUp' && listLen > 0) {
       e.preventDefault();
       setSelected((i) => Math.max(i - 1, 0));
     } else if (e.key === 'Tab' && ghostCompletion) {
       e.preventDefault();
-      setQuery(matchedCommands[activeIndex].name);
+      if (isCommandMode) setQuery(matchedCommands[activeIndex].name);
+      else if (suggestGhost) setQuery(suggestions[0].term);
     } else if (e.key === 'Escape') {
       setQuery('');
       setSelected(0);
+      setSuggestions([]);
     }
   };
   const onShortcutClick = (sc: Shortcut) => {
@@ -203,7 +227,8 @@ export default function Startpage() {
               {matchedCommands.map((cmd, i) => (
                 <div
                   key={cmd.name}
-                  className={`px-4 py-2 text-sm cursor-default transition-colors ${
+                  onMouseDown={(e) => { e.preventDefault(); runCommand(cmd); }}
+                  className={`px-4 py-2 text-sm cursor-pointer transition-colors ${
                     i === activeIndex ? 'bg-white/5 text-[var(--text-main)]' : 'text-[var(--text-muted)]'
                   }`}
                 >
@@ -211,8 +236,23 @@ export default function Startpage() {
                 </div>
               ))}
             </div>
-          )
-          }
+          )}
+          {!isCommandMode && query.trim() && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 border border-[var(--border-bezel)]/40 rounded-sm bg-[#040404] z-20 overflow-hidden">
+              {suggestions.map((s, i) => {
+                const idx = i;
+                return (
+                  <div
+                    key={s.term}
+                    onMouseDown={(e) => { e.preventDefault(); navigateSearch(s.term); }}
+                    className={`px-4 py-2 text-sm cursor-pointer transition-colors ${idx === activeIndex ? 'bg-white/5 text-[var(--text-main)]' : 'text-[var(--text-muted)]'}`}
+                  >
+                    <span className="truncate">{s.term}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
         <div
           className={

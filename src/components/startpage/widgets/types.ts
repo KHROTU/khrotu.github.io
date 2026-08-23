@@ -5,7 +5,7 @@ export type WidgetType =
   | 'github'
   | 'wordle' | 'art' | 'currency' | 'quotes' | 'dice'
   | 'converter' | 'textutils' | 'lorem'
-  | 'stats';
+  | 'stats' | 'image';
 export type WidgetInstance = {
   id: string;
   type: WidgetType;
