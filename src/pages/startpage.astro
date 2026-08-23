@@ -3,5 +3,10 @@ import Layout from '../layouts/Layout.astro';
 import Startpage from '../components/startpage/Startpage';
 ---
 <Layout title="Startpage | khrotu" description="my personal startpage" favicon="/favicon-startpage.svg">
+  <div id="startpage-shell" aria-hidden="true" style="position:fixed;inset:0;background:#040404"></div>
   <Startpage client:only="react" />
+  <style>
+    astro-island:not(:defined) + #startpage-shell ~ * { display: none; }
+    #startpage-shell { transition: opacity 0.2s; }
+  </style>
 </Layout>

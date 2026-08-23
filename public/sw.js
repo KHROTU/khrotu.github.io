@@ -1,6 +1,7 @@
 const CACHE = 'startpage-v2';
 const PRECACHE = [
   '/startpage/',
+  '/startpage',
   '/favicon-startpage.svg',
   '/fonts/HyperlegibleSans-Regular.woff2',
   '/fonts/HyperlegibleSans-Italic.woff2',
