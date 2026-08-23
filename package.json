@@ -23,5 +23,11 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "glob": "^13.0.6"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }
