@@ -6,8 +6,9 @@ export default defineConfig({
   site: 'https://khrotu.org',
   output: 'static',
   integrations: [react()],
+  compressHTML: true,
   build: {
-    inlineStylesheets: 'auto',
+    inlineStylesheets: 'always',
   },
   prefetch: {
     prefetchAll: true,

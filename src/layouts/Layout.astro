@@ -3,8 +3,9 @@ import '../styles/globals.css';
 export interface Props {
   title?: string;
   description?: string;
+  favicon?: string;
 }
-const { title = 'khrotu', description = "i'd like to think i'm a relatively competent dev; dabbles in ai/ml now and then" } = Astro.props;
+const { title = 'khrotu', description = "i'd like to think i'm a relatively competent dev; dabbles in ai/ml now and then", favicon = '/favicon.svg' } = Astro.props;
 ---
 <!doctype html>
 <html lang="en" class="scroll-smooth">
@@ -19,7 +20,8 @@ const { title = 'khrotu', description = "i'd like to think i'm a relatively comp
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+    <link rel="preload" href="/fonts/HyperlegibleSans-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <title>{title}</title>
     <slot name="head" />
   </head>

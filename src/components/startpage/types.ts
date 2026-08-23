@@ -51,7 +51,7 @@ export const DEFAULT_CONFIG: StartpageConfig = {
     { id: 'startpage', name: 'Startpage', url: 'https://www.startpage.com/sp/search?query=%s' },
   ],
   activeEngine: 'ddg',
-  logo: { enabled: true, src: '/favicon.svg', text: 'Startpage', size: 22, gap: 10 },
+  logo: { enabled: true, src: '/favicon-startpage.svg', text: 'Startpage', size: 22, gap: 10 },
   shortcuts: defaultShortcutData.map((s, i) => ({ ...s, id: `sc-${i}` })),
   shortcutSize: 72,
   shortcutIconSize: 28,

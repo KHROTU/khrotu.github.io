@@ -6,6 +6,8 @@ import SettingsPanel from './SettingsPanel';
 import WidgetLayer from './widgets/WidgetLayer';
 import { useWidgets } from './widgets/useWidgets';
 import { getBackground } from './settings/BackgroundSection';
+import type { Background } from './settings/BackgroundSection';
+import ArtBackground from './settings/ArtBackground';
 import { getCustomCss } from './settings/CssEditorSection';
 type Command = { name: string; run: () => void };
 function hostOf(url?: string): string {
@@ -24,15 +26,22 @@ export default function Startpage() {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [bg, setBg] = useState<Background>(() => getBackground());
   useEffect(() => {
-    const bg = getBackground();
-    document.body.style.background = bg.image ? `url(${bg.image}) center/cover no-repeat fixed` : bg.color;
+    document.body.style.background = bg.mode === 'image' && bg.image
+      ? `url(${bg.image}) center/cover no-repeat fixed`
+      : bg.color;
     const css = getCustomCss();
     if (css) {
       const style = document.createElement('style');
       style.id = 'custom-widget-css';
       style.textContent = css;
       document.head.appendChild(style);
+    }
+  }, [bg]);
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   }, []);
   useEffect(() => {
@@ -127,6 +136,7 @@ export default function Startpage() {
   };
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 relative">
+      {bg.mode === 'art' && <ArtBackground mouseEffects={bg.mouseEffects} />}
       <WidgetLayer widgets={widgets} editMode={widgetEdit} onUpdate={updateWidget} onRemove={removeWidget} onFocus={focusWidget} onAdd={add} />
       {widgetEdit && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-2 bg-[#040404] border border-white/25 rounded-sm text-sm">
@@ -258,6 +268,7 @@ export default function Startpage() {
         onRemoveWidget={removeWidget}
         onEnterWidgetEdit={() => setWidgetEdit(true)}
         onClearWidgets={clearAll}
+        onBackgroundChange={setBg}
       />
     </div>
   );

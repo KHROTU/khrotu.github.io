@@ -17,6 +17,7 @@ type Props = {
   onRemoveWidget?: (id: string) => void;
   onEnterWidgetEdit?: () => void;
   onClearWidgets?: () => void;
+  onBackgroundChange?: (bg: import('./settings/BackgroundSection').Background) => void;
 };
 const field = inputField;
 const btnGhost = ghostBtn;
@@ -149,7 +150,7 @@ async function fetchPageTitle(url: string): Promise<string | null> {
 function deriveName(url: string): Promise<string | null> {
   return fetchPageTitle(url);
 }
-export default function SettingsPanel({ open, onClose, config, update, onAddWidget, widgets, onRemoveWidget, onEnterWidgetEdit, onClearWidgets }: Props) {
+export default function SettingsPanel({ open, onClose, config, update, onAddWidget, widgets, onRemoveWidget, onEnterWidgetEdit, onClearWidgets, onBackgroundChange }: Props) {
   const [logoText, setLogoText] = useState(config.logo.text);
   const [logoSrc, setLogoSrc] = useState(config.logo.src ?? '');
   const [engines, setEngines] = useState<SearchEngine[]>(config.engines);
@@ -344,7 +345,7 @@ export default function SettingsPanel({ open, onClose, config, update, onAddWidg
               <Toggle checked={config.showBackLink} onChange={(v) => update({ showBackLink: v })} />
             </Row>
             <div className="pt-2 border-t border-white/10 flex flex-col gap-4">
-              <BackgroundSection />
+              <BackgroundSection onChange={onBackgroundChange} />
               <CssEditorSection />
             </div>
           </Section>
