@@ -1,5 +1,5 @@
 {
-  "name": "khrotu-astro",
+  "name": "khrotu.github.io",
   "type": "module",
   "version": "1.0.0",
   "scripts": {
@@ -23,11 +23,5 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "glob": "^13.0.6"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
-    ]
   }
 }
