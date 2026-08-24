@@ -44,6 +44,18 @@ export default function Startpage() {
     document.getElementById('startpage-shell')?.remove();
   }, []);
   useEffect(() => {
+    if (!ready || !('serviceWorker' in navigator)) return;
+    const urls = config.shortcuts.flatMap((sc) => {
+      if (!sc) return [];
+      const out: string[] = [];
+      const host = hostOf(sc.url);
+      if (host) out.push(`https://www.google.com/s2/favicons?domain=${host}&sz=64`);
+      if (sc.icon) out.push(sc.icon);
+      return out;
+    });
+    navigator.serviceWorker.ready.then((reg) => { reg.active?.postMessage({ type: 'cache-icons', urls }); }).catch(() => {});
+  }, [ready, config.shortcuts]);
+  useEffect(() => {
     inputRef.current?.focus();
   }, [ready]);
   useEffect(() => {

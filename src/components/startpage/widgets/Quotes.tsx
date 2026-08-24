@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { timedFetch } from '../net';
 export default function Quotes() {
   const [quote, setQuote] = useState<{ text: string; author: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -6,12 +7,7 @@ export default function Quotes() {
   const load = useCallback(async () => {
     setLoading(true);
     setOffline(false);
-    if (!navigator.onLine) {
-      setQuote(null);
-      setOffline(true);
-      setLoading(false);
-      return;
-    }
+    setQuote(null);
     const endpoints: { url: string; parse: (j: unknown) => { text: string; author: string } }[] = [
       {
         url: 'https://dummyjson.com/quotes/random',
@@ -30,7 +26,7 @@ export default function Quotes() {
     ];
     for (const ep of endpoints) {
       try {
-        const r = await fetch(ep.url);
+        const r = await timedFetch(ep.url);
         if (!r.ok) continue;
         const j = await r.json();
         const parsed = ep.parse(j);
@@ -39,7 +35,9 @@ export default function Quotes() {
         setOffline(false);
         setLoading(false);
         return;
-      } catch {}
+      } catch {
+        break;
+      }
     }
     setQuote(null);
     setOffline(true);

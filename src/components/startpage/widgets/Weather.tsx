@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, LocationControls } from './location';
 import EditOverlay from './EditOverlay';
+import { timedFetch } from '../net';
 type Tab = 'weather' | 'sun' | 'air';
 type WeatherData = {
   temp: number;
@@ -40,12 +41,8 @@ export default function Weather({ width, height, editMode }: { width: number; he
       setData(null);
       setSolar(null);
       setAqi(null);
-      if (!navigator.onLine) {
-        if (!cancelled) { setOffline(true); setLoading(false); }
-        return;
-      }
       try {
-        const r = await fetch(
+        const r = await timedFetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=1`
         );
         if (!r.ok) throw new Error();
@@ -74,8 +71,12 @@ export default function Weather({ width, height, editMode }: { width: number; he
       } catch {
         if (!cancelled) setOffline(true);
       }
+      if (!navigator.onLine) {
+        if (!cancelled) setLoading(false);
+        return;
+      }
       try {
-        const r2 = await fetch(
+        const r2 = await timedFetch(
           `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${loc.lat}&longitude=${loc.lon}&current=european_aqi&timezone=auto`
         );
         if (!r2.ok) throw new Error();

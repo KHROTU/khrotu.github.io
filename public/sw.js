@@ -1,4 +1,4 @@
-const CACHE = 'startpage-v3';
+const CACHE = 'startpage-v4';
 const PRECACHE = [
   '/startpage/',
   '/startpage',
@@ -65,36 +65,94 @@ async function followHtml(cache, res, base) {
     await Promise.all(collectRefs(text, base).map((ref) => putAndFollow(cache, ref, seen)));
   } catch {}
 }
-async function networkFirstPage(request, event) {
+function later(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+function emptyIcon() {
+  return new Response('<svg xmlns="http://www.w3.org/2000/svg"/>', { headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'no-store' } });
+}
+function isReload(request) {
+  return request.cache === 'reload' || request.headers.get('Cache-Control') === 'max-age=0';
+}
+async function updatePage(cache, res, url) {
+  await Promise.all(PAGE_KEYS.map((key) => store(cache, key, res)));
+  await followHtml(cache, res, url);
+}
+function fetchPage(request) {
+  return fetch(request, { cache: 'reload' });
+}
+async function pageResponse(request, event) {
   const cache = await caches.open(CACHE);
-  try {
-    const res = await fetch(request, { cache: 'reload' });
-    if (res.ok) {
-      const extra = Promise.all(PAGE_KEYS.map((key) => store(cache, key, res))).then(() => followHtml(cache, res, request.url));
-      event.waitUntil(extra);
-    }
+  const cached = await matchPage(cache) || await cache.match(request);
+  const net = fetchPage(request).then((res) => {
+    if (res.ok) event.waitUntil(updatePage(cache, res, request.url));
     return res;
-  } catch {
-    const hit = await matchPage(cache) || await cache.match(request);
-    if (hit) return hit;
+  });
+  if (!cached) {
+    const raced = await Promise.race([net.catch(() => null), later(2500)]);
+    if (raced && raced.ok) return raced;
     return new Response('', { status: 503, statusText: 'offline' });
   }
+  if (isReload(request) && self.navigator.onLine) {
+    const raced = await Promise.race([net.catch(() => null), later(800)]);
+    if (raced && raced.ok) return raced;
+    event.waitUntil(net.then((res) => { if (res && res.ok) return updatePage(cache, res, request.url); }).catch(() => {}));
+    return cached;
+  }
+  event.waitUntil(net.then((res) => { if (res && res.ok) return updatePage(cache, res, request.url); }).catch(() => {}));
+  return cached;
 }
 async function cacheFirst(request, storeKey) {
   const cache = await caches.open(CACHE);
   const key = storeKey || request;
   const cached = await cache.match(key);
-  const refresh = fetch(request).then(async (res) => {
-    if (res.ok) await store(cache, key, res);
-    return res;
-  }).catch(() => null);
   if (cached) {
-    refresh.catch(() => {});
+    if (self.navigator.onLine) fetch(request).then(async (res) => { if (res.ok) await store(cache, key, res); }).catch(() => {});
     return cached;
   }
-  const res = await refresh;
-  if (res) return res;
+  if (!self.navigator.onLine) return new Response('', { status: 503, statusText: 'offline' });
+  const raced = await Promise.race([
+    fetch(request).then(async (res) => {
+      if (res.ok) await store(cache, key, res);
+      return res;
+    }).catch(() => null),
+    later(400),
+  ]);
+  if (raced && raced.ok) return raced;
   return new Response('', { status: 503, statusText: 'offline' });
+}
+function canCache(res) {
+  return res && (res.ok || res.type === 'opaque');
+}
+async function putIcon(cache, request, res) {
+  try { await cache.put(typeof request === 'string' ? request : request.url, res); } catch {}
+}
+async function faviconResponse(request) {
+  const cache = await caches.open(CACHE);
+  const key = request.url;
+  const cached = await cache.match(key);
+  if (cached) {
+    if (self.navigator.onLine) fetch(request).then((res) => { if (canCache(res)) putIcon(cache, key, res); }).catch(() => {});
+    return cached;
+  }
+  if (!self.navigator.onLine) return emptyIcon();
+  const net = fetch(request).then((res) => {
+    if (canCache(res)) putIcon(cache, key, res.clone());
+    return res;
+  });
+  const raced = await Promise.race([net.catch(() => null), later(1200)]);
+  if (canCache(raced)) return raced;
+  return emptyIcon();
+}
+async function cacheIcons(urls) {
+  const cache = await caches.open(CACHE);
+  await Promise.all((urls || []).map(async (u) => {
+    if (!u || await cache.match(u)) return;
+    try {
+      const res = await fetch(u, { mode: 'no-cors' });
+      if (canCache(res)) await putIcon(cache, u, res);
+    } catch {}
+  }));
 }
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
@@ -112,12 +170,15 @@ self.addEventListener('activate', (event) => {
     await self.clients.claim();
   })());
 });
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'cache-icons') event.waitUntil(cacheIcons(event.data.urls));
+});
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin === self.location.origin && url.pathname === '/sw.js') return;
   if (url.origin === self.location.origin && isPagePath(url.pathname)) {
-    event.respondWith(networkFirstPage(event.request, event));
+    event.respondWith(pageResponse(event.request, event));
     return;
   }
   if (url.origin === self.location.origin && isAssetPath(url.pathname)) {
@@ -125,6 +186,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   if (isFaviconHost(url.hostname)) {
-    event.respondWith(cacheFirst(event.request));
+    event.respondWith(faviconResponse(event.request));
   }
 });

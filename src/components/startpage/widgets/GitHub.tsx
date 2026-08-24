@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import EditOverlay from './EditOverlay';
+import { timedFetch } from '../net';
 const KEY = 'startpage-widget-github';
 export default function GitHub({ editMode }: { editMode: boolean }) {
   const [repo, setRepo] = useState('facebook/react');
@@ -15,14 +16,13 @@ export default function GitHub({ editMode }: { editMode: boolean }) {
   useEffect(() => {
     setData(null);
     setError(null);
-    if (!navigator.onLine) { setError('offline'); return; }
-    fetch(`https://api.github.com/repos/${repo}`)
+    timedFetch(`https://api.github.com/repos/${repo}`)
       .then((r) => {
         if (!r.ok) throw new Error(String(r.status));
         return r.json();
       })
       .then((j) => setData({ stars: j.stargazers_count, issues: j.open_issues_count, forks: j.forks_count }))
-      .catch((e) => setError(!navigator.onLine || e instanceof TypeError ? 'offline' : 'missing'));
+      .catch((e) => setError(!navigator.onLine || e instanceof TypeError || (e instanceof DOMException && e.name === 'AbortError') ? 'offline' : 'missing'));
   }, [repo]);
   const save = () => {
     const v = input.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\/$/, '');
@@ -39,6 +39,7 @@ export default function GitHub({ editMode }: { editMode: boolean }) {
       <span className="text-xs font-mono text-[var(--text-muted)] truncate">{repo}</span>
       {error === 'offline' && <span className="text-sm text-[var(--text-muted)]">no connection</span>}
       {error === 'missing' && <span className="text-sm text-[var(--text-muted)]">repo not found</span>}
+      {!error && !data && <span className="text-sm text-[var(--text-muted)]">loading…</span>}
       {data && (
         <div className="flex flex-col gap-0.5">
           <div className="flex justify-between text-sm">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Dropdown from './Dropdown';
+import { timedFetch } from '../net';
 type Rates = Record<string, number>;
 const KEY = 'startpage-widget-currency';
 const POPULAR = ['usd', 'eur', 'gbp', 'jpy', 'chf', 'cad', 'aud', 'cny'];
@@ -25,10 +26,7 @@ export default function Currency() {
     let cancelled = false;
     const load = async () => {
       setError(false);
-      if (!navigator.onLine) {
-        if (!cancelled) { setRates(null); setError(true); }
-        return;
-      }
+      setRates(null);
       const endpoints: { url: string; parse: (j: unknown) => Rates }[] = [
         {
           url: `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${from}.json`,
@@ -47,14 +45,16 @@ export default function Currency() {
       ];
       for (const ep of endpoints) {
         try {
-          const r = await fetch(ep.url);
+          const r = await timedFetch(ep.url);
           if (!r.ok) continue;
           const j = await r.json();
           const parsed = ep.parse(j);
           if (!parsed || Object.keys(parsed).length === 0) continue;
           if (!cancelled) setRates(parsed);
           return;
-        } catch {}
+        } catch {
+          if (!navigator.onLine) break;
+        }
       }
       if (!cancelled) setError(true);
     };
