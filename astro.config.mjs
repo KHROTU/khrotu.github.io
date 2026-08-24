@@ -8,7 +8,7 @@ export default defineConfig({
   integrations: [react()],
   compressHTML: true,
   build: {
-    inlineStylesheets: 'always',
+    inlineStylesheets: 'never',
   },
   prefetch: {
     prefetchAll: true,

@@ -75,7 +75,7 @@ export default function AboutSection({ openIds, toggle }: Props) {
           <input ref={fileRef} type="file" accept="application/json" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) importAll(file); event.target.value = ''; }} />
         </div>
       </div>
-      <p className="pt-2 border-t border-white/10 text-xs text-[var(--text-muted)] leading-relaxed">khrotu's Startpage · v0.1.0 · last updated: 8/22/2026</p>
+      <p className="pt-2 border-t border-white/10 text-xs text-[var(--text-muted)] leading-relaxed">khrotu's Startpage · v0.1.1 · last updated: 8/24/2026</p>
     </Section>
   );
 }

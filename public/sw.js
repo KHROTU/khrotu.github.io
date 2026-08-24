@@ -1,4 +1,4 @@
-const CACHE = 'startpage-v4';
+const CACHE = 'startpage-v5';
 const PRECACHE = [
   '/startpage/',
   '/startpage',

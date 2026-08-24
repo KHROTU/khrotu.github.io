@@ -1,15 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import type { Shortcut } from './types';
 import { useStartpageConfig } from './storage';
 import { recordUse, usageCount } from './usage';
-import SettingsPanel from './SettingsPanel';
-import WidgetLayer from './widgets/WidgetLayer';
 import { useWidgets } from './widgets/useWidgets';
-import { getBackground, type Background } from './settings/CustomizeSection';
+import { getBackground, getCustomCss, type Background } from './settings/prefs';
+const SettingsPanel = lazy(() => import('./SettingsPanel'));
+const WidgetLayer = lazy(() => import('./widgets/WidgetLayer'));
 import ArtBackground from './settings/ArtBackground';
-import { getCustomCss } from './settings/CustomizeSection';
 import { isUrlLike, normalizeUrl } from './url';
-import { recordTerm, getSuggestions } from './autocomplete';
+import { recordTerm, bootAutocomplete, suggestSync } from './autocomplete';
 type Command = { name: string; run: () => void };
 function hostOf(url?: string): string {
   if (!url) return '';
@@ -101,23 +100,15 @@ export default function Startpage() {
   }, [config.engines, update]);
   const matchedCommands = query.startsWith('!') ? commands.filter((c) => c.name.startsWith(query.toLowerCase())) : [];
   const isCommandMode = query.startsWith('!');
-  const [suggestions, setSuggestions] = useState<{ term: string; kind: string; score?: number }[]>([]);
+  const [acReady, setAcReady] = useState(false);
+  useEffect(() => { bootAutocomplete().then(() => setAcReady(true)); }, []);
+  const suggestions = useMemo(() => (isCommandMode || !query.trim() ? [] : suggestSync(query, 6)), [query, isCommandMode, acReady]);
   const urlLike = !isCommandMode && isUrlLike(query);
   const listLen = isCommandMode ? matchedCommands.length : suggestions.length;
   const activeIndex = Math.min(selected, Math.max(0, listLen - 1));
   const cmdGhost = isCommandMode && matchedCommands[activeIndex] && query.length < matchedCommands[activeIndex].name.length ? matchedCommands[activeIndex].name.slice(query.length) : '';
   const suggestGhost = !isCommandMode && suggestions[0] && suggestions[0].term.toLowerCase().startsWith(query.toLowerCase()) ? suggestions[0].term.slice(query.length) : '';
   const ghostCompletion = isCommandMode ? cmdGhost : suggestGhost;
-  useEffect(() => {
-    if (isCommandMode || !query.trim()) { setSuggestions([]); return; }
-    let cancelled = false;
-    const t = setTimeout(async () => {
-      const s = await getSuggestions(query, 6);
-      if (cancelled) return;
-      setSuggestions(s);
-    }, 140);
-    return () => { cancelled = true; clearTimeout(t); };
-  }, [query, isCommandMode]);
   const runCommand = (cmd: Command | undefined) => {
     if (!cmd) return;
     setQuery('');
@@ -160,7 +151,6 @@ export default function Startpage() {
     } else if (e.key === 'Escape') {
       setQuery('');
       setSelected(0);
-      setSuggestions([]);
     }
   };
   const onShortcutClick = (sc: Shortcut) => {
@@ -171,7 +161,11 @@ export default function Startpage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 relative">
       {bg.mode === 'art' && <ArtBackground mouseEffects={bg.mouseEffects} />}
-      <WidgetLayer widgets={widgets} editMode={widgetEdit} onUpdate={updateWidget} onRemove={removeWidget} onFocus={focusWidget} onAdd={add} />
+      {widgets.length > 0 && (
+        <Suspense fallback={null}>
+          <WidgetLayer widgets={widgets} editMode={widgetEdit} onUpdate={updateWidget} onRemove={removeWidget} onFocus={focusWidget} onAdd={add} />
+        </Suspense>
+      )}
       {widgetEdit && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-2 bg-[#040404] border border-white/25 rounded-sm text-sm">
           <span className="font-mono text-xs text-[var(--text-muted)]">editing widgets</span>
@@ -308,18 +302,22 @@ export default function Startpage() {
           </a>
         )}
       </div>
-      <SettingsPanel
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        config={config}
-        update={update}
-        onAddWidget={(type) => { add(type); setWidgetEdit(true); }}
-        widgets={widgets}
-        onRemoveWidget={removeWidget}
-        onEnterWidgetEdit={() => setWidgetEdit(true)}
-        onClearWidgets={clearAll}
-        onBackgroundChange={setBg}
-      />
+      {settingsOpen && (
+        <Suspense fallback={null}>
+          <SettingsPanel
+            open
+            onClose={() => setSettingsOpen(false)}
+            config={config}
+            update={update}
+            onAddWidget={(type) => { add(type); setWidgetEdit(true); }}
+            widgets={widgets}
+            onRemoveWidget={removeWidget}
+            onEnterWidgetEdit={() => setWidgetEdit(true)}
+            onClearWidgets={clearAll}
+            onBackgroundChange={setBg}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import type { StartpageConfig } from '../types';
+import { getBackground, getCustomCss, removeCustomCss, saveBackground, saveCustomCss, type Background } from './prefs';
 import Row from './Row';
 import Section from './Section';
 import Slider from './Slider';
 import Toggle from './Toggle';
 import { fieldLabel, inputField, linkBtn, microHint } from './typography';
-export type BackgroundMode = 'colour' | 'image' | 'art';
-export type Background = { mode: BackgroundMode; image: string | null; color: string; mouseEffects: boolean };
-const BACKGROUND_KEY = 'startpage-widget-bg';
-const CSS_KEY = 'startpage-widget-css';
+export type { Background, BackgroundMode } from './prefs';
 const CSS_TEMPLATE = `body {
   /* font-family: 'Comic Sans MS', cursive; */
   /* letter-spacing: 0.02em; */
@@ -36,26 +34,6 @@ a[title] span {
   /* font-size: 13px; */
 }
 `;
-export function getBackground(): Background {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(BACKGROUND_KEY) ?? 'null');
-    if (parsed?.mode) return { mouseEffects: true, ...parsed } as Background;
-    if (parsed?.image) return { mode: 'image', image: parsed.image, color: parsed.color ?? '#040404', mouseEffects: true };
-  } catch {}
-  return { mode: 'colour', image: null, color: '#040404', mouseEffects: true };
-}
-function saveBackground(bg: Background) {
-  try {
-    localStorage.setItem(BACKGROUND_KEY, JSON.stringify(bg));
-  } catch {}
-}
-export function getCustomCss(): string {
-  try {
-    return JSON.parse(localStorage.getItem(CSS_KEY) ?? '""');
-  } catch {
-    return '';
-  }
-}
 type Props = { config: StartpageConfig; logoText: string; logoSrc: string; openIds: Set<string>; toggle: (id: string) => void; update: (patch: Partial<StartpageConfig>) => void; onLogoTextChange: (value: string) => void; onLogoSrcChange: (value: string) => void; onCommitLogo: () => void; onBackgroundChange?: (bg: Background) => void };
 export default function CustomizeSection({ config, logoText, logoSrc, openIds, toggle, update, onLogoTextChange, onLogoSrcChange, onCommitLogo, onBackgroundChange }: Props) {
   const [bg, setBg] = useState(getBackground);
@@ -72,9 +50,7 @@ export default function CustomizeSection({ config, logoText, logoSrc, openIds, t
     style.id = 'custom-widget-css';
     style.textContent = css;
     document.head.appendChild(style);
-    try {
-      localStorage.setItem(CSS_KEY, JSON.stringify(css));
-    } catch {}
+    saveCustomCss(css);
     setApplied(true);
     setTimeout(() => setApplied(false), 1500);
   };
@@ -138,7 +114,7 @@ export default function CustomizeSection({ config, logoText, logoSrc, openIds, t
           <textarea value={css} onChange={(event) => setCss(event.target.value)} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') applyCss(); }} placeholder={'body {\n  letter-spacing: 0.02em;\n}'} rows={6} spellCheck={false} className="w-full resize-y bg-transparent border border-white/15 rounded-sm p-2 text-xs font-mono text-[var(--text-main)] outline-none focus:border-[var(--border-bezel)] transition-colors placeholder:text-[var(--text-muted)]/60" />
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={applyCss} className={linkBtn}>{applied ? 'applied!' : 'apply'}</button>
-            {getCustomCss() && <button onClick={() => { document.getElementById('custom-widget-css')?.remove(); localStorage.removeItem(CSS_KEY); setCss(''); }} className={linkBtn}>reset</button>}
+            {getCustomCss() && <button onClick={() => { document.getElementById('custom-widget-css')?.remove(); removeCustomCss(); setCss(''); }} className={linkBtn}>reset</button>}
           </div>
         </div>
       </div>

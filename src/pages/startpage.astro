@@ -10,6 +10,9 @@ import Startpage from '../components/startpage/Startpage';
     #startpage-shell { transition: opacity 0.2s; }
   </style>
   <script is:inline>
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then((r) => r.update()).catch(() => {});
+    if ('serviceWorker' in navigator) {
+      const registerSW = () => navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then((r) => r.update()).catch(() => {});
+      if (document.readyState === 'complete') registerSW(); else window.addEventListener('load', registerSW, { once: true });
+    }
   </script>
 </Layout>

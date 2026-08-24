@@ -69,7 +69,7 @@ export default function BlogContent({ content }: Props) {
                     <video
                       src={href}
                       controls
-                      preload="metadata"
+                      preload="none"
                       playsInline
                       className="rounded-sm w-full h-auto"
                     />
@@ -79,7 +79,7 @@ export default function BlogContent({ content }: Props) {
               if (mediaType === 'audio') {
                 return (
                   <figure className="flex flex-col gap-2 my-6">
-                    <audio src={href} controls preload="metadata" className="w-full" />
+                    <audio src={href} controls preload="none" className="w-full" />
                   </figure>
                 );
               }
@@ -106,6 +106,8 @@ export default function BlogContent({ content }: Props) {
             <img
               src={src}
               alt={alt || ''}
+              loading="lazy"
+              decoding="async"
               className="rounded-sm h-auto max-w-full"
             />
             {alt && (
