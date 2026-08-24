@@ -203,7 +203,7 @@ export default function Startpage() {
                 {ghostCompletion && (
                   <div
                     aria-hidden
-                    className="absolute inset-y-0 left-4 flex items-center pointer-events-none select-none"
+                    className="absolute inset-y-0 left-4 right-4 overflow-hidden flex items-center pointer-events-none select-none"
                     style={{ fontSize: config.searchFontSize }}
                   >
                     <span className="invisible whitespace-pre">{query}</span>
