@@ -16,13 +16,19 @@ const defaultGreeting = (() => {
   <section class="flex flex-col gap-3">
     <h2 class="text-2xl font-medium text-[var(--text-main)]">Web Development</h2>
     <p>
-      I've been doing full-stack development for over {webYears} years now, and I care deeply about building products that are not only polished but highly functional and performant. My core stack is React, Next.js, TypeScript, and Tailwind CSS, though I've also worked with vanilla HTML and other frameworks such as Vue. I handle state with Zustand, manage databases with Supabase, Firebase, and IndexedDB, and cache with Redis. I also have extensive experience with more specialised libraries such as Three.js, Monaco Editor, Recharts, and KaTeX. I test all of my products with Jest to maintain code quality and ensure everything is production-ready, BrowserStack to verify cross-platform compatibility, and Polypane to fine-tune responsive design across varying screen sizes and resolutions.
+      I've been doing full-stack development for over {webYears} years now, and I care deeply about building products that are not only polished but highly functional and performant. My core stack is React, Next.js, TypeScript, and Tailwind CSS, though I've also worked with vanilla HTML, Astro (this site is a fully static Astro build), and other frameworks such as Vue. I handle state with Zustand, manage databases with Supabase, Firebase, and IndexedDB, and cache with Redis. I also have extensive experience with more specialised libraries such as Three.js, Monaco Editor, Recharts, and KaTeX. I test all of my products with Jest to maintain code quality and ensure everything is production-ready, BrowserStack to verify cross-platform compatibility, and Polypane to fine-tune responsive design across varying screen sizes and resolutions.
+    </p>
+  </section>
+  <section class="flex flex-col gap-3">
+    <h2 class="text-2xl font-medium text-[var(--text-main)]">NLP &amp; Computational Linguistics</h2>
+    <p>
+      On the Deep Past Challenge, a Kaggle code competition translating Old Assyrian cuneiform transliterations into English, our team placed Top 2% (Silver medal): we fine-tuned a byte-level ByT5 sequence-to-sequence model, re-aligned document-level supervision into sentence-level pairs to match the test distribution, and applied metric-aware normalisation and beam-search post-processing optimised for BLEU &times; chrF++. Beyond that, I have benchmarked small language models against a Shannon-entropy solver over 6,000 Wordle games with custom rule- and clue-violation metrics, implemented a hybrid BM25 + FAISS retrieval engine over exam papers, and authored a paper designing a four-stage ASR pipeline that turns Hakka broadcast media into annotated speech corpora for a six-tone Sinitic language.
     </p>
   </section>
   <section class="flex flex-col gap-3">
     <h2 class="text-2xl font-medium text-[var(--text-main)]">Python & Machine Learning</h2>
     <p>
-      I've been writing Python for {pythonYears} years, which has allowed me to not only work fluently in the language itself but develop a strong focus in specific areas: scraping, browser automation, and machine learning. For web-related tasks, I use DevTools and Burp Suite to perform digital forensics to write fast and undetectable scraping and automation solutions. For machine learning and reinforcement learning, I have studied and applied DQNs, LSTMs, and CNNs using PyTorch, including work conducted at the Research Institute of Tsinghua University in Shenzhen.
+      I've been writing Python for {pythonYears} years, which has allowed me to not only work fluently in the language itself but develop a strong focus in specific areas: scraping, browser automation, and machine learning. For web-related tasks, I use DevTools and Burp Suite to perform digital forensics to write fast and undetectable scraping and automation solutions. For machine learning and reinforcement learning, I have studied and applied DQNs, LSTMs, MDN-RNNs, and CNNs using PyTorch, including diffusion model training on cloud GPUs and work conducted at the Research Institute of Tsinghua University in Shenzhen.
     </p>
   </section>
   <section class="flex flex-col gap-3">
@@ -32,9 +38,15 @@ const defaultGreeting = (() => {
     </p>
   </section>
   <section class="flex flex-col gap-3">
+    <h2 class="text-2xl font-medium text-[var(--text-main)]">Rust</h2>
+    <p>
+      Rust is my systems language of choice for tooling. My largest project so far is an interpreter for Cambridge International 9618 pseudocode, with a hand-written lexer, parser, and evaluator supporting records, named pointers, enumerations, bounded multi-dimensional arrays, classes with inheritance, and random-access typed file I/O.
+    </p>
+  </section>
+  <section class="flex flex-col gap-3">
     <h2 class="text-2xl font-medium text-[var(--text-main)]">Reverse Engineering</h2>
     <p>
-      I should note that I only ever work within legally clear or grey territory. I have never done anything malicious, and have no intention of doing so, so please don't blacklist me. My experience spans a few different contexts. For web traffic, I use Burp Suite and Wireshark to intercept and map out closed systems, which in practice means reconstructing undocumented APIs. For Android, I work with Ghidra, JADX, Frida, APKTool, and Burp Suite as a proxy, usually inside a virtual machine, to decompile and inspect applications at runtime. I've also spent considerable time on binary analysis — files with completely undocumented extensions, where the work is reading raw hex in ImHex, identifying encryption or compression schemes, and slowly working out what the format actually is.
+      I should note that I only ever work within legally clear or grey territory. My experience spans a few different contexts. For web traffic, I use Burp Suite and Wireshark to intercept and map out closed systems, which in practice means reconstructing undocumented APIs. For Android, I work with Ghidra, JADX, Frida, APKTool, and Burp Suite as a proxy, usually inside a virtual machine, to decompile and inspect applications at runtime. I've also spent considerable time on binary analysis — files with completely undocumented extensions, where the work is reading raw hex in ImHex, identifying encryption or compression schemes, and slowly working out what the format actually is.
     </p>
   </section>
 </div>
