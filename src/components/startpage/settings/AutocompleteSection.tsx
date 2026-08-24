@@ -118,8 +118,13 @@ async function obtainFile(source: (typeof SOURCES)[number]): Promise<File> {
 }
 async function parseHistory(data: Uint8Array, sql: string): Promise<string[]> {
   const initSqlJs = (await import('sql.js')).default;
-  const wasm = (await import('sql.js/dist/sql-wasm.wasm?url')).default;
-  const SQL = await initSqlJs({ locateFile: () => wasm });
+  let SQL: any;
+  try {
+    SQL = await initSqlJs({ locateFile: () => '/sql-wasm.wasm' });
+  } catch {
+    const buf = await (await fetch('/sql-wasm.wasm')).arrayBuffer();
+    SQL = await initSqlJs({ wasmBinary: buf });
+  }
   const db = new SQL.Database(data);
   try {
     const stmt = db.prepare(sql);

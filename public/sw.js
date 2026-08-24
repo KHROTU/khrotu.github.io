@@ -16,7 +16,7 @@ function isPagePath(pathname) {
   return pathname === '/startpage' || pathname === '/startpage/' || pathname === '/startpage/index.html';
 }
 function isAssetPath(pathname) {
-  return pathname.startsWith('/_astro/') || pathname.startsWith('/fonts/') || pathname === '/favicon-startpage.svg' || pathname === '/favicon.svg' || pathname === '/favicon-startpage-contrast.svg';
+  return pathname.startsWith('/_astro/') || pathname.startsWith('/fonts/') || pathname === '/favicon-startpage.svg' || pathname === '/favicon.svg' || pathname === '/favicon-startpage-contrast.svg' || pathname === '/sql-wasm.wasm';
 }
 function isFaviconHost(hostname) {
   return hostname === 'www.google.com' || hostname === 'icons.duckduckgo.com';
