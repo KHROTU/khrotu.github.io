@@ -31,6 +31,7 @@ for (const html of htmlFiles) {
 const removed = new Set();
 for (const js of jsFiles) {
   const rel = toPosixRelative(js);
+  if (!rel.startsWith('_astro/')) continue;
   if (referencedJs.has(rel)) continue;
   if (!existsSync(js)) continue;
   const content = readFileSync(js, 'utf-8');

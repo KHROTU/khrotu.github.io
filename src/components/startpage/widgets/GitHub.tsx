@@ -5,7 +5,7 @@ export default function GitHub({ editMode }: { editMode: boolean }) {
   const [repo, setRepo] = useState('facebook/react');
   const [input, setInput] = useState('');
   const [data, setData] = useState<{ stars: number; issues: number; forks: number } | null>(null);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<'offline' | 'missing' | null>(null);
   useEffect(() => {
     try {
       const saved = localStorage.getItem(KEY);
@@ -14,14 +14,15 @@ export default function GitHub({ editMode }: { editMode: boolean }) {
   }, []);
   useEffect(() => {
     setData(null);
-    setError(false);
+    setError(null);
+    if (!navigator.onLine) { setError('offline'); return; }
     fetch(`https://api.github.com/repos/${repo}`)
       .then((r) => {
-        if (!r.ok) throw new Error();
+        if (!r.ok) throw new Error(String(r.status));
         return r.json();
       })
       .then((j) => setData({ stars: j.stargazers_count, issues: j.open_issues_count, forks: j.forks_count }))
-      .catch(() => setError(true));
+      .catch((e) => setError(!navigator.onLine || e instanceof TypeError ? 'offline' : 'missing'));
   }, [repo]);
   const save = () => {
     const v = input.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\/$/, '');
@@ -36,7 +37,8 @@ export default function GitHub({ editMode }: { editMode: boolean }) {
   return (
     <div className="w-full h-full flex flex-col justify-center gap-1 select-none min-h-0 overflow-y-auto hide-scrollbar">
       <span className="text-xs font-mono text-[var(--text-muted)] truncate">{repo}</span>
-      {error && <span className="text-sm text-[var(--text-muted)]">repo not found.</span>}
+      {error === 'offline' && <span className="text-sm text-[var(--text-muted)]">no connection</span>}
+      {error === 'missing' && <span className="text-sm text-[var(--text-muted)]">repo not found</span>}
       {data && (
         <div className="flex flex-col gap-0.5">
           <div className="flex justify-between text-sm">

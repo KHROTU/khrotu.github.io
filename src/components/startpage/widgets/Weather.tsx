@@ -30,15 +30,25 @@ export default function Weather({ width, height, editMode }: { width: number; he
   const [solar, setSolar] = useState<{ sunrise: string; sunset: string; remaining: string } | null>(null);
   const [aqi, setAqi] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [offline, setOffline] = useState(false);
   useEffect(() => {
     if (!loc) return;
     let cancelled = false;
     const load = async () => {
       setLoading(true);
+      setOffline(false);
+      setData(null);
+      setSolar(null);
+      setAqi(null);
+      if (!navigator.onLine) {
+        if (!cancelled) { setOffline(true); setLoading(false); }
+        return;
+      }
       try {
         const r = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=1`
         );
+        if (!r.ok) throw new Error();
         const j = await r.json();
         if (!cancelled) {
           setData({
@@ -61,14 +71,19 @@ export default function Weather({ width, height, editMode }: { width: number; he
             remaining: now > sunset ? 'sun has set' : `${h}h ${m}m of light left`,
           });
         }
-      } catch {}
+      } catch {
+        if (!cancelled) setOffline(true);
+      }
       try {
         const r2 = await fetch(
           `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${loc.lat}&longitude=${loc.lon}&current=european_aqi&timezone=auto`
         );
+        if (!r2.ok) throw new Error();
         const j2 = await r2.json();
         if (!cancelled) setAqi(Math.round(j2.current.european_aqi));
-      } catch {}
+      } catch {
+        if (!cancelled) setOffline(true);
+      }
       if (!cancelled) setLoading(false);
     };
     load();
@@ -100,7 +115,10 @@ export default function Weather({ width, height, editMode }: { width: number; he
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar flex flex-col justify-center">
         {!loc && status === 'error' && <span className="text-sm text-[var(--text-muted)]">location needed</span>}
-        {(status === 'loading' || loading) && !data && <span className="text-sm text-[var(--text-muted)]">loading…</span>}
+        {offline && ((tab === 'weather' && !data) || (tab === 'sun' && !solar) || (tab === 'air' && aqi == null)) && (
+          <span className="text-sm text-[var(--text-muted)]">no connection</span>
+        )}
+        {(status === 'loading' || loading) && !data && !offline && <span className="text-sm text-[var(--text-muted)]">loading…</span>}
         {tab === 'weather' && data && (
           <>
             <span className="text-[var(--text-main)] font-medium tabular-nums leading-none" style={{ fontSize: bigFont }}>

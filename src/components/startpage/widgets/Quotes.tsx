@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-const FALLBACK = [
-  { text: 'simplicity is the ultimate sophistication.', author: 'leonardo da vinci' },
-  { text: 'make it work, make it right, make it fast.', author: 'kent beck' },
-  { text: 'the best code is no code.', author: 'unknown' },
-  { text: 'premature optimization is the root of all evil.', author: 'donald knuth' },
-  { text: 'weeks of coding can save you hours of planning.', author: 'unknown' },
-  { text: 'talk is cheap. show me the code.', author: 'linus torvalds' },
-];
 export default function Quotes() {
   const [quote, setQuote] = useState<{ text: string; author: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [offline, setOffline] = useState(false);
   const load = useCallback(async () => {
     setLoading(true);
+    setOffline(false);
+    if (!navigator.onLine) {
+      setQuote(null);
+      setOffline(true);
+      setLoading(false);
+      return;
+    }
     const endpoints: { url: string; parse: (j: unknown) => { text: string; author: string } }[] = [
       {
         url: 'https://dummyjson.com/quotes/random',
@@ -36,17 +36,13 @@ export default function Quotes() {
         const parsed = ep.parse(j);
         if (!parsed.text) continue;
         setQuote(parsed);
+        setOffline(false);
         setLoading(false);
         return;
       } catch {}
     }
-    setQuote((prev) => {
-      let next = FALLBACK[Math.floor(Math.random() * FALLBACK.length)];
-      if (prev && next.text === prev.text) {
-        next = FALLBACK[(FALLBACK.indexOf(next) + 1) % FALLBACK.length];
-      }
-      return next;
-    });
+    setQuote(null);
+    setOffline(true);
     setLoading(false);
   }, []);
   useEffect(() => {
@@ -65,8 +61,8 @@ export default function Quotes() {
           <span className="text-xs text-[var(--text-muted)]/70">— {quote.author.toLowerCase()}</span>
         </>
       ) : (
-        <span className="text-sm text-[var(--text-muted)]">{loading ? '…' : '—'}</span>
+        <span className="text-sm text-[var(--text-muted)]">{loading ? '…' : offline ? 'no connection' : '—'}</span>
       )}
     </button>
   );
-}
+} 

@@ -14,18 +14,19 @@ export default function ImageWidget({ id, width, height }: { id: string; width: 
   const [link, setLink] = useState('')
   const [radius, setRadius] = useState(6)
   const [editing, setEditing] = useState(false)
+  const [offline, setOffline] = useState(false)
   const [draftSrc, setDraftSrc] = useState('')
   const [draftLink, setDraftLink] = useState('')
   const [draftFit, setDraftFit] = useState<'cover'|'contain'|'fill'>('cover')
   const [draftRadius, setDraftRadius] = useState(6)
   useEffect(() => {
     const d = load(id)
-    if (d) { setSrc(d.src); setFit(d.fit); setLink(d.link); setRadius(d.radius ?? 6); setDraftSrc(d.src); setDraftFit(d.fit); setDraftLink(d.link); setDraftRadius(d.radius ?? 6); setEditing(!d.src) }
+    if (d) { setSrc(d.src); setFit(d.fit); setLink(d.link); setRadius(d.radius ?? 6); setDraftSrc(d.src); setDraftFit(d.fit); setDraftLink(d.link); setDraftRadius(d.radius ?? 6); setEditing(!d.src); setOffline(false) }
     else setEditing(true)
   }, [id])
   const commit = () => {
     const v: ImageDef = { src: draftSrc.trim(), fit: draftFit, link: draftLink.trim(), radius: draftRadius }
-    setSrc(v.src); setFit(v.fit); setLink(v.link); setRadius(v.radius)
+    setSrc(v.src); setFit(v.fit); setLink(v.link); setRadius(v.radius); setOffline(false)
     save(id, v); setEditing(false)
   }
   const onFile = (f: File | null) => {
@@ -67,7 +68,10 @@ export default function ImageWidget({ id, width, height }: { id: string; width: 
       </div>
     )
   }
-  const img = <img src={src} alt="" draggable={false} style={{ width, height, objectFit: fit, borderRadius: radius }} className="select-none" />
+  if (offline) {
+    return <div className="w-full h-full flex items-center justify-center text-sm text-[var(--text-muted)]">no connection</div>
+  }
+  const img = <img src={src} alt="" draggable={false} style={{ width, height, objectFit: fit, borderRadius: radius }} className="select-none" onError={() => { if (!src.startsWith('data:') && !navigator.onLine) setOffline(true) }} />
   return (
     <div className="w-full h-full relative group/image overflow-hidden" style={{ borderRadius: radius }}>
       {link ? <a href={link} target="_blank" rel="noopener noreferrer" className="block w-full h-full">{img}</a> : img}

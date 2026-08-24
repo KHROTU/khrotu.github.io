@@ -25,6 +25,10 @@ export default function Currency() {
     let cancelled = false;
     const load = async () => {
       setError(false);
+      if (!navigator.onLine) {
+        if (!cancelled) { setRates(null); setError(true); }
+        return;
+      }
       const endpoints: { url: string; parse: (j: unknown) => Rates }[] = [
         {
           url: `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${from}.json`,
@@ -65,7 +69,7 @@ export default function Currency() {
   const currencyOptions = (rates ? Object.keys(rates) : POPULAR).map((c) => ({ value: c, label: c.toUpperCase() }));
   return (
     <div className="w-full h-full flex flex-col justify-center gap-2 select-none min-h-0 overflow-y-auto hide-scrollbar">
-      {error && <span className="text-xs text-[var(--text-muted)]">rates unavailable.</span>}
+      {error && <span className="text-xs text-[var(--text-muted)]">no connection</span>}
       <div className="flex items-center gap-2">
         <input
           value={amount}

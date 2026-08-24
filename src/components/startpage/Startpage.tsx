@@ -41,9 +41,7 @@ export default function Startpage() {
     }
   }, [bg]);
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    }
+    document.getElementById('startpage-shell')?.remove();
   }, []);
   useEffect(() => {
     inputRef.current?.focus();

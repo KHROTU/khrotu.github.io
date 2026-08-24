@@ -9,4 +9,7 @@ import Startpage from '../components/startpage/Startpage';
     astro-island:not(:defined) + #startpage-shell ~ * { display: none; }
     #startpage-shell { transition: opacity 0.2s; }
   </style>
+  <script is:inline>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then((r) => r.update()).catch(() => {});
+  </script>
 </Layout>
