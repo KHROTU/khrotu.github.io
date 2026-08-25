@@ -39,7 +39,7 @@ export default function Custom({ id }: { id: string }) {
   if (!code) {
     return (
       <div className="w-full h-full flex items-center justify-center p-4 text-xs font-mono text-[var(--text-muted)] border border-dashed border-white/15 rounded-sm">
-        no content — edit via pencil
+        no content; edit via pencil
       </div>
     );
   }
@@ -48,4 +48,4 @@ export default function Custom({ id }: { id: string }) {
       <div ref={frameRef} className="w-full h-full min-h-0" />
     </div>
   );
-}
+}

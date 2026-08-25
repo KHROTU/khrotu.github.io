@@ -28,7 +28,7 @@ import TextUtils from './TextUtils';
 import Lorem from './Lorem';
 import Wordle from './Wordle';
 import Stats from './Stats';
-import ImageWidget from './Image';
+import ImageWidget from './ImageWidget';
 const MIN_W = 120;
 const MIN_H = 80;
 const HANDLE = 12;

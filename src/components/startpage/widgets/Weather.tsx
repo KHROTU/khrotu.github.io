@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from './location';
+import { useLocation } from './useLocation';
 import { timedFetch } from '../net';
 type Tab = 'weather' | 'sun' | 'air';
 type WeatherData = {

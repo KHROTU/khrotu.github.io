@@ -45,7 +45,7 @@ export default function Countdown({ height }: { height: number }) {
           <span className="text-[var(--text-main)] font-medium tabular-nums leading-none" style={{ fontSize: Math.min(48, height / 3) }}>
             {daysLeft > 0 ? daysLeft : 0}
           </span>
-          <span className="text-xs text-[var(--text-muted)]">days {daysLeft <= 0 ? '— it\'s today or past' : 'remaining'}</span>
+          <span className="text-xs text-[var(--text-muted)]">days {daysLeft <= 0 ? '; it\'s today or past' : 'remaining'}</span>
           {daysLeft <= 0 && (
             <button onClick={clear} className="w-fit text-xs font-mono text-[var(--text-muted)] hover:text-white transition-colors">clear</button>
           )}
