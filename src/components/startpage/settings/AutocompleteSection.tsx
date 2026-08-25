@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { clearAll as clearAutocomplete, getAllTerms, importTerms, removeTerm, type Entry } from '../autocomplete';
-import { isUrlLike } from '../url';
+import { extractSearchTerm, isUrlLike } from '../url';
 import Section from './Section';
 import { ghostBtn, hintText, inputField, linkBtn, rowLabel } from './typography';
 const ROW_H = 30;
@@ -158,8 +158,14 @@ export default function AutocompleteSection({ openIds, toggle }: Props) {
       const file = await obtainFile(source);
       const data = await readSqlite(file);
       const rows = await parseHistory(data, source.sql);
+      let extracted = 0;
       const items = rows
-        .map((r) => ({ term: String(r[0] ?? ''), count: typeof r[1] === 'number' ? r[1] : 1 }))
+        .map((r) => {
+          const raw = String(r[0] ?? '');
+          const term = extractSearchTerm(raw) ?? raw;
+          if (term !== raw) extracted++;
+          return { term, count: typeof r[1] === 'number' ? r[1] : 1 };
+        })
         .filter((it) => it.term.trim().length >= 2)
         .map((it) => ({ ...it, kind: (isUrlLike(it.term) ? 'url' : 'search') as 'url' | 'search' }));
       const added = items.length ? await importTerms(items) : 0;
@@ -167,7 +173,7 @@ export default function AutocompleteSection({ openIds, toggle }: Props) {
         !items.length
           ? `${source.label}: no rows in ${file.name}; empty table or wrong profile's file`
           : added
-            ? `${source.label}: added ${added} new terms from ${rows.length} rows`
+            ? `${source.label}: added ${added} new terms from ${rows.length} rows (${extracted} search terms)`
             : `${source.label}: all ${items.length} rows already known`
       );
     } catch (err) {
