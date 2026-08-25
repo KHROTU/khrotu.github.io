@@ -2,7 +2,7 @@ const DB_NAME = 'startpage-autocomplete-v1'
 const STORE = 'entries'
 const META = 'meta'
 const DB_VERSION = 2
-const NORM_KEY = 'url-norm-v1'
+const NORM_KEY = 'url-norm-v2'
 type Kind = 'search' | 'url'
 export type Entry = { term: string; kind: Kind; count: number; lastUsed: number }
 type SuggestItem = { term: string; kind: Kind; score: number }
@@ -57,7 +57,7 @@ function normText(term: string): string {
     const u = t.slice(t.indexOf('://') + 3).replace(/^www\./i, '').replace(/\/+$/, '')
     return u || t
   }
-  return t.replace(/\/+$/, '')
+  return t.replace(/^www\./i, '').replace(/\/+$/, '')
 }
 function mergeEntries(all: Entry[]): Entry[] {
   const byKey = new Map<string, Entry>()
@@ -136,8 +136,8 @@ async function withStore<T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore
   })
 }
 export async function recordTerm(raw: string, kind: Kind) {
-  const term = raw.trim()
-  if (!term || term.startsWith('!')) return
+  let term = normText(raw.trim())
+  if (!term || term.length < 2 || term.startsWith('!')) return
   if (term.length > 200) return
   try {
     const db = await openDB()
@@ -172,21 +172,54 @@ export function suggestSync(prefix: string, limit = 6): SuggestItem[] {
       if (!e.lower.startsWith(q) && e.lower.includes(q)) cands.push(e)
     }
   }
+  const hostOf = (lower: string): string => {
+    const s = lower.replace(/^[a-z0-9+.-]*:\/\//, '').replace(/^www\./, '')
+    const m = s.match(/^([a-z0-9-]+(?:\.[a-z0-9-]+)+)(?:[/?#]|$)/)
+    return m ? m[1] : ''
+  }
+  const isBareDomain = (lower: string): boolean => /^[a-z0-9-]+(?:\.[a-z0-9-]+)+\/?$/.test(lower.replace(/^www\./, ''))
+  const baseOf = (host: string): string => {
+    const parts = host.split('.').filter(Boolean)
+    return parts.length >= 2 ? parts.slice(-2).join('.') : host
+  }
+  const fam = new Map<string, number>()
+  for (const e of idx) {
+    if (!/[a-z0-9-]\.[a-z0-9-]/.test(e.lower)) continue
+    const host = hostOf(e.lower)
+    if (!host) continue
+    fam.set(baseOf(host), (fam.get(baseOf(host)) ?? 0) + e.count)
+  }
   return cands
-    .map((e) => ({ term: e.term, kind: e.kind, score: e.count * 2 * (e.lower.startsWith(q) ? 2 : 1) + Math.max(0, 1 - (now - e.lastUsed) / 2592000000) + (e.kind === 'url' ? 0.5 : 0) }))
-    .sort((a, b) => b.score - a.score)
+    .map((e) => {
+      const host = hostOf(e.lower)
+      const bare = isBareDomain(e.lower)
+      const starts = e.lower.startsWith(q) || host.startsWith(q)
+      const freqOwn = Math.min(Math.log2(e.count + 1), 7) * 1.5
+      const famCount = host ? fam.get(baseOf(host)) ?? 0 : 0
+      const apex = !!host && host === baseOf(host)
+      const freqFam = Math.min(Math.log2(famCount / 3 + 1), 7) * 1.5
+      let score = Math.max(freqOwn, bare && apex && famCount > e.count ? freqFam : 0) * (starts ? 2 : 1)
+        + Math.max(0, 1 - (now - e.lastUsed) / 2592000000)
+        + (e.kind === 'url' ? 0.5 : 0)
+      if (bare && host && host.startsWith(q)) score += 16
+      else if (bare) score += 5
+      else if (host && host.startsWith(q)) score += 3
+      return { term: e.term, kind: e.kind, score }
+    })
+    .sort((a, b) => b.score - a.score || a.term.length - b.term.length || (a.term < b.term ? -1 : 1))
     .slice(0, limit)
 }
-export async function importTerms(items: { term: string; kind?: Kind }[]): Promise<number> {
+export async function importTerms(items: { term: string; kind?: Kind; count?: number }[]): Promise<number> {
   const now = Date.now()
   const batch = new Map<string, { term: string; kind: Kind; n: number }>()
   for (const it of items) {
     const term = normText(it?.term)
     if (term.length < 2 || term.length > 200 || term.startsWith('!')) continue
+    const add = Math.max(1, Math.min(99999, Math.round(it?.count ?? 1)))
     const key = term.toLowerCase()
     const cur = batch.get(key)
-    if (cur) cur.n++
-    else batch.set(key, { term, kind: it.kind === 'url' ? 'url' : 'search', n: 1 })
+    if (cur) { cur.n += add; if (cur.kind === 'search' && it.kind === 'url') cur.kind = 'url' }
+    else batch.set(key, { term, kind: it.kind === 'url' ? 'url' : 'search', n: add })
   }
   if (!batch.size) return 0
   await bootAutocomplete()

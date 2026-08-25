@@ -81,8 +81,8 @@ export default function CustomizeSection({ config, logoText, logoSrc, openIds, t
           <div className="flex items-center justify-between gap-3">
             <span className={fieldLabel}>background</span>
             <div className="flex items-center gap-2">
-              {(['colour', 'image', 'art'] as const).map((mode) => (
-                <button key={mode} onClick={() => applyBackground({ ...bg, mode })} className={`px-3 py-1.5 text-xs border rounded-sm transition-colors ${bg.mode === mode ? 'border-white/70 text-[var(--text-main)]' : 'border-white/15 text-[var(--text-muted)] hover:border-white/40'}`}>{mode === 'art' ? 'generative art' : mode}</button>
+              {(['colour', 'image', 'art', 'dynamic'] as const).map((mode) => (
+                <button key={mode} onClick={() => applyBackground({ ...bg, mode })} className={`px-3 py-1.5 text-xs border rounded-sm transition-colors ${bg.mode === mode ? 'border-white/70 text-[var(--text-main)]' : 'border-white/15 text-[var(--text-muted)] hover:border-white/40'}`}>{mode === 'art' ? 'generative art' : mode === 'dynamic' ? 'day cycle' : mode}</button>
               ))}
             </div>
           </div>
@@ -107,6 +107,28 @@ export default function CustomizeSection({ config, logoText, logoSrc, openIds, t
               <span className={fieldLabel}>mouse effects</span>
               <Toggle checked={bg.mouseEffects} onChange={(value) => applyBackground({ ...bg, mouseEffects: value })} />
             </div>
+          )}
+          {bg.mode === 'dynamic' && (
+            <>
+              <Row label="sync with time &amp; weather">
+                <Toggle checked={bg.sync !== false} onChange={(value) => applyBackground({ ...bg, sync: value })} />
+              </Row>
+              {bg.sync === false && (
+                <>
+                  <Row label="time">
+                    <Slider value={bg.manualTime ?? 12} min={0} max={24} step={0.5} onChange={(value) => applyBackground({ ...bg, manualTime: value })} unit="h" />
+                  </Row>
+                  <div className="flex flex-col gap-1.5">
+                    <span className={fieldLabel}>weather</span>
+                    <div className="flex flex-wrap gap-1">
+                      {(['clear', 'partly', 'overcast', 'drizzle', 'rain', 'showers', 'snow', 'storm'] as const).map((wxp) => (
+                        <button key={wxp} onClick={() => applyBackground({ ...bg, manualWeather: wxp })} className={`px-2 py-1 text-[10px] border rounded-sm transition-colors ${((bg.manualWeather ?? 'clear') === wxp) ? 'border-white/70 text-[var(--text-main)]' : 'border-white/15 text-[var(--text-muted)] hover:border-white/40'}`}>{wxp}</button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </>
           )}
         </div>
         <div className="flex flex-col gap-2">

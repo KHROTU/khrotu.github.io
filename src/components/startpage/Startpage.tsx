@@ -7,6 +7,7 @@ import { getBackground, getCustomCss, type Background } from './settings/prefs';
 const SettingsPanel = lazy(() => import('./SettingsPanel'));
 const WidgetLayer = lazy(() => import('./widgets/WidgetLayer'));
 import ArtBackground from './settings/ArtBackground';
+import DynamicBackground from './settings/DynamicBackground';
 import { isUrlLike, normalizeUrl } from './url';
 import { recordTerm, bootAutocomplete, suggestSync } from './autocomplete';
 type Command = { name: string; run: () => void };
@@ -30,7 +31,9 @@ export default function Startpage() {
   useEffect(() => {
     document.body.style.background = bg.mode === 'image' && bg.image
       ? `url(${bg.image}) center/cover no-repeat fixed`
-      : bg.color;
+      : bg.mode === 'dynamic'
+        ? '#05070d'
+        : bg.color;
     const css = getCustomCss();
     if (css) {
       const style = document.createElement('style');
@@ -161,7 +164,14 @@ export default function Startpage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 relative">
       {bg.mode === 'art' && <ArtBackground mouseEffects={bg.mouseEffects} />}
-      {widgets.length > 0 && (
+      {bg.mode === 'dynamic' && (
+        <DynamicBackground
+          sync={bg.sync}
+          manualTime={bg.manualTime}
+          manualWeather={bg.manualWeather}
+        />
+      )}
+      {(widgetEdit || widgets.length > 0) && (
         <Suspense fallback={null}>
           <WidgetLayer widgets={widgets} editMode={widgetEdit} onUpdate={updateWidget} onRemove={removeWidget} onFocus={focusWidget} onAdd={add} />
         </Suspense>

@@ -36,11 +36,6 @@ export default function Weather({ width, height, editMode }: { width: number; he
     if (!loc) return;
     let cancelled = false;
     const load = async () => {
-      setLoading(true);
-      setOffline(false);
-      setData(null);
-      setSolar(null);
-      setAqi(null);
       try {
         const r = await timedFetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=1`
@@ -56,6 +51,9 @@ export default function Weather({ width, height, editMode }: { width: number; he
             low: Math.round(j.daily.temperature_2m_min[0]),
             city: loc.city,
           });
+          const snap = { code: j.current.weather_code, temp: Math.round(j.current.temperature_2m), wind: Math.round(j.current.wind_speed_10m), at: Date.now() };
+          try { localStorage.setItem('startpage-widget-weather-data', JSON.stringify(snap)); } catch {}
+          window.dispatchEvent(new CustomEvent('sp-weather-data', { detail: snap }));
           const sunrise = new Date(j.daily.sunrise[0]);
           const sunset = new Date(j.daily.sunset[0]);
           const now = new Date();
@@ -88,8 +86,11 @@ export default function Weather({ width, height, editMode }: { width: number; he
       if (!cancelled) setLoading(false);
     };
     load();
+    const onRefresh = () => { load(); };
+    window.addEventListener('sp-weather-refresh', onRefresh);
     return () => {
       cancelled = true;
+      window.removeEventListener('sp-weather-refresh', onRefresh);
     };
   }, [loc]);
   const aqiLabel = aqi == null ? '' : aqi <= 20 ? 'good' : aqi <= 40 ? 'fair' : aqi <= 60 ? 'moderate' : aqi <= 80 ? 'poor' : 'very poor';

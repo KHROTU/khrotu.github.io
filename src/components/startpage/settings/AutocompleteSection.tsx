@@ -38,9 +38,9 @@ function VirtualList({ items, onRemove }: { items: Entry[]; onRemove: (term: str
 type Props = { openIds: Set<string>; toggle: (id: string) => void };
 type SourceId = 'firefox-forms' | 'firefox-history' | 'chromium';
 const SOURCES: { id: SourceId; label: string; sql: string; file: string }[] = [
-  { id: 'firefox-forms', label: 'firefox', sql: 'SELECT value FROM moz_formhistory', file: '%APPDATA%/Mozilla/Firefox/Profiles/<profile>/formhistory.sqlite' },
-  { id: 'firefox-history', label: 'firefox history', sql: 'SELECT url FROM moz_places WHERE hidden = 0 ORDER BY last_visit_date DESC LIMIT 200000', file: '%APPDATA%/Mozilla/Firefox/Profiles/<profile>/places.sqlite' },
-  { id: 'chromium', label: 'chromium (chrome, brave, vivaldi...)', sql: 'SELECT value FROM autofill', file: '<browser> User Data/<profile>/Web Data' },
+  { id: 'firefox-forms', label: 'firefox', sql: 'SELECT value, timesUsed FROM moz_formhistory', file: '%APPDATA%/Mozilla/Firefox/Profiles/<profile>/formhistory.sqlite' },
+  { id: 'firefox-history', label: 'firefox history', sql: 'SELECT url, visit_count FROM moz_places WHERE hidden = 0 AND visit_count > 0 ORDER BY last_visit_date DESC LIMIT 200000', file: '%APPDATA%/Mozilla/Firefox/Profiles/<profile>/places.sqlite' },
+  { id: 'chromium', label: 'chromium (chrome, brave, vivaldi...)', sql: "SELECT value, count FROM autofill WHERE count > 0", file: '<browser> User Data/<profile>/Web Data' },
 ];
 const FS_DB = 'startpage-fs';
 function fsDb(): Promise<IDBDatabase> {
@@ -116,7 +116,7 @@ async function obtainFile(source: (typeof SOURCES)[number]): Promise<File> {
     input.click();
   });
 }
-async function parseHistory(data: Uint8Array, sql: string): Promise<string[]> {
+async function parseHistory(data: Uint8Array, sql: string): Promise<unknown[][]> {
   const initSqlJs = (await import('sql.js')).default;
   let SQL: any;
   try {
@@ -128,8 +128,8 @@ async function parseHistory(data: Uint8Array, sql: string): Promise<string[]> {
   const db = new SQL.Database(data);
   try {
     const stmt = db.prepare(sql);
-    const rows: string[] = [];
-    while (stmt.step()) { const v = stmt.get()[0]; if (typeof v === 'string') rows.push(v); }
+    const rows: unknown[][] = [];
+    while (stmt.step()) rows.push(stmt.get());
     stmt.free();
     return rows;
   } catch (err) {
@@ -158,13 +158,17 @@ export default function AutocompleteSection({ openIds, toggle }: Props) {
       const file = await obtainFile(source);
       const data = await readSqlite(file);
       const rows = await parseHistory(data, source.sql);
-      const added = rows.length ? await importTerms(rows.map((term) => ({ term, kind: isUrlLike(term) ? 'url' : 'search' }))) : 0;
+      const items = rows
+        .map((r) => ({ term: String(r[0] ?? ''), count: typeof r[1] === 'number' ? r[1] : 1 }))
+        .filter((it) => it.term.trim().length >= 2)
+        .map((it) => ({ ...it, kind: (isUrlLike(it.term) ? 'url' : 'search') as 'url' | 'search' }));
+      const added = items.length ? await importTerms(items) : 0;
       setStatus(
-        !rows.length
+        !items.length
           ? `${source.label}: no rows in ${file.name}; empty table or wrong profile's file`
           : added
             ? `${source.label}: added ${added} new terms from ${rows.length} rows`
-            : `${source.label}: all ${rows.length} rows already known`
+            : `${source.label}: all ${items.length} rows already known`
       );
     } catch (err) {
       const e = err as any;
