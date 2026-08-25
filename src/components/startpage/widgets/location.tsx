@@ -5,25 +5,30 @@ export function useLocation() {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [cityInput, setCityInput] = useState('');
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null');
-      if (saved?.lat != null) {
-        setLoc(saved);
-        setStatus('ready');
-        return;
-      }
-    } catch {}
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const l = { lat: pos.coords.latitude, lon: pos.coords.longitude, city: 'here' };
-        setLoc(l);
-        setStatus('ready');
-        try {
-          localStorage.setItem(KEY, JSON.stringify(l));
-        } catch {}
-      },
-      () => setStatus('error')
-    );
+    const apply = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null');
+        if (saved?.lat != null) {
+          setLoc(saved);
+          setStatus('ready');
+          return;
+        }
+      } catch {}
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const l = { lat: pos.coords.latitude, lon: pos.coords.longitude, city: 'here' };
+          setLoc(l);
+          setStatus('ready');
+          try {
+            localStorage.setItem(KEY, JSON.stringify(l));
+          } catch {}
+        },
+        () => setStatus('error')
+      );
+    };
+    apply();
+    window.addEventListener('sp-location-changed', apply);
+    return () => window.removeEventListener('sp-location-changed', apply);
   }, []);
   const geocode = async (): Promise<boolean> => {
     const name = cityInput.trim();

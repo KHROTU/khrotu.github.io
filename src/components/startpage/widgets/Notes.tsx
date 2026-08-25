@@ -4,8 +4,11 @@ export default function Notes() {
   const [text, setText] = useState('');
   const loadedRef = useRef(false);
   useEffect(() => {
-    setText(localStorage.getItem(KEY) ?? '');
+    const apply = () => setText(localStorage.getItem(KEY) ?? '');
+    apply();
     loadedRef.current = true;
+    window.addEventListener('sp-widget-config-changed', apply);
+    return () => window.removeEventListener('sp-widget-config-changed', apply);
   }, []);
   const onChange = (v: string) => {
     setText(v);

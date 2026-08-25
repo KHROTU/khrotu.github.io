@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { WidgetInstance, WidgetType } from './types';
 import { WIDGET_DEFAULTS, WIDGET_TYPES } from './useWidgets';
+import { getEditor } from './configEditors';
+import WidgetSettingsModal from './WidgetSettingsModal';
 import Clock from './Clock';
 import Notes from './Notes';
 import Todo from './Todo';
@@ -32,7 +34,7 @@ const MIN_H = 80;
 const HANDLE = 12;
 const SNAP_THRESHOLD = 8;
 type GuideLine = { orientation: 'v' | 'h'; pos: number; from: number; to: number };
-function renderWidget(w: WidgetInstance, editMode: boolean) {
+function renderWidget(w: WidgetInstance) {
   switch (w.type) {
     case 'clock': return <Clock width={w.width} height={w.height} />;
     case 'notes': return <Notes />;
@@ -40,16 +42,16 @@ function renderWidget(w: WidgetInstance, editMode: boolean) {
     case 'pomodoro': return <Pomodoro width={w.width} height={w.height} />;
     case 'timer': return <Timer width={w.width} height={w.height} />;
     case 'kanban': return <Kanban />;
-    case 'weather': return <Weather width={w.width} height={w.height} editMode={editMode} />;
+    case 'weather': return <Weather width={w.width} height={w.height} />;
     case 'ambient': return <Ambient />;
-    case 'custom': return <Custom id={w.id} editMode={editMode} />;
+    case 'custom': return <Custom id={w.id} />;
     case 'wheel': return <Wheel />;
     case 'matrix': return <Matrix />;
     case 'worldclocks': return <WorldClocks width={w.width} height={w.height} />;
     case 'calendar': return <Calendar />;
     case 'countdown': return <Countdown height={w.height} />;
     case 'stopwatch': return <Stopwatch width={w.width} height={w.height} />;
-    case 'github': return <GitHub editMode={editMode} />;
+    case 'github': return <GitHub />;
     case 'wordle': return <Wordle height={w.height} />;
     case 'art': return <Art width={w.width} height={w.height} />;
     case 'currency': return <Currency />;
@@ -133,6 +135,8 @@ export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onF
   } | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [guides, setGuides] = useState<GuideLine[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editingWidget = useMemo(() => widgets.find((w) => w.id === editingId) ?? null, [widgets, editingId]);
   const othersRef = useRef<SnapTarget[]>([]);
   const onPointerMove = useCallback(
     (e: PointerEvent) => {
@@ -270,19 +274,34 @@ export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onF
           }}
           onPointerDown={(e) => startDrag(e, w, 'move')}
         >
-          <div className="w-full h-full overflow-hidden" style={{ pointerEvents: editMode && draggingId ? 'none' : undefined }}>
-            {renderWidget(w, editMode)}
+          <div className="w-full h-full overflow-hidden" style={{ pointerEvents: editMode ? 'none' : undefined }}>
+            {renderWidget(w)}
           </div>
           {editMode && (
             <>
+              {getEditor(w) && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingId(w.id);
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  aria-label="edit widget"
+                  title="edit"
+                  className="absolute -top-2.5 right-3 w-5 h-5 rounded-full bg-[#040404] border border-white/30 text-[var(--text-muted)] hover:text-white hover:border-white/60 text-[10px] leading-none opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10"
+                >
+                  ✎
+                </button>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove(w.id);
                 }}
+                onPointerDown={(e) => e.stopPropagation()}
                 aria-label="remove widget"
                 title="remove"
-                className="absolute -top-2.5 -right-2.5 w-5 h-5 rounded-full bg-[#040404] border border-white/30 text-[var(--text-muted)] hover:text-white hover:border-white/60 text-xs leading-none opacity-100 flex items-center justify-center z-10"
+                className="absolute -top-2.5 -right-2.5 w-5 h-5 rounded-full bg-[#040404] border border-white/30 text-[var(--text-muted)] hover:text-white hover:border-white/60 text-xs leading-none opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10"
               >
                 ×
               </button>
@@ -299,6 +318,9 @@ export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onF
           )}
         </div>
       ))}
+      {editingId && editingWidget && getEditor(editingWidget) && (
+        <WidgetSettingsModal widget={editingWidget} onClose={() => setEditingId(null)} />
+      )}
       {editMode && (
         <div
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 px-4 py-2 bg-[#040404] border border-white/25 rounded-sm text-sm flex-wrap justify-center max-w-[90vw]"

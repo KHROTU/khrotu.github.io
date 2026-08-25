@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, LocationControls } from './location';
-import EditOverlay from './EditOverlay';
+import { useLocation } from './location';
 import { timedFetch } from '../net';
 type Tab = 'weather' | 'sun' | 'air';
 type WeatherData = {
@@ -24,8 +23,8 @@ function describeCode(code: number): string {
   if (code >= 95) return 'storm';
   return '—';
 }
-export default function Weather({ width, height, editMode }: { width: number; height: number; editMode: boolean }) {
-  const { loc, status, cityInput, setCityInput, geocode, resetLocation } = useLocation();
+export default function Weather({ width, height }: { width: number; height: number }) {
+  const { loc, status } = useLocation();
   const [tab, setTab] = useState<Tab>('weather');
   const [data, setData] = useState<WeatherData | null>(null);
   const [solar, setSolar] = useState<{ sunrise: string; sunset: string; remaining: string } | null>(null);
@@ -116,7 +115,6 @@ export default function Weather({ width, height, editMode }: { width: number; he
         ))}
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar flex flex-col justify-center">
-        {!loc && status === 'error' && <span className="text-sm text-[var(--text-muted)]">location needed</span>}
         {offline && ((tab === 'weather' && !data) || (tab === 'sun' && !solar) || (tab === 'air' && aqi == null)) && (
           <span className="text-sm text-[var(--text-muted)]">no connection</span>
         )}
@@ -154,11 +152,6 @@ export default function Weather({ width, height, editMode }: { width: number; he
             </span>
             <span className="text-xs text-[var(--text-muted)]">{aqiLabel} · eu aqi</span>
           </>
-        )}
-        {editMode && (
-          <EditOverlay>
-            <LocationControls loc={loc} status={status} cityInput={cityInput} setCityInput={setCityInput} geocode={geocode} resetLocation={resetLocation} />
-          </EditOverlay>
         )}
       </div>
     </div>
