@@ -32,4 +32,4 @@ export function removeCustomCss() {
   try {
     localStorage.removeItem(CSS_KEY);
   } catch {}
-}
+}

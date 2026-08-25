@@ -164,13 +164,7 @@ export default function Startpage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 relative">
       {bg.mode === 'art' && <ArtBackground mouseEffects={bg.mouseEffects} />}
-      {bg.mode === 'dynamic' && (
-        <DynamicBackground
-          sync={bg.sync}
-          manualTime={bg.manualTime}
-          manualWeather={bg.manualWeather}
-        />
-      )}
+      {bg.mode === 'dynamic' && <DynamicBackground sync={bg.sync} manualTime={bg.manualTime} manualWeather={bg.manualWeather} />}
       {(widgetEdit || widgets.length > 0) && (
         <Suspense fallback={null}>
           <WidgetLayer widgets={widgets} editMode={widgetEdit} onUpdate={updateWidget} onRemove={removeWidget} onFocus={focusWidget} onAdd={add} />

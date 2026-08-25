@@ -1,0 +1,372 @@
+import { useEffect, useRef } from 'react';
+type ManualWeather = 'clear' | 'partly' | 'overcast' | 'drizzle' | 'rain' | 'showers' | 'snow' | 'storm';
+const WEATHER_KEY = 'startpage-widget-weather-data';
+const LOCATION_KEY = 'startpage-widget-location';
+const WIDGETS_KEY = 'startpage-widgets-v1';
+const STALE_MS = 45 * 60 * 1000;
+const PRESET_CODE: Record<ManualWeather, number> = { clear: 0, partly: 2, overcast: 3, drizzle: 53, rain: 63, showers: 81, snow: 73, storm: 95 };
+const OKTA: Record<number, number> = { 0: 0.05, 1: 0.19, 2: 0.44, 3: 0.97, 45: 0.8, 48: 0.8, 51: 0.78, 53: 0.83, 55: 0.88, 56: 0.84, 57: 0.88, 61: 0.9, 63: 0.95, 65: 0.97, 66: 0.94, 67: 0.96, 71: 0.85, 73: 0.88, 75: 0.92, 77: 0.85, 80: 0.58, 81: 0.72, 82: 0.85, 85: 0.85, 86: 0.9, 95: 0.95, 96: 0.96, 99: 0.97 };
+function coverFor(code: number): number {
+  if (OKTA[code] != null) return OKTA[code];
+  if (code <= 3) return [0.05, 0.19, 0.44, 0.97][code];
+  if (code <= 48) return 0.8;
+  if (code <= 57) return 0.82;
+  if (code <= 67) return 0.93;
+  if (code <= 77) return 0.87;
+  if (code <= 82) return 0.58 + (code - 80) * 0.135;
+  if (code <= 86) return 0.87;
+  return 0.95;
+}
+function weatherProfile(code: number) {
+  let cloud = coverFor(code), rain = 0, snow = 0, fog = 0, storm = false;
+  if (code === 45 || code === 48) fog = 1;
+  else if (code >= 51 && code <= 57) rain = 0.35;
+  else if (code >= 61 && code <= 65) rain = code === 61 ? 0.6 : code === 63 ? 0.85 : 1;
+  else if (code >= 66 && code <= 67) rain = 0.8;
+  else if (code >= 71 && code <= 77) snow = code === 71 ? 0.5 : code === 73 ? 0.75 : 0.9;
+  else if (code >= 80 && code <= 82) rain = 0.5 + (code - 80) * 0.25;
+  else if (code >= 85 && code <= 86) snow = 0.8;
+  else if (code >= 95) { rain = 1; storm = true }
+  return { cloud, rain, snow, fog, storm };
+}
+function solarPos(lat: number, lon: number, date: Date) {
+  const DEG = Math.PI / 180;
+  const jd = date.getTime() / 86400000 + 2440587.5;
+  const n = jd - 2451545.0;
+  const L = (280.46 + 0.9856474 * n) % 360;
+  const g = ((357.528 + 0.9856003 * n) % 360) * DEG;
+  const lam = (L + 1.915 * Math.sin(g) + 0.02 * Math.sin(2 * g)) * DEG;
+  const eps = (23.439 - 0.0000004 * n) * DEG;
+  const posOf = (ra: number, dec: number) => {
+    const gmst = (18.697374558 + 24.06570982441908 * n) % 24;
+    const lst = (gmst * 15 + lon) * DEG;
+    const H = lst - ra;
+    const phi = lat * DEG;
+    const elev = Math.asin(Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.cos(H));
+    const az = Math.atan2(Math.sin(H), Math.cos(H) * Math.sin(phi) - Math.tan(dec) * Math.cos(phi));
+    return { elev: elev / DEG, az };
+  };
+  const dec = Math.asin(Math.sin(eps) * Math.sin(lam));
+  const ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam));
+  const Lm = (218.316 + 13.176396 * n) % 360;
+  const Mm = (134.963 + 13.064993 * n) % 360;
+  const F = (93.272 + 13.22935 * n) % 360;
+  const lamM = (Lm + 6.289 * Math.sin(Mm * DEG)) * DEG;
+  const betaM = 5.128 * Math.sin(F * DEG);
+  const decM = Math.asin(Math.sin(betaM * DEG) * Math.cos(eps) + Math.cos(betaM * DEG) * Math.sin(eps) * Math.sin(lamM));
+  const raM = Math.atan2(Math.sin(lamM) * Math.cos(eps) - Math.tan(betaM * DEG) * Math.sin(eps), Math.cos(lamM));
+  const sun = posOf(ra, dec);
+  const moon = posOf(raM, decM);
+  const elong = lamM - lam;
+  const illum = (1 - Math.cos(elong)) / 2;
+  return { sun, moon, illum, waxing: ((elong / DEG + 360) % 360) < 180 };
+}
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+const smooth = (a: number, b: number, x: number) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+type RGB = [number, number, number];
+const mixC = (a: RGB, b: RGB, t: number): RGB => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+const NIGHT_Z: RGB = [4, 7, 19], NIGHT_H: RGB = [13, 20, 42];
+const DAY_Z: RGB = [45, 108, 198], DAY_H: RGB = [186, 220, 245];
+const DUSK_WARM: RGB = [255, 138, 74], DUSK_PINK: RGB = [196, 104, 126], ROSE: RGB = [216, 122, 144];
+const SUN_DUSK: RGB = [255, 176, 114], SUN_DAY: RGB = [255, 244, 232];
+const VERT = `attribute vec2 aPos;void main(){gl_Position=vec4(aPos,0.,1.);}`;
+const FRAG = `precision highp float;uniform vec2 uRes;uniform float uTime,uDayF,uTwiF,uLowF,uStarF,uCover,uStorm,uWindT,uFlash,uRoseAmt,uGlowA,uSunVis,uMoonVis,uMoonIll,uMoonWax,uQual,uFog;uniform vec3 uSunDir,uZen,uHor,uWarm,uRose,uSunCol,uAmbC,uDarkC,uBrightC,uMoonDir;const float H0=150.0,H1=420.0;float hash13(vec3 p){p=fract(p*0.1031);p+=dot(p,p.zyx+31.32);return fract((p.x+p.y)*p.z);}float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}float vnoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(mix(hash13(i),hash13(i+vec3(1,0,0)),f.x),mix(hash13(i+vec3(0,1,0)),hash13(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash13(i+vec3(0,0,1)),hash13(i+vec3(1,0,1)),f.x),mix(hash13(i+vec3(0,1,1)),hash13(i+vec3(1,1,1)),f.x),f.y),f.z);}float fbm(vec3 p,float oc){float a=0.5,t=0.0;for(int i=0;i<5;i++){if(float(i)>=oc)break;t+=a*vnoise(p);p=p*2.17+11.31;a*=0.5;}return t;}float density(vec3 w,float cov,float oc,float ow,float dedge){float h=(w.y-H0)/(H1-H0);if(h<0.0||h>1.0)return 0.0;vec3 q=w*0.0042;q.x+=uWindT;q+=fbm(q*0.5,ow)*0.55;float shape=fbm(q*2.4,oc);float grad=smoothstep(0.02,0.22,h)*(1.0-smoothstep(0.52,0.96,h));float thr=mix(0.62,0.16,cov);float d=shape*grad-thr;if(d<=0.0)return 0.0;return smoothstep(0.0,dedge,d)*mix(1.0,1.5,uStorm);}vec3 skyCol(float t){vec3 c=mix(uHor,uZen,pow(smoothstep(0.02,0.96,t),0.62));c=mix(c,uRose,clamp((t-0.14)/0.42,0.0,1.0)*(1.0-clamp((t-0.6)/0.4,0.0,1.0))*uRoseAmt*0.34);c=mix(c,uWarm,pow(clamp((t-0.3)/0.7,0.0,1.0),1.7)*uRoseAmt*0.72);return c;}void main(){vec2 uv=gl_FragCoord.xy/uRes;float aspect=uRes.x/uRes.y;vec3 rd=normalize(vec3((uv.x*2.0-1.0)*aspect*0.62,mix(-0.16,0.55,pow(uv.y,0.9)),1.0));vec3 ro=vec3(0.0,175.0,0.0);vec3 sdir=normalize(uSunDir);float sd=max(dot(rd,sdir),0.0);vec3 col=skyCol(uv.y);col+=uSunCol*pow(sd,8.0)*(0.10+0.22*uGlowA)*(1.0-uCover*0.8);if(uStarF>0.01&&rd.y>0.02){vec2 su=rd.xz/(rd.y+0.55)*2.3;float sa=uStarF*(1.0-uCover*0.92);for(int l=0;l<2;l++){float sc=l==0?70.0:130.0;vec2 g=su*sc;vec2 id=floor(g),f=fract(g);float h=hash12(id+float(l)*17.31);if(h>0.918){vec2 sp=vec2(hash12(id+4.7),hash12(id+9.1))*0.7+0.15;float d=length(f-sp);float tw=0.55+0.45*sin(uTime*(0.8+h*2.4)+h*43.0);float br=(l==0?0.9:0.5)*tw*smoothstep(0.24,0.02,d);col+=vec3(0.9,0.94,1.0)*br*sa*h;}}}if(uSunVis>0.01){float disc=smoothstep(0.99968,0.99983,sd);col+=uSunCol*(disc*0.85*uSunVis+pow(sd,900.0)*0.55*uSunVis);}if(uMoonVis>0.01){vec3 md=normalize(uMoonDir);float mu=dot(rd,md);float mr=0.99955;if(mu>mr-0.002){vec3 mx=normalize(cross(md,vec3(0.0,1.0,0.0)));vec3 my=cross(mx,md);vec2 lp=vec2(dot(rd,mx),dot(rd,my))/sqrt(max(1.0-mu*mu,0.000001))*0.9;float disc=smoothstep(mr-0.00012,mr,mu);float shift=(1.0-uMoonIll)*2.2*(uMoonWax>0.5?1.0:-1.0);float lit=clamp((lp.x*sign(shift)-abs(lp.y)*0.25)*0.9-uMoonIll*0.4+1.15,0.06,1.0);col=mix(col,vec3(0.91,0.94,0.99)*lit,disc*(0.07+0.93*clamp(uMoonIll*1.25,0.0,1.0))*uMoonVis);}}float cov=clamp(uCover,0.0,1.0);float stp=uQual<0.5?18.0:(uQual<1.5?30.0:44.0);float smul=uQual<0.5?0.135:(uQual<1.5?0.115:0.098);float soc=uQual<0.5?3.0:(uQual<1.5?4.0:5.0);float sow=uQual<0.5?3.0:4.0;float dedge=uQual<0.5?0.30:(uQual<1.5?0.22:0.16);if(cov>0.03){float tb0=(H0-ro.y)/rd.y,tb1=(H1-ro.y)/rd.y;float t=max(min(tb0,tb1),1.0);float tEnd=min(max(tb0,tb1),4200.0);t+=hash13(vec3(gl_FragCoord.xy,uTime*60.0))*0.9*14.0;vec4 sum=vec4(0.0);float phase=mix(0.76,1.9,pow(sd,3.0))*(1.0+uStorm*0.4);for(int i=0;i<44;i++){if(float(i)>=stp)break;vec3 p=ro+rd*t;float den=density(p,cov,soc,sow,dedge)*smoothstep(4.0,90.0,t);if(den>0.008){float dl=max(6.0,t*0.11);float den2=density(p+sdir*dl,cov,soc,sow,dedge);float dif=clamp((den-den2)/0.32,0.0,1.0);vec3 base=mix(uDarkC,uBrightC,clamp(den*1.35,0.0,1.0));vec3 litc=base*(uAmbC+uSunCol*dif*phase);litc=mix(litc,skyCol(clamp((p.y-40.0)/900.0,0.0,1.0)),1.0-exp(-t*0.00021));float a=min(den*2.24*(t*0.02+0.35),1.0);sum.rgb+=litc*a*(1.0-sum.a);sum.a+=a*(1.0-sum.a);if(sum.a>0.985)break;}t+=max(7.0,t*smul);if(t>tEnd)break;}col=mix(col,sum.rgb,sum.a);}if(uFog>0.003){float hz=pow(clamp(1.0-abs(uv.y-0.42)*2.4,0.0,1.0),2.0);col=mix(col,uHor*1.05+vec3(0.02),uFog*0.42*hz);}col+=vec3(0.86,0.89,1.0)*uFlash;col=smoothstep(0.03,1.05,col);gl_FragColor=vec4(col,1.0);}`;
+const PRECIP_FRAG = `precision highp float;uniform vec2 uRes;uniform float uTime,uSnow,uSlant;uniform vec3 uTint;float h21(vec2 p){vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}void main(){vec2 pp=gl_FragCoord.xy/uRes.y;float snw=0.0;if(uSnow>0.003){for(int l=0;l<3;l++){float fl=float(l);float sc2=mix(7.0,19.0,fl/2.0);float fall=uTime*mix(0.05,0.15,fl/2.0);vec2 gp=vec2(pp.x*mix(1.0,2.3,fl/2.0)-uSlant*fall*3.0,pp.y+fall)*sc2;vec2 id=floor(gp);vec2 f=fract(gp)-0.5;float ex=step(h21(id+fl*7.3),uSnow*0.82);if(ex>0.0){vec2 pos=(vec2(h21(id+fl+1.3),h21(id+fl+2.7))-0.5)*0.55;pos.x+=sin(uTime*(0.6+h21(id+fl+6.2)*0.7)+h21(id+fl+9.1)*6.28)*(0.14+fl*0.04);vec2 q=f-pos;float ang=atan(q.y,q.x)+uTime*mix(0.7,1.6,h21(id+fl+4.1))*(h21(id+fl+5.5)>0.5?1.0:-1.0)+h21(id)*6.28;float rad=mix(0.17,0.075,fl/2.0)*(0.75+h21(id+fl+8.9)*0.5);float arm=rad*(0.58+0.42*pow(abs(cos(ang*3.0)),0.6));float d=length(q);float m=smoothstep(arm,arm*0.3,d)*0.85+smoothstep(rad*0.45,0.0,d)*0.5;snw=max(snw,clamp(m,0.0,1.0)*ex*mix(0.95,0.5,fl/2.0));}}}vec3 col=uTint*(0.5+0.8*snw)+vec3(pow(snw,3.0)*0.3);col=mix(col,vec3(0.97,0.985,1.0),clamp(snw*1.5,0.0,1.0));gl_FragColor=vec4(min(col,vec3(1.0)),clamp(snw,0.0,1.0));}`;
+type CloudQuality = 'low' | 'med' | 'high';
+const qualVal = (q: CloudQuality) => (q === 'low' ? 0 : q === 'high' ? 2 : 1);
+export default function DynamicBackground({ sync = true, manualTime = 12, manualWeather = 'clear', quality = 'med' }: { sync?: boolean; manualTime?: number; manualWeather?: ManualWeather; quality?: CloudQuality }) {
+  const glRef = useRef<HTMLCanvasElement>(null);
+  const cvRef = useRef<HTMLCanvasElement>(null);
+  const snRef = useRef<HTMLCanvasElement>(null);
+  const syncRef = useRef(sync);
+  const timeRef = useRef(manualTime);
+  const presetRef = useRef(manualWeather);
+  const qualRef = useRef(quality);
+  useEffect(() => { syncRef.current = sync }, [sync]);
+  useEffect(() => { timeRef.current = manualTime }, [manualTime]);
+  useEffect(() => { presetRef.current = manualWeather }, [manualWeather]);
+  useEffect(() => { qualRef.current = quality }, [quality]);
+  useEffect(() => {
+    const canvas = cvRef.current!;
+    const ctx = canvas.getContext('2d')!;
+    let loc = (() => {
+      try {
+        const s = JSON.parse(localStorage.getItem(LOCATION_KEY) ?? 'null');
+        if (s?.lat != null && s?.lon != null) return { lat: s.lat, lon: s.lon };
+      } catch {}
+      return { lat: 40, lon: -(new Date().getTimezoneOffset() / 4) };
+    })();
+    let wx: { code: number; temp: number; wind: number; at: number } | null = null;
+    try { wx = JSON.parse(localStorage.getItem(WEATHER_KEY) ?? 'null'); } catch {}
+    let prof = weatherProfile(PRESET_CODE[presetRef.current]);
+    let liveWx = false;
+    const syncWeather = () => {
+      if (!syncRef.current) {
+        liveWx = false;
+        prof = weatherProfile(PRESET_CODE[presetRef.current]);
+        return;
+      }
+      let hasWidget = false;
+      try { hasWidget = (JSON.parse(localStorage.getItem(WIDGETS_KEY) ?? '[]') as { type: string }[]).some((x) => x?.type === 'weather'); } catch {}
+      liveWx = !!wx && hasWidget && navigator.onLine && Date.now() - (wx?.at ?? 0) < STALE_MS;
+      prof = liveWx && wx ? weatherProfile(wx.code) : weatherProfile(PRESET_CODE[presetRef.current]);
+    };
+    syncWeather();
+    const onWxEvent = () => { try { wx = JSON.parse(localStorage.getItem(WEATHER_KEY) ?? 'null'); } catch {} ; syncWeather(); };
+    window.addEventListener('sp-weather-data', onWxEvent);
+    const onOnline = () => syncWeather();
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOnline);
+    let sky = { elev: 0, az: 0, dayF: 0, twiF: 0, lowF: 1, starF: 1, moonGate: 1, illum: 0.5, waxing: true, mElev: 0, mAz: 0 };
+    const recompute = () => {
+      const now = new Date();
+      if (!syncRef.current) {
+        const hh = Math.floor(timeRef.current) % 24;
+        const mm = Math.round((timeRef.current - Math.floor(timeRef.current)) * 60);
+        now.setHours(hh, mm, 0, 0);
+      }
+      const { sun, moon, illum, waxing } = solarPos(loc.lat, loc.lon, now);
+      const e = sun.elev;
+      sky = { elev: e, az: sun.az, mElev: moon.elev, mAz: moon.az, illum, waxing, dayF: smooth(-4, 22, e), twiF: Math.exp(-((e - 1) ** 2) / (2 * 6.5 * 6.5)), lowF: 1 - smooth(8, 32, e), starF: 1 - smooth(-9, 2, e), moonGate: 1 - smooth(-1, 5, e) };
+    };
+    recompute();
+    const tick = setInterval(recompute, 1000);
+    const wxTick = setInterval(syncWeather, 30000);
+    const greyify = (c: RGB, cc: number): RGB => {
+      const lum = c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11;
+      const desat = Math.min(1, cc * 0.75);
+      const dark = Math.max(0, cc - 0.55) * 0.5;
+      const d = mixC(c, [lum, lum * 1.03, lum * 1.09], desat);
+      return [d[0] * (1 - dark), d[1] * (1 - dark), d[2] * (1 - dark)];
+    };
+    let gl: WebGLRenderingContext | null = null;
+    let uni: Record<string, WebGLUniformLocation | null> = {};
+    const initGl = () => {
+      const g = glRef.current!;
+      const glc = g.getContext('webgl', { alpha: false, antialias: false, depth: false, powerPreference: 'high-performance' }) as WebGLRenderingContext | null;
+      if (!glc) return;
+      const mk = (type: number, src: string) => {
+        const sh = glc.createShader(type)!;
+        glc.shaderSource(sh, src);
+        glc.compileShader(sh);
+        if (!glc.getShaderParameter(sh, glc.COMPILE_STATUS)) throw new Error(glc.getShaderInfoLog(sh) ?? 'shader compile failed');
+        return sh;
+      };
+      const prog = glc.createProgram()!;
+      glc.attachShader(prog, mk(glc.VERTEX_SHADER, VERT));
+      glc.attachShader(prog, mk(glc.FRAGMENT_SHADER, FRAG));
+      glc.linkProgram(prog);
+      if (!glc.getProgramParameter(prog, glc.LINK_STATUS)) throw new Error(glc.getProgramInfoLog(prog) ?? 'link failed');
+      glc.useProgram(prog);
+      const buf = glc.createBuffer();
+      glc.bindBuffer(glc.ARRAY_BUFFER, buf);
+      glc.bufferData(glc.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), glc.STATIC_DRAW);
+      const locA = glc.getAttribLocation(prog, 'aPos');
+      glc.enableVertexAttribArray(locA);
+      glc.vertexAttribPointer(locA, 2, glc.FLOAT, false, 0, 0);
+      for (const n of ['uRes', 'uTime', 'uSunDir', 'uDayF', 'uTwiF', 'uLowF', 'uStarF', 'uCover', 'uStorm', 'uWindT', 'uFlash', 'uZen', 'uHor', 'uWarm', 'uRose', 'uSunCol', 'uAmbC', 'uDarkC', 'uBrightC', 'uRoseAmt', 'uGlowA', 'uSunVis', 'uMoonVis', 'uMoonIll', 'uMoonWax', 'uMoonDir', 'uQual', 'uFog']) uni[n] = glc.getUniformLocation(prog, n);
+      gl = glc;
+    };
+    try { initGl(); } catch { gl = null; }
+    if (!gl) document.body.style.background = 'linear-gradient(#0b1322,#20304e)';
+    let pgl: WebGLRenderingContext | null = null;
+    let puni: Record<string, WebGLUniformLocation | null> = {};
+    let pHad = false;
+    const initPgl = () => {
+      const g = snRef.current!;
+      const glc = g.getContext('webgl', { alpha: true, antialias: false, depth: false, premultipliedAlpha: false }) as WebGLRenderingContext | null;
+      if (!glc) return;
+      const mk = (type: number, src: string) => {
+        const sh = glc.createShader(type)!;
+        glc.shaderSource(sh, src);
+        glc.compileShader(sh);
+        if (!glc.getShaderParameter(sh, glc.COMPILE_STATUS)) throw new Error(glc.getShaderInfoLog(sh) ?? 'shader compile failed');
+        return sh;
+      };
+      const prog = glc.createProgram()!;
+      glc.attachShader(prog, mk(glc.VERTEX_SHADER, VERT));
+      glc.attachShader(prog, mk(glc.FRAGMENT_SHADER, PRECIP_FRAG));
+      glc.linkProgram(prog);
+      if (!glc.getProgramParameter(prog, glc.LINK_STATUS)) throw new Error(glc.getProgramInfoLog(prog) ?? 'link failed');
+      glc.useProgram(prog);
+      const buf = glc.createBuffer();
+      glc.bindBuffer(glc.ARRAY_BUFFER, buf);
+      glc.bufferData(glc.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), glc.STATIC_DRAW);
+      const locA = glc.getAttribLocation(prog, 'aPos');
+      glc.enableVertexAttribArray(locA);
+      glc.vertexAttribPointer(locA, 2, glc.FLOAT, false, 0, 0);
+      for (const n of ['uRes', 'uTime', 'uSnow', 'uSlant', 'uTint']) puni[n] = glc.getUniformLocation(prog, n);
+      glc.clearColor(0, 0, 0, 0);
+      pgl = glc;
+    };
+    try { initPgl(); } catch { pgl = null; }
+    let w = 0, h = 0;
+    const resize = () => {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      for (const c of [glRef.current!, canvas, snRef.current!]) {
+        c.width = Math.floor(w * dpr);
+        c.height = Math.floor(h * dpr);
+      }
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    let resizeQueued = false;
+    const onResize = () => {
+      if (resizeQueued) return;
+      resizeQueued = true;
+      requestAnimationFrame(() => { resize(); resizeQueued = false; });
+    };
+    window.addEventListener('resize', onResize);
+    type Drop = { x: number; y: number; l: number; v: number };
+    let drops: Drop[] = [];
+    let nextFlash = 0;
+    let flash = 0;
+    let raf = 0;
+    let last = performance.now();
+    let tSec = 0;
+    let windT = 0;
+    let pSync = syncRef.current, pTime = timeRef.current, pPreset = presetRef.current;
+    const step = (now: number) => {
+      raf = requestAnimationFrame(step);
+      const dtms = Math.min(64, now - last);
+      last = now;
+      if (document.hidden) return;
+      const dt = dtms / 1000;
+      tSec += dt;
+      ctx.clearRect(0, 0, w, h);
+      if (pSync !== syncRef.current || pTime !== timeRef.current || pPreset !== presetRef.current) {
+        pSync = syncRef.current;
+        pTime = timeRef.current;
+        pPreset = presetRef.current;
+        if (syncRef.current) {
+          try { const s = JSON.parse(localStorage.getItem(LOCATION_KEY) ?? 'null'); if (s?.lat != null && s?.lon != null) loc = { lat: s.lat, lon: s.lon }; } catch {}
+          try { wx = JSON.parse(localStorage.getItem(WEATHER_KEY) ?? 'null'); } catch {}
+          window.dispatchEvent(new CustomEvent('sp-weather-refresh'));
+        }
+        recompute();
+        syncWeather();
+      }
+      const { elev, az, dayF, twiF, lowF, starF, moonGate, illum, waxing, mElev, mAz } = sky;
+      const cc = prof.cloud;
+      const windBoost = liveWx && syncRef.current ? Math.min(3, 0.6 + (wx?.wind ?? 5) / 18) : 1;
+      windT += dt * windBoost * 0.15;
+      const zen = mixC(NIGHT_Z, DAY_Z, dayF);
+      let hor = mixC(NIGHT_H, DAY_H, dayF);
+      const roseA = clamp01(twiF * 1.2);
+      hor = mixC(hor, DUSK_PINK, roseA * 0.62);
+      const warmC = mixC(DUSK_WARM, ROSE, 0.35);
+      const sunCol = mixC(SUN_DUSK, SUN_DAY, clamp01(dayF * 0.75 + lowF * 0.25));
+      const amb: RGB = mixC([26, 33, 51], [232, 242, 250], Math.max(dayF * 0.95, twiF * 0.55));
+      const bright = mixC([92, 105, 133], [255, 245, 222], Math.max(dayF, starF * 0.18));
+      const litFloor = 0.15 + 0.48 * Math.max(dayF, twiF * 0.7);
+      const brightAdj: RGB = bright.map((v, i) => v * (0.4 + 0.6 * Math.max(litFloor, amb[i] / 255))) as RGB;
+      const zenG = greyify(zen, cc), horG = greyify(hor, cc);
+      const darkC: RGB = mixC([13, 15, 26], [102, 115, 135], dayF);
+      const darkG = greyify(darkC, cc);
+      if (prof.storm && now > nextFlash) { flash = 0.5 + Math.random() * 0.3; nextFlash = now + 3800 + Math.random() * 7500; }
+      if (gl) {
+        const d = Math.PI / 180;
+        const sunDir: RGB = [Math.sin(az) * Math.cos(elev * d), Math.sin(elev * d), Math.cos(az) * Math.cos(elev * d)];
+        const mDir: RGB = [Math.sin(mAz) * Math.cos(mElev * d), Math.sin(mElev * d), Math.cos(mAz) * Math.cos(mElev * d)];
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        const u = (n: string) => uni[n]!;
+        gl.uniform2f(u('uRes'), gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.uniform1f(u('uTime'), tSec);
+        gl.uniform3fv(u('uSunDir'), sunDir);
+        gl.uniform1f(u('uDayF'), dayF);
+        gl.uniform1f(u('uTwiF'), twiF);
+        gl.uniform1f(u('uLowF'), lowF);
+        gl.uniform1f(u('uStarF'), starF);
+        gl.uniform1f(u('uCover'), cc);
+        gl.uniform1f(u('uStorm'), prof.storm ? 1 : 0);
+        gl.uniform1f(u('uWindT'), windT);
+        gl.uniform1f(u('uFlash'), flash > 0.005 ? flash : 0);
+        gl.uniform1f(u('uQual'), qualVal(qualRef.current));
+        gl.uniform1f(u('uFog'), prof.fog);
+        gl.uniform3fv(u('uZen'), zenG.map((v) => v / 255));
+        gl.uniform3fv(u('uHor'), horG.map((v) => v / 255));
+        gl.uniform3fv(u('uWarm'), warmC.map((v) => v / 255));
+        gl.uniform3fv(u('uRose'), ROSE.map((v) => v / 255));
+        gl.uniform3fv(u('uSunCol'), sunCol.map((v) => v / 255));
+        gl.uniform3fv(u('uAmbC'), amb.map((v) => v / 255));
+        gl.uniform3fv(u('uDarkC'), darkG.map((v) => v / 255));
+        gl.uniform3fv(u('uBrightC'), greyify(brightAdj, cc).map((v) => v / 255));
+        gl.uniform1f(u('uRoseAmt'), roseA);
+        gl.uniform1f(u('uGlowA'), 0.5 * twiF + 0.22 * lowF * dayF);
+        gl.uniform1f(u('uSunVis'), elev > -1 ? clamp01(1 - cc * 0.85) : 0);
+        gl.uniform1f(u('uMoonVis'), mElev > -1 ? moonGate * clamp01(1 - cc * 0.85) : 0);
+        gl.uniform1f(u('uMoonIll'), illum);
+        gl.uniform1f(u('uMoonWax'), waxing ? 1 : 0);
+        gl.uniform3fv(u('uMoonDir'), mDir);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+      if (flash > 0.005) flash *= Math.pow(0.0015, dt);
+      if (prof.rain > 0) {
+        const want = Math.round(prof.rain * (prof.storm ? 240 : 150));
+        while (drops.length < want) drops.push({ x: Math.random() * w, y: Math.random() * h, l: 9 + Math.random() * 13, v: 620 + Math.random() * 380 });
+        while (drops.length > want) drops.splice(0, drops.length - want);
+        const slant = 120 + (liveWx && syncRef.current ? (wx?.wind ?? 0) * 8 : 60);
+        ctx.strokeStyle = 'rgba(178,198,232,0.36)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (const dp of drops) {
+          dp.y += dp.v * dt;
+          dp.x += slant * dt;
+          if (dp.y > h + 20) { dp.y = -20; dp.x = Math.random() * w }
+          if (dp.x > w + 30) dp.x -= w + 60;
+          ctx.moveTo(dp.x, dp.y);
+          ctx.lineTo(dp.x - (slant / dp.v) * dp.l, dp.y - dp.l);
+        }
+        ctx.stroke();
+      } else drops = [];
+      if (pgl && prof.snow > 0.001) {
+        pHad = true;
+        const tint: RGB = mixC(horG, [214, 228, 242], 0.35);
+        pgl.viewport(0, 0, pgl.drawingBufferWidth, pgl.drawingBufferHeight);
+        const pu = (n: string) => puni[n]!;
+        pgl.uniform2f(pu('uRes'), pgl.drawingBufferWidth, pgl.drawingBufferHeight);
+        pgl.uniform1f(pu('uTime'), tSec);
+        pgl.uniform1f(pu('uSnow'), prof.snow);
+        pgl.uniform1f(pu('uSlant'), liveWx && syncRef.current ? Math.min(0.45, (wx?.wind ?? 4) / 60) : 0.12);
+        pgl.uniform3fv(pu('uTint'), tint.map((v) => v / 255));
+        pgl.drawArrays(pgl.TRIANGLES, 0, 3);
+      } else if (pgl && pHad) {
+        pHad = false;
+        pgl.clear(pgl.COLOR_BUFFER_BIT);
+      }
+    };
+    raf = requestAnimationFrame(step);
+    const onLost = (e: Event) => { e.preventDefault(); gl = null; };
+    const onRestored = () => { try { initGl(); } catch { gl = null; } };
+    const pOnLost = (e: Event) => { e.preventDefault(); pgl = null; };
+    const pOnRestored = () => { try { initPgl(); } catch { pgl = null; } };
+    glRef.current!.addEventListener('webglcontextlost', onLost);
+    glRef.current!.addEventListener('webglcontextrestored', onRestored);
+    snRef.current!.addEventListener('webglcontextlost', pOnLost);
+    snRef.current!.addEventListener('webglcontextrestored', pOnRestored);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(tick);
+      clearInterval(wxTick);
+      window.removeEventListener('sp-weather-data', onWxEvent);
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOnline);
+      window.removeEventListener('resize', onResize);
+      glRef.current?.removeEventListener('webglcontextlost', onLost);
+      glRef.current?.removeEventListener('webglcontextrestored', onRestored);
+      snRef.current?.removeEventListener('webglcontextlost', pOnLost);
+      snRef.current?.removeEventListener('webglcontextrestored', pOnRestored);
+    };
+  }, []);
+  return (
+    <>
+      <canvas ref={glRef} className="fixed inset-0 z-[-2] pointer-events-none" style={{ width: '100vw', height: '100vh' }} />
+      <canvas ref={cvRef} className="fixed inset-0 z-[-1] pointer-events-none" style={{ width: '100vw', height: '100vh' }} />
+      <canvas ref={snRef} className="fixed inset-0 z-[-1] pointer-events-none" style={{ width: '100vw', height: '100vh' }} />
+    </>
+  );
+}
