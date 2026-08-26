@@ -116,12 +116,13 @@ function computeSnap(
 type Props = {
   widgets: WidgetInstance[];
   editMode: boolean;
+  glossy?: boolean;
   onUpdate: (id: string, patch: Partial<Omit<WidgetInstance, 'id' | 'type'>>) => void;
   onRemove: (id: string) => void;
   onFocus: (id: string) => void;
   onAdd: (type: WidgetType) => void;
 };
-export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onFocus, onAdd }: Props) {
+export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onFocus, onAdd, glossy }: Props) {
   const dragRef = useRef<{
     id: string;
     mode: 'move' | 'resize';
@@ -323,7 +324,7 @@ export default function WidgetLayer({ widgets, editMode, onUpdate, onRemove, onF
       )}
       {editMode && (
         <div
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 px-4 py-2 bg-[#040404] border border-white/25 rounded-sm text-sm flex-wrap justify-center max-w-[90vw]"
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2 px-4 py-2 border rounded-sm text-sm flex-wrap justify-center max-w-[90vw] ${glossy ? 'bg-[#05070d]/45 backdrop-blur-2xl border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_32px_rgba(0,0,0,0.45)]' : 'bg-[#040404] border-white/25'}`}
           data-snap-target="true"
         >
           <span className="font-mono text-xs text-[var(--text-muted)]">add:</span>

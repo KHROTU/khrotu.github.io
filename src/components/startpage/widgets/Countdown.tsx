@@ -7,12 +7,22 @@ export default function Countdown({ height }: { height: number }) {
   const [dateInput, setDateInput] = useState('');
   const [now, setNow] = useState(() => Date.now());
   const loadedRef = useRef(false);
-  useEffect(() => {
+  const readTarget = () => {
     try {
       const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null');
       if (saved?.date) setTarget(saved);
     } catch {}
+  };
+  useEffect(() => {
+    readTarget();
     loadedRef.current = true;
+  }, []);
+  useEffect(() => {
+    const onCfg = (e: Event) => {
+      if ((e as CustomEvent).detail?.type === 'countdown') readTarget();
+    };
+    window.addEventListener('sp-widget-config-changed', onCfg);
+    return () => window.removeEventListener('sp-widget-config-changed', onCfg);
   }, []);
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000 * 60);
@@ -36,17 +46,54 @@ export default function Countdown({ height }: { height: number }) {
       localStorage.removeItem(KEY);
     } catch {}
   };
-  const daysLeft = target ? Math.ceil((new Date(target.date + 'T00:00:00').getTime() - now) / 86400000) : null;
+  const targetMs = target ? new Date(target.date + 'T00:00:00').getTime() : null;
+  const nd = new Date(now);
+  const todayMs = new Date(nd.getFullYear(), nd.getMonth(), nd.getDate()).getTime();
+  const dayDiff = targetMs !== null ? Math.round((targetMs - todayMs) / 86400000) : 0;
+  const remaining = targetMs !== null ? (targetMs - now) / 86400000 : 0;
+  const overdue = dayDiff < 0;
+  const isToday = dayDiff === 0;
+  const soon = !isToday && !overdue && remaining <= 1;
+  const hoursLeft = Math.max(1, Math.ceil(remaining * 24));
+  const daysLeft = Math.ceil(Math.max(remaining, 1 / 24));
+  const compact = height < 120;
+  let value: string;
+  let caption: string | null;
+  if (isToday) {
+    value = 'today';
+    caption = null;
+  } else if (overdue) {
+    const n = Math.abs(dayDiff);
+    value = String(n);
+    caption = n === 1 ? 'day overdue' : 'days overdue';
+  } else if (soon) {
+    value = String(hoursLeft);
+    caption = hoursLeft === 1 ? 'hour left' : 'hours left';
+  } else {
+    value = String(daysLeft);
+    caption = daysLeft === 1 ? 'day left' : 'days left';
+  }
   return (
     <div className="w-full h-full flex flex-col justify-center gap-2 select-none min-h-0">
-      {target && daysLeft !== null ? (
+      {target && targetMs !== null ? (
         <>
           <span className="text-xs font-mono text-[var(--text-muted)] truncate">{target.label}</span>
-          <span className="text-[var(--text-main)] font-medium tabular-nums leading-none" style={{ fontSize: Math.min(48, height / 3) }}>
-            {daysLeft > 0 ? daysLeft : 0}
-          </span>
-          <span className="text-xs text-[var(--text-muted)]">days {daysLeft <= 0 ? '; it\'s today or past' : 'remaining'}</span>
-          {daysLeft <= 0 && (
+          {compact ? (
+            <span className="text-sm font-medium text-[var(--text-main)] tabular-nums truncate">
+              {caption ? `${value} ${caption}` : value}
+            </span>
+          ) : (
+            <>
+              <span
+                className="text-[var(--text-main)] font-medium leading-none"
+                style={{ fontSize: Math.min(value.length > 4 ? 34 : 48, height / 3) }}
+              >
+                {value}
+              </span>
+              {caption && <span className="text-xs text-[var(--text-muted)]">{caption}</span>}
+            </>
+          )}
+          {(isToday || overdue) && (
             <button onClick={clear} className="w-fit text-xs font-mono text-[var(--text-muted)] hover:text-white transition-colors">clear</button>
           )}
         </>

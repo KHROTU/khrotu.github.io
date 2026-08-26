@@ -167,11 +167,11 @@ export default function Startpage() {
       {bg.mode === 'dynamic' && <DynamicBackground sync={bg.sync} manualTime={bg.manualTime} manualWeather={bg.manualWeather} />}
       {(widgetEdit || widgets.length > 0) && (
         <Suspense fallback={null}>
-          <WidgetLayer widgets={widgets} editMode={widgetEdit} onUpdate={updateWidget} onRemove={removeWidget} onFocus={focusWidget} onAdd={add} />
+          <WidgetLayer widgets={widgets} editMode={widgetEdit} onUpdate={updateWidget} onRemove={removeWidget} onFocus={focusWidget} onAdd={add} glossy={bg.mode === 'dynamic'} />
         </Suspense>
       )}
       {widgetEdit && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-2 bg-[#040404] border border-white/25 rounded-sm text-sm">
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-2 border rounded-sm text-sm ${bg.mode === 'dynamic' ? 'bg-[#05070d]/45 backdrop-blur-2xl border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_32px_rgba(0,0,0,0.45)]' : 'bg-[#040404] border-white/25'}`}>
           <span className="font-mono text-xs text-[var(--text-muted)]">editing widgets</span>
           <button onClick={() => setWidgetEdit(false)} className="text-[var(--text-muted)] hover:text-white transition-colors">done</button>
         </div>

@@ -54,6 +54,10 @@ body {
   font-family: 'Hyperlegible Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -67,6 +71,9 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 .hide-scrollbar {
   -ms-overflow-style: none;

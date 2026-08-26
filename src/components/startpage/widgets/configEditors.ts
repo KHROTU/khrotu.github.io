@@ -56,6 +56,22 @@ const editors: Partial<Record<WidgetInstance['type'], (w: WidgetInstance) => Edi
       writeJson('startpage-widget-custom', all);
     },
   }),
+  countdown: () => ({
+    title: 'countdown',
+    fields: [
+      { key: 'label', label: 'label', kind: 'text', placeholder: 'what…' },
+      { key: 'date', label: 'target date', kind: 'text', placeholder: 'YYYY-MM-DD' },
+    ],
+    load: () => {
+      const d = readJson('startpage-widget-countdown');
+      return { label: d?.label && d.label !== 'countdown' ? String(d.label) : '', date: d?.date ?? '' };
+    },
+    save: (v) => {
+      const date = String(v.date ?? '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(new Date(`${date}T00:00:00`).getTime())) throw new Error('use YYYY-MM-DD');
+      writeJson('startpage-widget-countdown', { label: String(v.label ?? '').trim() || 'countdown', date });
+    },
+  }),
   weather: () => ({
     title: 'weather location',
     fields: [{ key: 'city', label: 'city (blank = gps)', kind: 'geocity', placeholder: 'city name…' }],
