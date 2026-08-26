@@ -97,24 +97,71 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
     if (!ctx) return;
     let w = window.innerWidth;
     let h = window.innerHeight;
-    let dpr = Math.min(window.devicePixelRatio, 1.5);
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    type Star = { x: number; y: number; r: number; a: number; sp: number; ph: number; c: RGB };
+    const TAU = Math.PI * 2;
+    let gradDirty = true;
+    let skyGrad: CanvasGradient | null = null;
+    type Star = { x: number; y: number; r: number; a: number; sp: number; ph: number; ci: number };
     let stars: Star[] = [];
+    const STAR_COLS: RGB[] = [[255, 255, 255], [207, 222, 255], [255, 233, 201]];
+    const TIERS = [
+      { fps: 60, cloud: 150000, dpr: 1.5, stars: 240 },
+      { fps: 30, cloud: 100000, dpr: 1.2, stars: 170 },
+      { fps: 24, cloud: 64000, dpr: 1, stars: 110 },
+    ];
+    let tier = 0;
+    let powerSave = false;
+    let frameInt = 1000 / TIERS[0].fps;
+    let cloudBudget = TIERS[0].cloud;
+    let starMax = TIERS[0].stars;
+    let dprCap = TIERS[0].dpr;
+    let dpr = 1;
+    let sprites: HTMLCanvasElement[] = [];
+    const makeSprites = () => {
+      sprites = STAR_COLS.map((c) => {
+        const cv = document.createElement('canvas');
+        cv.width = 32;
+        cv.height = 32;
+        const g = cv.getContext('2d')!;
+        const gr = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+        gr.addColorStop(0, css(c, 1));
+        gr.addColorStop(0.5, css(c, 0.8));
+        gr.addColorStop(1, css(c, 0));
+        g.fillStyle = gr;
+        g.fillRect(0, 0, 32, 32);
+        return cv;
+      });
+    };
     const seedStars = () => {
-      stars = Array.from({ length: Math.min(240, Math.floor((w * h) / 7000)) }, () => ({
+      stars = Array.from({ length: Math.min(starMax, Math.floor((w * h) / 7000)) }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
         r: 0.3 + Math.random() ** 2 * 1.1,
         a: 0.12 + Math.random() * 0.6,
         sp: 0.3 + Math.random() * 1.4,
-        ph: Math.random() * Math.PI * 2,
-        c: ((): RGB => (Math.random() < 0.72 ? [255, 255, 255] : Math.random() < 0.5 ? [207, 222, 255] : [255, 233, 201]))(),
+        ph: Math.random() * TAU,
+        ci: Math.random() < 0.72 ? 0 : Math.random() < 0.5 ? 1 : 2,
       }));
     };
-    seedStars();
+    const applySize = () => {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, dprCap);
+      canvas.width = Math.max(1, Math.floor(w * dpr));
+      canvas.height = Math.max(1, Math.floor(h * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      gradDirty = true;
+      seedStars();
+      setupCloudBuffer();
+    };
+    const applyTier = () => {
+      const t = TIERS[tier];
+      frameInt = 1000 / t.fps;
+      cloudBudget = t.cloud;
+      starMax = t.stars;
+      dprCap = t.dpr;
+      makeSprites();
+      applySize();
+    };
     const NSIZE = 256;
     const NMASK = NSIZE - 1;
     let fbm: Float32Array | null = null;
@@ -166,9 +213,13 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
     let cloudCtx: CanvasRenderingContext2D | null = null;
     let cloudImg: ImageData | null = null;
     let rowSky: Float32Array | null = null;
+    let rowBuf: Float32Array | null = null;
+    let curRow: Float32Array | null = null;
+    let colU: Float32Array | null = null;
+    let cloudFrames = 0;
     let scrollX = 0;
     const setupCloudBuffer = () => {
-      const scl = Math.min(1, Math.sqrt(150000 / Math.max(1, w * h)));
+      const scl = Math.min(1, Math.sqrt(cloudBudget / Math.max(1, w * h)));
       cloudW = Math.max(2, Math.floor(w * scl));
       cloudH = Math.max(2, Math.floor(h * scl));
       if (!cloudCanvas) {
@@ -180,8 +231,27 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
       cloudCanvas.height = cloudH;
       cloudImg = cloudCtx.createImageData(cloudW, cloudH);
       rowSky = new Float32Array(cloudH * 3);
+      rowBuf = new Float32Array(cloudW);
+      curRow = new Float32Array(cloudW);
+      colU = new Float32Array(cloudW);
+      cloudFrames = 0;
     };
-    setupCloudBuffer();
+    makeSprites();
+    applySize();
+    type BattMgr = { charging: boolean; level: number; addEventListener: (t: string, f: () => void) => void; removeEventListener: (t: string, f: () => void) => void };
+    const battHandlers: Array<[BattMgr, () => void]> = [];
+    (navigator as Navigator & { getBattery?: () => Promise<BattMgr> }).getBattery?.().then((b) => {
+      const upd = () => {
+        powerSave = !b.charging;
+        const floorT = powerSave ? (b.level <= 0.35 ? 2 : 1) : 0;
+        if (tier < floorT) { tier = floorT; applyTier(); }
+        if (!powerSave) upCool = 0;
+      };
+      upd();
+      b.addEventListener('chargingchange', upd);
+      b.addEventListener('levelchange', upd);
+      battHandlers.push([b, upd]);
+    }).catch(() => {});
     type Drop = { x: number; y: number; l: number; v: number };
     let drops: Drop[] = [];
     type Flake = { x: number; y: number; r: number; v: number; ph: number; sw: number; a: number; near: boolean };
@@ -196,14 +266,7 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
       if (resizeQueued) return;
       resizeQueued = true;
       requestAnimationFrame(() => {
-        w = window.innerWidth;
-        h = window.innerHeight;
-        dpr = Math.min(window.devicePixelRatio, 1.5);
-        canvas.width = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        seedStars();
-        setupCloudBuffer();
+        applySize();
         shoots = [];
         resizeQueued = false;
       });
@@ -230,6 +293,7 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
       try { hasWidget = (JSON.parse(localStorage.getItem(WIDGETS_KEY) ?? '[]') as { type: string }[]).some((x) => x?.type === 'weather') } catch {}
       liveWx = !!wx && hasWidget && navigator.onLine && Date.now() - (wx?.at ?? 0) < STALE_MS;
       prof = liveWx && wx ? weatherProfile(wx.code) : weatherProfile(PRESET_CODE[presetRef.current]);
+      gradDirty = true;
     };
     syncWeather();
     const onWxEvent = () => { try { wx = JSON.parse(localStorage.getItem(WEATHER_KEY) ?? 'null') } catch {} ; syncWeather() };
@@ -260,6 +324,7 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
         starF: 1 - smooth(-9, 2, e),
         moonGate: 1 - smooth(-1, 5, e),
       };
+      gradDirty = true;
     };
     recompute();
     const tick = setInterval(recompute, 1000);
@@ -288,15 +353,26 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
       return greyify(c, cc);
     };
     let raf = 0;
-    let last = performance.now();
+    let lastDraw = performance.now() - 100;
     let tSec = 0;
+    let emaLate = 0;
+    let nextEval = performance.now() + 3500;
+    let upCool = 0;
     let pSync = syncRef.current;
     let pTime = timeRef.current;
     let pPreset = presetRef.current;
     const step = (now: number) => {
       raf = requestAnimationFrame(step);
-      const dtms = Math.min(64, now - last);
-      last = now;
+      const elapsed = now - lastDraw;
+      if (elapsed < frameInt - 1.5) return;
+      const dtms = Math.min(64, elapsed);
+      lastDraw = now;
+      emaLate += (dtms - frameInt - emaLate) * 0.06;
+      if (now > nextEval) {
+        nextEval = now + 2500;
+        if (emaLate > 9 && tier < 2) { tier++; applyTier(); emaLate = 0; nextEval = now + 6000; }
+        else if (!powerSave && tier > 0 && emaLate < 1 && now > upCool) { tier--; applyTier(); emaLate = 0; upCool = now + 15000; nextEval = now + 9000; }
+      }
       if (document.hidden) return;
       const dt = dtms / 1000;
       tSec += dt;
@@ -314,9 +390,12 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
       }
       const { elev, az, mElev, mAz, illum, waxing, dayF, twiF, lowF, starF, moonGate } = sky;
       const cc = prof.cloud;
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      for (let i = 0; i <= 6; i++) grad.addColorStop(i / 6, css(skyAt(i / 6)));
-      ctx.fillStyle = grad;
+      if (gradDirty || !skyGrad) {
+        skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+        for (let i = 0; i <= 6; i++) skyGrad.addColorStop(i / 6, css(skyAt(i / 6)));
+        gradDirty = false;
+      }
+      ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, w, h);
       const ox = 0, oy = 0;
       const sunX = azToX(az);
@@ -334,13 +413,14 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
       }
       const sa = starF * (1 - cc * 0.92);
       if (sa > 0.02) {
-        for (const s of stars) {
-          const tw = 0.55 + 0.45 * Math.sin(tSec * s.sp * 2 + s.ph);
-          ctx.fillStyle = css(s.c, s.a * tw * sa);
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.fill();
+        for (let si = 0; si < stars.length; si++) {
+          const s = stars[si];
+          const al = s.a * (0.55 + 0.45 * Math.sin(tSec * s.sp * 2 + s.ph)) * sa;
+          if (al <= 0.02) continue;
+          ctx.globalAlpha = al > 1 ? 1 : al;
+          ctx.drawImage(sprites[s.ci], s.x - s.r, s.y - s.r, s.r * 2, s.r * 2);
         }
+        ctx.globalAlpha = 1;
         if (cc < 0.5 && now >= nextShoot && shoots.length < 2) {
           const dir = Math.random() < 0.5 ? 1 : -1;
           const ang = 0.16 + Math.random() * 0.2;
@@ -409,7 +489,7 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
         ctx.fill();
       }
       const windBoost = liveWx && syncRef.current ? Math.min(3, 0.6 + (wx?.wind ?? 5) / 18) : 1;
-      if (fbm && cloudCtx && cloudImg && rowSky && cc > 0.02) {
+      if (fbm && cloudCtx && cloudImg && rowSky && colU && cc > 0.02) {
         const data = cloudImg.data;
         const lo = 0.6 - cc * 0.46;
         const inv = 1 / 0.2;
@@ -418,7 +498,9 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
           return tt <= 0 ? 0 : tt >= 1 ? 1 : tt * tt * (3 - 2 * tt);
         };
         const dayK = Math.max(dayF, starF * 0.22);
-        const bright: RGB = [mixC([0.34, 0.4, 0.55], [1, 0.95, 0.82], dayK)[0] * 255, mixC([0.34, 0.4, 0.55], [1, 0.95, 0.82], dayK)[1] * 255, mixC([0.34, 0.4, 0.55], [1, 0.95, 0.82], dayK)[2] * 255];
+        const br = (0.34 + 0.66 * dayK) * 255;
+        const bg2 = (0.4 + 0.55 * dayK) * 255;
+        const bb2 = (0.55 + 0.27 * dayK) * 255;
         const dark: RGB = mixC([10, 14, 24], [92, 104, 122], dayF);
         const amb: RGB = mixC([26, 33, 51], [233, 243, 250], Math.max(dayF * 0.95, twiF * 0.55));
         const litFloor = 0.15 + 0.48 * Math.max(dayF, twiF * 0.7);
@@ -435,7 +517,11 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
         scrollX = (scrollX + dt * 16 * windBoost) % (w * 2.3);
         const tw = w * 2.3, th = h * 1.35;
         const fu = NSIZE / tw, fv = NSIZE / th;
+        const cheap = tier >= 1;
+        const sCol = Math.max(-16, Math.min(16, Math.round((Ldx * cloudW) / NSIZE)));
+        for (let cx = 0; cx < cloudW; cx++) colU![cx] = ((cx / (cloudW - 1)) * tw + scrollX) * fu;
         for (let cy = 0; cy < cloudH; cy++) {
+          const rb = rowBuf!;
           const ny = cy / (cloudH - 1);
           const skR = rowSky[cy * 3], skG = rowSky[cy * 3 + 1], skB = rowSky[cy * 3 + 2];
           const distF = smooth(0.52, 0.95, ny);
@@ -443,7 +529,7 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
           const v1 = ny * th * fv;
           const fogK = distF * (0.55 + 0.2 * cc);
           for (let cx = 0; cx < cloudW; cx++) {
-            const u1 = ((cx / (cloudW - 1)) * tw + scrollX) * fu;
+            const u1 = colU![cx];
             const qw = (sampleF(u1 * 0.5 + 47, v1 * 0.5 + 89) - 0.5) * 16;
             const uW = u1 + qw, vW = v1 + qw * 0.6;
             const d1raw = sampleF(uW, vW);
@@ -455,24 +541,28 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
             const aN = Math.min(1, d1 * 1.7) * (1 - distF * 0.3);
             const aF = Math.min(1, d2 * 1.5) * (1 - distF * 0.5) * 0.8;
             const i = (cy * cloudW + cx) * 4;
+            curRow![cx] = d1;
             if (aN < 0.004 && aF < 0.004) { data[i + 3] = 0; continue }
-            const dif = Math.min(1, Math.max(0, (d1 - shape(sampleF(uW + Ldx * fu, vW + Ldy * fv))) / 0.3 + 0.18));
-            const bmod = 1 + (sampleF(u1 * 3 + 211, v1 * 3 - 163) - 0.5) * 0.24;
+            const pj = cx + sCol;
+            const pvi = pj < 0 ? 0 : pj >= cloudW ? cloudW - 1 : pj;
+            const pv = cheap ? (cloudFrames > 0 ? rb[pvi] : d1) : shape(sampleF(uW + Ldx * fu, vW + Ldy * fv));
+            const dif = Math.min(1, Math.max(0, (d1 - pv) / 0.3 + 0.18));
+            const bmod = cheap ? 1 : 1 + (sampleF(u1 * 3 + 211, v1 * 3 - 163) - 0.5) * 0.24;
             const dm = Math.min(1, d1 * 1.25);
             const lr = Math.max(litFloor * 0.92, amb[0] / 255 + (sunCol[0] / 255) * dif * sunI * sunTint[0]);
             const lg = Math.max(litFloor, amb[1] / 255 + (sunCol[1] / 255) * dif * sunI * sunTint[1]);
             const lb = Math.max(litFloor * 1.06, amb[2] / 255 + (sunCol[2] / 255) * dif * sunI * sunTint[2]);
-            let cn_r = (bright[0] + (dark[0] - bright[0]) * dm) * lr * bmod;
-            let cn_g = (bright[1] + (dark[1] - bright[1]) * dm) * lg * bmod;
-            let cn_b = (bright[2] + (dark[2] - bright[2]) * dm) * lb * bmod;
+            let cn_r = (br + (dark[0] - br) * dm) * lr * bmod;
+            let cn_g = (bg2 + (dark[1] - bg2) * dm) * lg * bmod;
+            let cn_b = (bb2 + (dark[2] - bb2) * dm) * lb * bmod;
             cn_r += (skR - cn_r) * fogK; cn_g += (skG - cn_g) * fogK; cn_b += (skB - cn_b) * fogK;
             const df = Math.min(1, d2 * 1.25);
             const fr = Math.max(litFloor * 0.92, amb[0] / 255 + (sunCol[0] / 255) * dif * sunI * 0.7 * sunTint[0]);
             const fg2 = Math.max(litFloor, amb[1] / 255 + (sunCol[1] / 255) * dif * sunI * 0.7 * sunTint[1]);
             const fb3 = Math.max(litFloor * 1.06, amb[2] / 255 + (sunCol[2] / 255) * dif * sunI * 0.7 * sunTint[2]);
-            let cf_r = (bright[0] + (dark[0] - bright[0]) * df) * fr * bmod;
-            let cf_g = (bright[1] + (dark[1] - bright[1]) * df) * fg2 * bmod;
-            let cf_b = (bright[2] + (dark[2] - bright[2]) * df) * fb3 * bmod;
+            let cf_r = (br + (dark[0] - br) * df) * fr * bmod;
+            let cf_g = (bg2 + (dark[1] - bg2) * df) * fg2 * bmod;
+            let cf_b = (bb2 + (dark[2] - bb2) * df) * fb3 * bmod;
             const fogF2 = Math.min(1, fogK * 1.6);
             cf_r += (skR - cf_r) * fogF2; cf_g += (skG - cf_g) * fogF2; cf_b += (skB - cf_b) * fogF2;
             const oa = aN + aF * (1 - aN);
@@ -481,8 +571,12 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
             data[i + 2] = (cn_b * aN + cf_b * aF * (1 - aN)) / oa;
             data[i + 3] = oa * 255;
           }
+          const tmpR = curRow!;
+          curRow = rowBuf;
+          rowBuf = tmpR;
         }
         cloudCtx.putImageData(cloudImg, 0, 0);
+        cloudFrames++;
         if (cloudCanvas) ctx.drawImage(cloudCanvas, 0, 0, w, h);
       }
       if (prof.rain > 0) {
@@ -520,23 +614,32 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
           });
         }
         while (flakes.length > want) flakes.splice(0, flakes.length - want);
+        const pSh = new Path2D();
+        const pFar = new Path2D();
+        const pMid = new Path2D();
+        const pNear = new Path2D();
         for (const f of flakes) {
           f.y += f.v * dt;
           f.ph += dt * (f.near ? 1.1 : 0.7);
           f.x += Math.sin(f.ph) * f.sw * dt;
           if (f.y > h + 8) { f.y = -8; f.x = Math.random() * w }
           if (f.x > w + 10) f.x -= w + 20;
+          const p = f.near ? pNear : f.a === 0.72 ? pMid : pFar;
+          p.moveTo(f.x + f.r, f.y);
+          p.arc(f.x, f.y, f.r, 0, TAU);
           if (f.near) {
-            ctx.fillStyle = 'rgba(96,116,148,0.3)';
-            ctx.beginPath();
-            ctx.arc(f.x + f.r * 0.45, f.y + f.r * 0.6, f.r, 0, Math.PI * 2);
-            ctx.fill();
+            pSh.moveTo(f.x + f.r * 0.45 + f.r, f.y + f.r * 0.6);
+            pSh.arc(f.x + f.r * 0.45, f.y + f.r * 0.6, f.r, 0, TAU);
           }
-          ctx.fillStyle = `rgba(${f.near ? '255,255,255' : '240,246,253'},${f.a})`;
-          ctx.beginPath();
-          ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-          ctx.fill();
         }
+        ctx.fillStyle = 'rgba(96,116,148,0.3)';
+        ctx.fill(pSh);
+        ctx.fillStyle = 'rgba(240,246,253,0.48)';
+        ctx.fill(pFar);
+        ctx.fillStyle = 'rgba(240,246,253,0.72)';
+        ctx.fill(pMid);
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.fill(pNear);
       } else flakes = [];
       if (prof.fog > 0) {
         const fogCol = mixC([200, 208, 222], mixC(NIGHT_H, DAY_H, dayF), 0.35);
@@ -569,6 +672,10 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
       window.removeEventListener('sp-weather-data', onWxEvent);
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOnline);
+      for (const [bm, f] of battHandlers) {
+        bm.removeEventListener('chargingchange', f);
+        bm.removeEventListener('levelchange', f);
+      }
     };
   }, []);
   return (
