@@ -28,7 +28,7 @@ import TextUtils from './TextUtils';
 import Lorem from './Lorem';
 import Wordle from './Wordle';
 import Stats from './Stats';
-import ImageWidget from './ImageWidget';
+import Image from './Image';
 const MIN_W = 120;
 const MIN_H = 80;
 const HANDLE = 12;
@@ -61,7 +61,7 @@ function renderWidget(w: WidgetInstance) {
     case 'textutils': return <TextUtils />;
     case 'lorem': return <Lorem height={w.height} />;
     case 'stats': return <Stats height={w.height} />;
-    case 'image': return <ImageWidget id={w.id} width={w.width} height={w.height} />;
+    case 'image': return <Image id={w.id} width={w.width} height={w.height} />;
     default: return null;
   }
 }

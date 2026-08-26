@@ -82,14 +82,16 @@ function solarPos(lat: number, lon: number, date: Date) {
   const illum = (1 - Math.cos(elong)) / 2;
   return { sun, moon, illum, waxing: ((elong / DEG + 360) % 360) < 180 };
 }
-export default function DynamicBackground({ sync = true, manualTime = 12, manualWeather = 'clear' }: { sync?: boolean; manualTime?: number; manualWeather?: ManualWeather }) {
+export default function DynamicBackground({ sync = true, manualTime = 12, manualWeather = 'clear', specialEffects = true }: { sync?: boolean; manualTime?: number; manualWeather?: ManualWeather; specialEffects?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const syncRef = useRef(sync);
   const timeRef = useRef(manualTime);
   const presetRef = useRef(manualWeather);
+  const fxRef = useRef(specialEffects);
   useEffect(() => { syncRef.current = sync }, [sync]);
   useEffect(() => { timeRef.current = manualTime }, [manualTime]);
   useEffect(() => { presetRef.current = manualWeather }, [manualWeather]);
+  useEffect(() => { fxRef.current = specialEffects }, [specialEffects]);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -656,7 +658,7 @@ export default function DynamicBackground({ sync = true, manualTime = 12, manual
           ctx.restore();
         }
       }
-      if (prof.storm && now > nextFlash) { flash = 0.5 + Math.random() * 0.3; nextFlash = now + 3800 + Math.random() * 7500 }
+      if (prof.storm && fxRef.current && now > nextFlash) { flash = 0.5 + Math.random() * 0.3; nextFlash = now + 3800 + Math.random() * 7500 }
       if (flash > 0.005) {
         ctx.fillStyle = `rgba(240,244,255,${flash.toFixed(3)})`;
         ctx.fillRect(0, 0, w, h);

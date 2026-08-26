@@ -17,7 +17,7 @@ function save(id: string, v: ImageDef): string | null {
     return quota ? 'storage full; use a url instead of a file' : 'could not save image settings';
   }
 }
-export default function ImageWidget({ id }: { id: string; width: number; height: number }) {
+export default function Image({ id }: { id: string; width: number; height: number }) {
   const [src, setSrc] = useState('');
   const [fit, setFit] = useState<'cover' | 'contain' | 'fill'>('cover');
   const [link, setLink] = useState('');

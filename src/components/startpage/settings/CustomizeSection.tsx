@@ -113,6 +113,9 @@ export default function CustomizeSection({ config, logoText, logoSrc, openIds, t
               <Row label="sync with time &amp; weather">
                 <Toggle checked={bg.sync !== false} onChange={(value) => applyBackground({ ...bg, sync: value })} />
               </Row>
+              <Row label="special effects">
+                <Toggle checked={bg.specialEffects !== false} onChange={(value) => applyBackground({ ...bg, specialEffects: value })} />
+              </Row>
               {bg.sync === false && (
                 <>
                   <Row label="time">
