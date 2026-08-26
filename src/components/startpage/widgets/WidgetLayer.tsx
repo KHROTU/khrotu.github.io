@@ -37,7 +37,7 @@ type GuideLine = { orientation: 'v' | 'h'; pos: number; from: number; to: number
 function renderWidget(w: WidgetInstance) {
   switch (w.type) {
     case 'clock': return <Clock width={w.width} height={w.height} />;
-    case 'notes': return <Notes />;
+    case 'notes': return <Notes id={w.id} />;
     case 'todo': return <Todo />;
     case 'pomodoro': return <Pomodoro width={w.width} height={w.height} />;
     case 'timer': return <Timer width={w.width} height={w.height} />;

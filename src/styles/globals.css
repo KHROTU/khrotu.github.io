@@ -54,9 +54,11 @@ body {
   font-family: 'Hyperlegible Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-html {
-  scrollbar-width: thin;
-  scrollbar-color: #333 transparent;
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
+  }
 }
 ::-webkit-scrollbar {
   width: 6px;

@@ -1,22 +1,35 @@
 import { useEffect, useRef, useState } from 'react';
-const KEY = 'startpage-widget-notes';
-export default function Notes() {
+const KEY = 'startpage-widget-notes-v2';
+const LEGACY_KEY = 'startpage-widget-notes';
+export default function Notes({ id }: { id: string }) {
   const [text, setText] = useState('');
   const loadedRef = useRef(false);
   useEffect(() => {
-    const apply = () => setText(localStorage.getItem(KEY) ?? '');
-    apply();
+    try {
+      const map = JSON.parse(localStorage.getItem(KEY) ?? '{}');
+      let v: string | undefined = map[id];
+      if (v === undefined) {
+        const legacy = localStorage.getItem(LEGACY_KEY);
+        if (legacy !== null && Object.keys(map).length === 0) {
+          v = legacy;
+          map[id] = v;
+          localStorage.setItem(KEY, JSON.stringify(map));
+        } else v = '';
+      }
+      setText(v ?? '');
+    } catch {
+      setText('');
+    }
     loadedRef.current = true;
-    window.addEventListener('sp-widget-config-changed', apply);
-    return () => window.removeEventListener('sp-widget-config-changed', apply);
-  }, []);
+  }, [id]);
   const onChange = (v: string) => {
     setText(v);
-    if (loadedRef.current) {
-      try {
-        localStorage.setItem(KEY, v);
-      } catch {}
-    }
+    if (!loadedRef.current) return;
+    try {
+      const map = JSON.parse(localStorage.getItem(KEY) ?? '{}');
+      map[id] = v;
+      localStorage.setItem(KEY, JSON.stringify(map));
+    } catch {}
   };
   return (
     <textarea
